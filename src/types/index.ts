@@ -85,27 +85,48 @@ export interface OrderItem {
   subtotal: number;
 }
 
+export interface OrderHubInfo {
+  id: string;
+  name: string;
+  address: string;
+  ward: string;
+  district: string;
+  city: string;
+}
+
 export enum OrderStatus {
-  Pending = 'Pending',
-  Confirmed = 'Confirmed',
-  Shipping = 'Shipping',
-  Delivered = 'Delivered',
-  Cancelled = 'Cancelled',
+  Pending      = 'Pending',
+  Confirmed    = 'Confirmed',
+  Shipping     = 'Shipping',
+  ArrivedAtHub = 'ArrivedAtHub',
+  Delivered    = 'Delivered',
+  Cancelled    = 'Cancelled',
+  Refunded     = 'Refunded',
 }
 
 export interface Order {
   id: string;
-  userId: string;
-  userFullName: string;
+  userId?: string;
+  userFullName?: string;
+  customerEmail?: string;
   status: OrderStatus;
   totalAmount: number;
   note?: string;
-  receiverName: string;
-  phoneNumber: string;
-  shippingAddress: string;
+  hub: OrderHubInfo;
   items: OrderItem[];
   createdAt: string;
-  updatedAt: string;
+  cancelReason?: string;
+  confirmedAt?: string;
+  shippingAt?: string;
+  arrivedAtHubAt?: string;
+  deliveredAt?: string;
+  cancelledAt?: string;
+  refundedAt?: string;
+  canConfirm?: boolean;
+  canShip?: boolean;
+  canArriveAtHub?: boolean;
+  canDeliver?: boolean;
+  canCancel?: boolean;
 }
 
 export interface OrderFilterParams {
@@ -113,6 +134,9 @@ export interface OrderFilterParams {
   pageSize?: number;
   status?: OrderStatus;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortByAmount?: 'asc' | 'desc';
 }
 
 export interface UpdateOrderStatusRequest {

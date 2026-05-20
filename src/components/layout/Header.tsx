@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, User, LogOut, Package, Search, MapPin, LayoutDashboard, X, ChevronDown } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Package, Search, MapPin, LayoutDashboard, Truck, UserCog, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
@@ -18,7 +18,7 @@ import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 
 export function Header() {
   const router = useRouter();
-  const { user, logout, isAuthenticated, isAdmin } = useAuthStore();
+  const { user, logout, isAuthenticated, isAdmin, isAgent, isDriver } = useAuthStore();
   const { currentHub, clearHub } = useHubStore();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
@@ -134,6 +134,24 @@ export function Header() {
                     <DropdownMenuItem onClick={() => router.push('/admin')}>
                       <LayoutDashboard className="mr-2 h-4 w-4 text-emerald-600" />
                       <span className="text-emerald-600 font-medium">Quản trị</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {isAgent() && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/agent')}>
+                      <UserCog className="mr-2 h-4 w-4 text-indigo-600" />
+                      <span className="text-indigo-600 font-medium">Cổng Agent</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {isDriver() && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/driver')}>
+                      <Truck className="mr-2 h-4 w-4 text-purple-600" />
+                      <span className="text-purple-600 font-medium">Cổng Tài xế</span>
                     </DropdownMenuItem>
                   </>
                 )}

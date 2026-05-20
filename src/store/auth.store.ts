@@ -14,6 +14,8 @@ interface AuthState {
   logout: () => void;
   isAuthenticated: () => boolean;
   isAdmin: () => boolean;
+  isAgent: () => boolean;
+  isDriver: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -31,6 +33,8 @@ export const useAuthStore = create<AuthState>()(
       },
       isAuthenticated: () => !!get().token,
       isAdmin: () => get().user?.role === 'Admin',
+      isAgent: () => get().user?.role === 'Agent',
+      isDriver: () => get().user?.role === 'Driver',
     }),
     { name: 'auth-storage', skipHydration: true }
   )

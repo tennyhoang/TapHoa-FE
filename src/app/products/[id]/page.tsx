@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, ShoppingCart, ArrowLeft, Package, Shield, Truck, RotateCcw } from 'lucide-react';
+import { Star, ShoppingCart, Zap, ArrowLeft, Package, Shield, Truck, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -43,6 +43,15 @@ export default function ProductDetailPage() {
     onError: () => toast.error('Thêm vào giỏ thất bại'),
   });
 
+  const buyNowMutation = useMutation({
+    mutationFn: () => cartService.add(id, quantity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      router.push('/checkout');
+    },
+    onError: () => toast.error('Không thể thêm vào giỏ hàng'),
+  });
+
   const addReviewMutation = useMutation({
     mutationFn: () => productService.addReview(id, rating, comment),
     onSuccess: () => {
@@ -61,6 +70,15 @@ export default function ProductDetailPage() {
       return;
     }
     addToCartMutation.mutate();
+  };
+
+  const handleBuyNow = () => {
+    if (!isAuthenticated()) {
+      toast.error('Vui lòng đăng nhập để mua hàng');
+      router.push('/auth/login');
+      return;
+    }
+    buyNowMutation.mutate();
   };
 
   if (isLoading) {
@@ -184,11 +202,20 @@ export default function ProductDetailPage() {
               </div>
               <Button
                 onClick={handleAddToCart}
-                disabled={addToCartMutation.isPending}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-12 text-base font-bold rounded-xl transition-colors"
+                disabled={addToCartMutation.isPending || buyNowMutation.isPending}
+                variant="outline"
+                className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50 h-12 text-base font-bold rounded-xl transition-colors"
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                {addToCartMutation.isPending ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+                {addToCartMutation.isPending ? 'Đang thêm...' : 'Thêm vào giỏ'}
+              </Button>
+              <Button
+                onClick={handleBuyNow}
+                disabled={buyNowMutation.isPending || addToCartMutation.isPending}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-12 text-base font-bold rounded-xl transition-colors"
+              >
+                <Zap className="h-5 w-5 mr-2" />
+                {buyNowMutation.isPending ? 'Đang xử lý...' : 'Mua ngay'}
               </Button>
             </div>
           ) : (

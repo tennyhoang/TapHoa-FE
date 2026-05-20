@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Package } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { OrderCard } from '@/components/orders/OrderCard';
 import { OrderStatusFilter } from '@/components/orders/OrderStatusFilter';
 import { orderService } from '@/services/order.service';
@@ -18,6 +21,10 @@ export default function OrdersPage() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(undefined);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortByAmount, setSortByAmount] = useState<'asc' | 'desc' | ''>('');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
@@ -25,8 +32,13 @@ export default function OrdersPage() {
   }, [mounted]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['my-orders', statusFilter],
-    queryFn: () => orderService.getMyOrders({ status: statusFilter }),
+    queryKey: ['my-orders', statusFilter, dateFrom, dateTo, sortByAmount],
+    queryFn: () => orderService.getMyOrders({
+      status: statusFilter,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      sortByAmount: sortByAmount || undefined,
+    }),
     enabled: mounted && isAuthenticated(),
   });
 
@@ -39,6 +51,14 @@ export default function OrdersPage() {
     onError: () => toast.error('Không thể hủy đơn hàng này'),
   });
 
+  const hasActiveFilters = !!dateFrom || !!dateTo || !!sortByAmount;
+
+  const clearFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setSortByAmount('');
+  };
+
   if (!mounted) return null;
 
   return (
@@ -46,6 +66,80 @@ export default function OrdersPage() {
       <h1 className="text-2xl font-bold">Đơn hàng của tôi</h1>
 
       <OrderStatusFilter value={statusFilter} onChange={setStatusFilter} />
+
+      {/* Advanced filters toggle */}
+      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setShowFilters(v => !v)}
+          className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+        >
+          <span className="flex items-center gap-2 font-medium">
+            Lọc nâng cao
+            {hasActiveFilters && (
+              <span className="bg-emerald-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5">
+                Đang lọc
+              </span>
+            )}
+          </span>
+          {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+
+        {showFilters && (
+          <div className="px-4 pb-4 space-y-4 border-t border-gray-100">
+            <div className="grid grid-cols-2 gap-3 pt-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-gray-500">Từ ngày</Label>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={e => setDateFrom(e.target.value)}
+                  className="text-sm h-9"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-gray-500">Đến ngày</Label>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={e => setDateTo(e.target.value)}
+                  className="text-sm h-9"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500">Sắp xếp theo giá</Label>
+              <div className="flex gap-2">
+                {[
+                  { value: '',    label: 'Mặc định' },
+                  { value: 'desc', label: 'Cao → Thấp' },
+                  { value: 'asc',  label: 'Thấp → Cao' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSortByAmount(opt.value as '' | 'asc' | 'desc')}
+                    className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors font-medium ${
+                      sortByAmount === opt.value
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-red-500 hover:text-red-600 hover:bg-red-50 w-full">
+                Xóa bộ lọc
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
 
       {isLoading ? (
         <div className="space-y-3">
@@ -55,7 +149,7 @@ export default function OrdersPage() {
         <div className="text-center py-20 space-y-3">
           <Package className="h-16 w-16 text-gray-300 mx-auto" />
           <p className="text-gray-500">
-            {statusFilter ? 'Không có đơn hàng nào với trạng thái này' : 'Bạn chưa có đơn hàng nào'}
+            {statusFilter || hasActiveFilters ? 'Không có đơn hàng nào phù hợp' : 'Bạn chưa có đơn hàng nào'}
           </p>
         </div>
       ) : (

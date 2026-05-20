@@ -66,9 +66,11 @@ export default function OrderDetailPage() {
       </div>
 
       <div className="bg-white rounded-lg p-4 shadow-sm space-y-2">
-        <h2 className="font-semibold">Địa chỉ giao hàng</h2>
-        <p className="text-sm font-medium">{order.receiverName} — {order.phoneNumber}</p>
-        <p className="text-sm text-gray-500">{order.shippingAddress}</p>
+        <h2 className="font-semibold">Điểm nhận hàng</h2>
+        <p className="text-sm font-medium">{order.hub?.name}</p>
+        <p className="text-sm text-gray-500">
+          {order.hub ? `${order.hub.address}, ${order.hub.ward}, ${order.hub.district}, ${order.hub.city}` : ''}
+        </p>
       </div>
 
       <div className="bg-white rounded-lg p-4 shadow-sm space-y-3">

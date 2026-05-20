@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ChevronDown, ChevronUp, MapPin, Phone, User, StickyNote, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin, StickyNote, AlertTriangle, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
@@ -12,14 +12,15 @@ import { orderService } from '@/services/order.service';
 import { Order, OrderStatus } from '@/types';
 import { formatPrice, formatDate } from '@/lib/format';
 
-// .NET serializes enums as integers by default (Pending=0, Confirmed=1, …).
-// This map converts those numbers to our string-enum values.
+// BE uses JsonStringEnumConverter so responses are strings, but keep numeric fallback
 const STATUS_FROM_NUMBER: Record<number, OrderStatus> = {
   0: OrderStatus.Pending,
   1: OrderStatus.Confirmed,
   2: OrderStatus.Shipping,
-  3: OrderStatus.Delivered,
-  4: OrderStatus.Cancelled,
+  3: OrderStatus.ArrivedAtHub,
+  4: OrderStatus.Delivered,
+  5: OrderStatus.Cancelled,
+  6: OrderStatus.Refunded,
 };
 
 function resolveStatus(raw: unknown): OrderStatus {
@@ -31,24 +32,13 @@ function resolveStatus(raw: unknown): OrderStatus {
   );
 }
 
-// ─── Status machine ───────────────────────────────────────────────────────────
+// ─── Admin can only confirm Pending orders and cancel Pending/Confirmed ────────
 
-const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  [OrderStatus.Pending]:   [OrderStatus.Confirmed, OrderStatus.Cancelled],
-  [OrderStatus.Confirmed]: [OrderStatus.Shipping,  OrderStatus.Cancelled],
-  [OrderStatus.Shipping]:  [OrderStatus.Delivered],
-  [OrderStatus.Delivered]: [],
-  [OrderStatus.Cancelled]: [],
-};
-
-interface ActionCfg { label: string; className: string }
-const ACTION_CONFIG: Record<OrderStatus, ActionCfg | null> = {
-  [OrderStatus.Pending]:   null,
-  [OrderStatus.Confirmed]: { label: 'Xác nhận',  className: 'bg-blue-500   hover:bg-blue-600   text-white' },
-  [OrderStatus.Shipping]:  { label: 'Giao hàng', className: 'bg-purple-500 hover:bg-purple-600 text-white' },
-  [OrderStatus.Delivered]: { label: 'Đã giao',   className: 'bg-green-500  hover:bg-green-600  text-white' },
-  [OrderStatus.Cancelled]: { label: 'Hủy đơn',   className: 'bg-white hover:bg-red-50 text-red-500 border border-red-200 hover:border-red-300' },
-};
+function getAdminActions(status: OrderStatus): { confirm?: true; cancel?: true } {
+  if (status === OrderStatus.Pending)   return { confirm: true, cancel: true };
+  if (status === OrderStatus.Confirmed) return { cancel: true };
+  return {};
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -57,34 +47,38 @@ interface Props { order: Order }
 export function AdminOrderRow({ order }: Props) {
   const queryClient = useQueryClient();
   const [expanded,      setExpanded]      = useState(false);
-  const [confirmStatus, setConfirmStatus] = useState<OrderStatus | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
-  // Normalize status: handles numeric (.NET default) and string variants
   const status = resolveStatus(order.status);
+  const actions = getAdminActions(status);
 
-  const updateMutation = useMutation({
-    mutationFn: (next: OrderStatus) => orderService.updateOrderStatus(order.id, next),
+  const confirmMutation = useMutation({
+    mutationFn: () => orderService.updateOrderStatus(order.id, OrderStatus.Confirmed),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast.success('Cập nhật trạng thái thành công');
-      setConfirmStatus(null);
+      toast.success('Đã xác nhận đơn hàng');
+    },
+    onError: () => toast.error('Xác nhận thất bại'),
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: () => orderService.updateOrderStatus(order.id, OrderStatus.Cancelled),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast.success('Đã hủy đơn hàng');
+      setConfirmCancel(false);
     },
     onError: () => {
-      toast.error('Cập nhật thất bại');
-      setConfirmStatus(null);
+      toast.error('Hủy đơn thất bại');
+      setConfirmCancel(false);
     },
   });
 
-  const nextStatuses = STATUS_TRANSITIONS[status];
-  const isTerminal   = status === OrderStatus.Delivered || status === OrderStatus.Cancelled;
+  const hubAddress = order.hub
+    ? `${order.hub.address}, ${order.hub.ward}, ${order.hub.district}, ${order.hub.city}`
+    : '';
 
-  const handleAction = (next: OrderStatus) => {
-    if (next === OrderStatus.Cancelled) {
-      setConfirmStatus(next);
-    } else {
-      updateMutation.mutate(next);
-    }
-  };
+  const isPending = confirmMutation.isPending || cancelMutation.isPending;
 
   return (
     <>
@@ -100,8 +94,10 @@ export function AdminOrderRow({ order }: Props) {
 
         {/* Customer */}
         <td className="px-5 py-4">
-          <p className="font-semibold text-gray-800 text-sm leading-snug">{order.receiverName}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{order.phoneNumber}</p>
+          <p className="font-semibold text-gray-800 text-sm leading-snug">
+            {order.userFullName ?? '—'}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">{order.customerEmail ?? ''}</p>
         </td>
 
         {/* Date */}
@@ -116,30 +112,36 @@ export function AdminOrderRow({ order }: Props) {
           </span>
         </td>
 
-        {/* Status — use resolved status so the badge always styles correctly */}
+        {/* Status */}
         <td className="px-5 py-4 text-center">
           <OrderStatusBadge status={status} />
         </td>
 
-        {/* Actions */}
+        {/* Actions — Admin: Confirm (Pending) + Cancel (Pending/Confirmed) */}
         <td className="px-5 py-4">
           <div className="flex gap-1.5 justify-end items-center flex-wrap">
-            {!isTerminal && nextStatuses.map(next => {
-              const cfg = ACTION_CONFIG[next];
-              if (!cfg) return null;
-              const isPendingThis = updateMutation.isPending && updateMutation.variables === next;
-              return (
-                <button
-                  key={next}
-                  disabled={updateMutation.isPending}
-                  onClick={() => handleAction(next)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
-                    disabled:opacity-50 disabled:cursor-not-allowed shadow-sm ${cfg.className}`}
-                >
-                  {isPendingThis ? '...' : cfg.label}
-                </button>
-              );
-            })}
+            {actions.confirm && (
+              <button
+                disabled={isPending}
+                onClick={() => confirmMutation.mutate()}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed shadow-sm
+                  bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                {confirmMutation.isPending ? '...' : 'Xác nhận'}
+              </button>
+            )}
+            {actions.cancel && (
+              <button
+                disabled={isPending}
+                onClick={() => setConfirmCancel(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed shadow-sm
+                  bg-white hover:bg-red-50 text-red-500 border border-red-200 hover:border-red-300"
+              >
+                Hủy đơn
+              </button>
+            )}
 
             <button
               onClick={() => setExpanded(e => !e)}
@@ -162,29 +164,34 @@ export function AdminOrderRow({ order }: Props) {
           <td colSpan={6} className="px-5 pt-1 pb-4">
             <div className="bg-white rounded-xl border border-gray-100 p-5 grid md:grid-cols-2 gap-6 text-sm">
 
-              {/* Shipping info */}
+              {/* Hub info */}
               <div className="space-y-3">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Thông tin giao hàng
+                  Điểm nhận hàng
                 </p>
                 <div className="space-y-2.5">
                   <div className="flex items-center gap-2.5 text-gray-700">
                     <div className="w-7 h-7 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
                       <User className="h-3.5 w-3.5 text-gray-400" />
                     </div>
-                    <span className="font-medium">{order.receiverName}</span>
+                    <span className="font-medium">{order.userFullName ?? '—'}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-gray-600">
-                    <div className="w-7 h-7 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                      <Phone className="h-3.5 w-3.5 text-gray-400" />
+                  {order.customerEmail && (
+                    <div className="flex items-center gap-2.5 text-gray-600">
+                      <div className="w-7 h-7 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                        <Mail className="h-3.5 w-3.5 text-gray-400" />
+                      </div>
+                      <span>{order.customerEmail}</span>
                     </div>
-                    <span>{order.phoneNumber}</span>
-                  </div>
+                  )}
                   <div className="flex items-start gap-2.5 text-gray-600">
                     <div className="w-7 h-7 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 mt-0.5">
                       <MapPin className="h-3.5 w-3.5 text-gray-400" />
                     </div>
-                    <span className="leading-relaxed">{order.shippingAddress}</span>
+                    <div>
+                      <p className="font-medium text-gray-800">{order.hub?.name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{hubAddress}</p>
+                    </div>
                   </div>
                   {order.note && (
                     <div className="flex items-start gap-2.5 bg-amber-50 rounded-lg px-3 py-2">
@@ -229,7 +236,7 @@ export function AdminOrderRow({ order }: Props) {
       )}
 
       {/* ── Cancel confirm dialog ── */}
-      <Dialog open={confirmStatus !== null} onOpenChange={open => !open && setConfirmStatus(null)}>
+      <Dialog open={confirmCancel} onOpenChange={open => !open && setConfirmCancel(false)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <div className="flex items-center gap-3">
@@ -245,25 +252,25 @@ export function AdminOrderRow({ order }: Props) {
             <span className="font-mono font-bold text-gray-700">
               #{order.id.slice(0, 8).toUpperCase()}
             </span>{' '}
-            của khách <span className="font-semibold text-gray-700">{order.receiverName}</span>?
+            của khách <span className="font-semibold text-gray-700">{order.userFullName ?? '—'}</span>?
             Hành động này không thể hoàn tác.
           </p>
 
           <div className="flex gap-2 justify-end mt-5">
             <Button
               variant="outline" size="sm" className="rounded-lg"
-              onClick={() => setConfirmStatus(null)}
-              disabled={updateMutation.isPending}
+              onClick={() => setConfirmCancel(false)}
+              disabled={cancelMutation.isPending}
             >
               Bỏ qua
             </Button>
             <Button
               size="sm"
               className="bg-red-500 hover:bg-red-600 text-white rounded-lg"
-              disabled={updateMutation.isPending}
-              onClick={() => confirmStatus && updateMutation.mutate(confirmStatus)}
+              disabled={cancelMutation.isPending}
+              onClick={() => cancelMutation.mutate()}
             >
-              {updateMutation.isPending ? 'Đang xử lý...' : 'Xác nhận hủy'}
+              {cancelMutation.isPending ? 'Đang xử lý...' : 'Xác nhận hủy'}
             </Button>
           </div>
         </DialogContent>

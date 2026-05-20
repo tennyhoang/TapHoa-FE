@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   CheckCircle2, Copy, Banknote, ShoppingBag,
-  ArrowRight, ClipboardList, Building2,
+  ArrowRight, ClipboardList, Building2, MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -16,13 +16,13 @@ import { formatPrice, formatDate } from '@/lib/format';
 import { toast } from 'sonner';
 
 const BANK_INFO = {
-  bankName: 'MB Bank',
-  accountNumber: '0123456789',
+  bankName:      'MB Bank',
+  accountNumber: '0785680242',
   accountHolder: 'CONG TY TNHH TAPHOA SACH',
 };
 
 function transferNote(orderId: string) {
-  return `TAPHOA ${orderId.slice(-8).toUpperCase()}`;
+  return `TAPHOA${orderId.slice(-8).toUpperCase()}`;
 }
 
 function copyText(text: string, label: string) {
@@ -76,6 +76,9 @@ function SuccessContent() {
   }
 
   const note = transferNote(orderId);
+  const hubAddress = order
+    ? `${order.hub.address}, ${order.hub.ward}, ${order.hub.district}, ${order.hub.city}`
+    : '';
 
   return (
     <div className="max-w-lg mx-auto py-10 px-4 space-y-6">
@@ -111,18 +114,37 @@ function SuccessContent() {
               </div>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Người nhận</span>
-              <span className="font-medium text-gray-800">{order.receiverName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Số điện thoại</span>
-              <span className="font-medium text-gray-800">{order.phoneNumber}</span>
-            </div>
-            <div className="flex justify-between">
               <span className="text-gray-500">Ngày đặt</span>
               <span className="font-medium text-gray-800">{formatDate(order.createdAt)}</span>
             </div>
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-gray-500 shrink-0 flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5" />
+                Điểm nhận
+              </span>
+              <div className="text-right">
+                <p className="font-medium text-gray-800">{order.hub.name}</p>
+                <p className="text-xs text-gray-400">{hubAddress}</p>
+              </div>
+            </div>
+
             <Separator />
+
+            {/* Product list */}
+            <div className="space-y-2">
+              {order.items.map((item, i) => (
+                <div key={`${item.productId}-${i}`} className="flex justify-between text-xs">
+                  <span className="text-gray-600 line-clamp-1 flex-1">
+                    {item.productName}
+                    <span className="text-gray-400 ml-1">×{item.quantity}</span>
+                  </span>
+                  <span className="font-medium text-gray-800 ml-2 shrink-0">{formatPrice(item.subtotal)}</span>
+                </div>
+              ))}
+            </div>
+
+            <Separator />
+
             <div className="flex justify-between font-bold">
               <span>Tổng thanh toán</span>
               <span className="text-emerald-600 text-base">{formatPrice(order.totalAmount)}</span>
@@ -141,13 +163,25 @@ function SuccessContent() {
             <span className="font-semibold text-sm text-blue-900">Thông tin chuyển khoản</span>
           </div>
 
+          {/* VietQR */}
+          {order && (
+            <div className="flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://img.vietqr.io/image/mbbank-${BANK_INFO.accountNumber}-compact2.jpg?amount=${order.totalAmount}&addInfo=${encodeURIComponent(note)}`}
+                alt="VietQR chuyển khoản"
+                className="rounded-xl border border-blue-100 max-w-[220px] w-full"
+              />
+            </div>
+          )}
+
           <div className="space-y-3 text-sm">
             {[
-              { label: 'Ngân hàng',        value: BANK_INFO.bankName,        canCopy: false },
-              { label: 'Số tài khoản',     value: BANK_INFO.accountNumber,   canCopy: true  },
-              { label: 'Chủ tài khoản',    value: BANK_INFO.accountHolder,   canCopy: false },
-              { label: 'Số tiền',          value: order ? formatPrice(order.totalAmount) : '—', canCopy: false },
-              { label: 'Nội dung CK',      value: note,                      canCopy: true  },
+              { label: 'Ngân hàng',     value: BANK_INFO.bankName,        canCopy: false },
+              { label: 'Số tài khoản',  value: BANK_INFO.accountNumber,   canCopy: true  },
+              { label: 'Chủ tài khoản', value: BANK_INFO.accountHolder,   canCopy: false },
+              { label: 'Số tiền',       value: order ? formatPrice(order.totalAmount) : '—', canCopy: false },
+              { label: 'Nội dung CK',   value: note,                      canCopy: true  },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-blue-100">
                 <span className="text-blue-700">{row.label}</span>
