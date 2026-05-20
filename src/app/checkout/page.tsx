@@ -1,0 +1,461 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import {
+  ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
+  Banknote, CreditCard, Minus, Plus, Trash2, ChevronRight,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
+import { cartService } from '@/services/cart.service';
+import { orderService, CreateOrderRequest } from '@/services/order.service';
+import { useAuthStore } from '@/store/auth.store';
+import { useHubStore } from '@/store/hub.store';
+import { Cart } from '@/types';
+import { formatPrice } from '@/lib/format';
+
+type PaymentMethod = 'COD' | 'BankTransfer';
+
+type CheckoutForm = {
+  receiverName: string;
+  phoneNumber: string;
+};
+
+const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
+  { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
+  { value: 'BankTransfer', label: 'Chuyển khoản ngân hàng',   sub: 'VNPAY / Ngân hàng',           Icon: CreditCard },
+];
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
+  const { currentHub } = useHubStore();
+  const queryClient = useQueryClient();
+
+  const [mounted, setMounted]             = useState(false);
+  const [note, setNote]                   = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
+  const [hubDialogOpen, setHubDialogOpen] = useState(false);
+
+  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>();
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { data: cart, isLoading: cartLoading } = useQuery({
+    queryKey: ['cart'],
+    queryFn: cartService.get,
+    enabled: mounted && isAuthenticated(),
+  });
+
+  // ── Optimistic qty update ──────────────────────────────────────────────────
+  const updateMutation = useMutation({
+    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) =>
+      cartService.update(productId, quantity),
+    onMutate: async ({ productId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: ['cart'] });
+      const prev = queryClient.getQueryData<Cart>(['cart']);
+      queryClient.setQueryData<Cart>(['cart'], old => {
+        if (!old) return old;
+        const items = old.items.map(item =>
+          item.productId === productId
+            ? { ...item, quantity, subtotal: Number(item.unitPrice) * quantity }
+            : item
+        );
+        return { items, totalAmount: items.reduce((s, i) => s + Number(i.subtotal), 0) };
+      });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['cart'], ctx.prev);
+      toast.error('Cập nhật thất bại');
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
+  });
+
+  // ── Optimistic remove ──────────────────────────────────────────────────────
+  const removeMutation = useMutation({
+    mutationFn: (productId: string) => cartService.remove(productId),
+    onMutate: async (productId) => {
+      await queryClient.cancelQueries({ queryKey: ['cart'] });
+      const prev = queryClient.getQueryData<Cart>(['cart']);
+      queryClient.setQueryData<Cart>(['cart'], old => {
+        if (!old) return old;
+        const items = old.items.filter(i => i.productId !== productId);
+        return { items, totalAmount: items.reduce((s, i) => s + Number(i.subtotal), 0) };
+      });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['cart'], ctx.prev);
+      toast.error('Xóa sản phẩm thất bại');
+    },
+    onSuccess: () => toast.success('Đã xóa sản phẩm'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
+  });
+
+  // ── Create order ───────────────────────────────────────────────────────────
+  const createOrderMutation = useMutation({
+    mutationFn: (form: CheckoutForm) => {
+      const payload: CreateOrderRequest = {
+        hubId:         currentHub!.id,
+        receiverName:  form.receiverName,
+        phoneNumber:   form.phoneNumber,
+        paymentMethod,
+        note:          note || undefined,
+      };
+      return orderService.create(payload);
+    },
+    onSuccess: (order) => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      router.push(`/checkout/success?orderId=${order.id}&payment=${paymentMethod}`);
+    },
+    onError: () => toast.error('Đặt hàng thất bại, vui lòng thử lại'),
+  });
+
+  const onSubmit = (form: CheckoutForm) => {
+    if (!currentHub) {
+      toast.error('Vui lòng chọn điểm nhận hàng');
+      return;
+    }
+    createOrderMutation.mutate(form);
+  };
+
+  // ── Guards ─────────────────────────────────────────────────────────────────
+  if (!mounted) return null;
+
+  if (cartLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-6 grid lg:grid-cols-[1fr_420px] gap-6">
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-44 rounded-xl" />
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-36 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!cart?.items.length) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
+        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+          <ShoppingBag className="h-10 w-10 text-gray-300" />
+        </div>
+        <div>
+          <p className="text-lg font-semibold text-gray-800">Giỏ hàng trống</p>
+          <p className="text-sm text-gray-400 mt-1">Thêm sản phẩm vào giỏ để tiếp tục mua sắm</p>
+        </div>
+        <Button asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-8">
+          <Link href="/">Khám phá sản phẩm</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const itemCount = cart.items.reduce((s, i) => s + i.quantity, 0);
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Giỏ hàng & Thanh toán</h1>
+        <p className="text-sm text-gray-400 mt-0.5">Kiểm tra sản phẩm và hoàn tất thông tin để đặt hàng</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="grid lg:grid-cols-[1fr_420px] gap-6 items-start">
+
+          {/* ── Left: Cart items ── */}
+          <div className="space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4 text-emerald-600" />
+                  <h2 className="font-semibold text-sm text-gray-800">Sản phẩm ({itemCount})</h2>
+                </div>
+                <Link href="/" className="text-xs text-emerald-600 hover:underline flex items-center gap-0.5">
+                  Thêm sản phẩm <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              <div className="divide-y divide-gray-50">
+                {cart.items.map(item => {
+                  const isUpdating = updateMutation.isPending && updateMutation.variables?.productId === item.productId;
+                  const isRemoving = removeMutation.isPending && removeMutation.variables === item.productId;
+
+                  return (
+                    <div
+                      key={item.productId}
+                      className={`flex items-center gap-4 px-5 py-4 transition-opacity ${isRemoving ? 'opacity-40' : ''}`}
+                    >
+                      <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-100 shrink-0 bg-gray-50">
+                        {item.thumbnailUrl ? (
+                          <Image
+                            src={item.thumbnailUrl}
+                            alt={item.productName}
+                            width={56} height={56}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xl">🥬</div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 text-sm leading-snug line-clamp-2">
+                          {item.productName}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">{formatPrice(item.unitPrice)} / cái</p>
+                      </div>
+
+                      {/* Qty stepper */}
+                      <div className={`flex items-center border border-gray-200 rounded-lg overflow-hidden shrink-0 ${isUpdating ? 'opacity-60' : ''}`}>
+                        <button
+                          type="button"
+                          disabled={item.quantity <= 1 || isUpdating}
+                          onClick={() => updateMutation.mutate({ productId: item.productId, quantity: item.quantity - 1 })}
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="w-8 text-center text-sm font-semibold text-gray-800 select-none border-x border-gray-200">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={isUpdating}
+                          onClick={() => updateMutation.mutate({ productId: item.productId, quantity: item.quantity + 1 })}
+                          className="w-8 h-8 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 transition-colors"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="text-right shrink-0 space-y-1.5 min-w-[70px]">
+                        <p className="font-bold text-emerald-600 text-sm">{formatPrice(item.subtotal)}</p>
+                        <button
+                          type="button"
+                          disabled={isRemoving}
+                          onClick={() => removeMutation.mutate(item.productId)}
+                          className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30"
+                          aria-label="Xóa sản phẩm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-emerald-700">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Miễn phí vận chuyển đến trạm hub của bạn</span>
+            </div>
+          </div>
+
+          {/* ── Right: Checkout form ── */}
+          <div className="lg:sticky lg:top-6 space-y-4">
+
+            {/* 1. Receiver info */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+                <h3 className="font-semibold text-gray-800 text-sm">Thông tin người nhận</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-gray-600">Họ và tên *</Label>
+                  <Input
+                    {...register('receiverName', { required: 'Vui lòng nhập họ tên' })}
+                    placeholder="Nguyễn Văn A"
+                    className="h-9 text-sm"
+                  />
+                  {errors.receiverName && (
+                    <p className="text-xs text-red-500">{errors.receiverName.message}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-gray-600">Số điện thoại *</Label>
+                  <Input
+                    {...register('phoneNumber', {
+                      required: 'Vui lòng nhập số điện thoại',
+                      pattern: { value: /^[0-9]{9,11}$/, message: 'Số điện thoại không hợp lệ' },
+                    })}
+                    placeholder="0912345678"
+                    inputMode="tel"
+                    className="h-9 text-sm"
+                  />
+                  {errors.phoneNumber && (
+                    <p className="text-xs text-red-500">{errors.phoneNumber.message}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Hub picker */}
+            <div className={`rounded-xl border-2 p-4 transition-colors ${
+              currentHub ? 'border-emerald-500 bg-emerald-50' : 'border-amber-300 bg-amber-50'
+            }`}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                  currentHub ? 'bg-emerald-600 text-white' : 'bg-amber-400 text-white'
+                }`}>2</span>
+                <h3 className="font-semibold text-gray-800 text-sm">Điểm nhận hàng</h3>
+              </div>
+
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                  {currentHub
+                    ? <MapPin className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                    : <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  }
+                  <div className="min-w-0">
+                    {currentHub ? (
+                      <>
+                        <p className="font-semibold text-sm text-gray-900 truncate">{currentHub.name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{currentHub.address}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-sm text-amber-700">Chưa chọn trạm</p>
+                        <p className="text-xs text-amber-600 mt-0.5">Vui lòng chọn hub gần bạn</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHubDialogOpen(true)}
+                  className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex items-center gap-1 ${
+                    currentHub
+                      ? 'bg-white border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
+                      : 'bg-amber-400 border-amber-400 text-white hover:bg-amber-500'
+                  }`}
+                >
+                  <Pencil className="h-3 w-3" />
+                  {currentHub ? 'Đổi' : 'Chọn'}
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Payment method */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
+                <h3 className="font-semibold text-gray-800 text-sm">Phương thức thanh toán</h3>
+              </div>
+              <div className="space-y-2">
+                {PAYMENT_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPaymentMethod(opt.value)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-colors ${
+                      paymentMethod === opt.value
+                        ? 'border-emerald-500 bg-emerald-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      paymentMethod === opt.value ? 'bg-emerald-100' : 'bg-gray-50'
+                    }`}>
+                      <opt.Icon className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-emerald-600' : 'text-gray-400'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}>
+                        {opt.label}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">{opt.sub}</p>
+                    </div>
+                    <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                      paymentMethod === opt.value ? 'border-emerald-500' : 'border-gray-300'
+                    }`}>
+                      {paymentMethod === opt.value && (
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Note */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs font-bold flex items-center justify-center shrink-0">4</span>
+                <h3 className="font-semibold text-gray-800 text-sm">Ghi chú đơn hàng</h3>
+              </div>
+              <textarea
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 transition-colors"
+                rows={2}
+                placeholder="Ghi chú thêm (tuỳ chọn)..."
+                value={note}
+                onChange={e => setNote(e.target.value)}
+              />
+            </div>
+
+            {/* 5. Summary + Submit */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-gray-500">
+                  <span>Tạm tính ({itemCount} sản phẩm)</span>
+                  <span className="font-medium text-gray-700">{formatPrice(cart.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-gray-500">
+                  <span>Phí vận chuyển</span>
+                  <span className="text-emerald-600 font-medium">Miễn phí</span>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-baseline">
+                <span className="font-bold text-gray-800">Tổng thanh toán</span>
+                <span className="text-2xl font-black text-emerald-600">{formatPrice(cart.totalAmount)}</span>
+              </div>
+
+              {!currentHub && (
+                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  Vui lòng chọn điểm nhận hàng để tiếp tục
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={createOrderMutation.isPending}
+                className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
+              >
+                {createOrderMutation.isPending ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+              </Button>
+
+              <p className="text-xs text-center text-gray-400">
+                Bằng cách đặt hàng, bạn đồng ý với điều khoản sử dụng
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </form>
+
+      <HubPickerDialog open={hubDialogOpen} onOpenChange={setHubDialogOpen} />
+    </div>
+  );
+}

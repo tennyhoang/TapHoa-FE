@@ -1,0 +1,1 @@
+{"sessionId":"d2aa51","runId":"post-fix","hypothesisId":"A,E","location":"api.ts:request","message":"category request outgoing","data":{"method":"get","url":"/categories","baseURL":"http://localhost:5084/api/v1","hasToken":true,"jwtRole":"Admin","hasAuthHeader":true},"timestamp":1779098111855}
