@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Truck, CheckCircle2, MapPin } from 'lucide-react';
+import { Package, Truck, CheckCircle2, MapPin, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
@@ -17,6 +17,7 @@ export default function DriverPage() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
@@ -98,6 +99,18 @@ export default function DriverPage() {
         </div>
       ) : (
         <div className="space-y-2">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm theo mã đơn hàng..."
+              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+            />
+          </div>
+
           <div className="flex items-center gap-3 px-1 pb-1">
             <button
               type="button"
@@ -111,7 +124,9 @@ export default function DriverPage() {
             </span>
           </div>
 
-          {orders.items.map(order => (
+          {orders.items.filter(o =>
+            !search || o.id.toLowerCase().includes(search.toLowerCase())
+          ).map(order => (
             <div
               key={order.id}
               onClick={() => toggleSelect(order.id)}

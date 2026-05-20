@@ -28,10 +28,17 @@ export default function LoginPage() {
       login(res.accessToken, res.email, res.fullName, res.role);
       toast.success('Đăng nhập thành công!');
       router.push('/');
-    } catch (error: any) {
-      console.log('[Login error] status :', error.response?.status);
-      console.log('[Login error] data   :', error.response?.data);
-      toast.error('Email hoặc mật khẩu không đúng');
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: { message?: string } } };
+      const status = err?.response?.status;
+      const msg = err?.response?.data?.message;
+      if (status === 401 || status === 404) {
+        toast.error(msg ?? 'Email hoặc mật khẩu không đúng');
+      } else if (status === 409) {
+        toast.error('Lỗi kết nối đến máy chủ, vui lòng thử lại');
+      } else {
+        toast.error(msg ?? 'Đăng nhập thất bại, vui lòng thử lại');
+      }
     } finally {
       setLoading(false);
     }

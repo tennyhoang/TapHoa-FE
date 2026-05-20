@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, MapPin, CheckCircle2, Truck } from 'lucide-react';
+import { Package, MapPin, CheckCircle2, Truck, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
@@ -18,6 +18,7 @@ export default function AgentPage() {
   const { isAuthenticated, isAgent } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
@@ -65,6 +66,18 @@ export default function AgentPage() {
         <p className="text-sm text-gray-500 mt-1">Quản lý đơn hàng tại Hub của bạn</p>
       </div>
 
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm theo mã đơn hàng..."
+          className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+        />
+      </div>
+
       {/* ── Shipping → ArrivedAtHub ── */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
@@ -86,7 +99,9 @@ export default function AgentPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {shippingOrders.items.map(order => (
+            {shippingOrders.items.filter(o =>
+              !search || o.id.toLowerCase().includes(search.toLowerCase())
+            ).map(order => (
               <div key={order.id} className="bg-white border border-gray-100 rounded-xl p-4 flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -139,7 +154,9 @@ export default function AgentPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {arrivedOrders.items.map(order => (
+            {arrivedOrders.items.filter(o =>
+              !search || o.id.toLowerCase().includes(search.toLowerCase())
+            ).map(order => (
               <div key={order.id} className="bg-white border border-indigo-100 rounded-xl p-4 flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

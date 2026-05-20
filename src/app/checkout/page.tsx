@@ -10,15 +10,18 @@ import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
   Banknote, CreditCard, Minus, Plus, Trash2, ChevronRight,
+  BookUser, ChevronDown, QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 import { cartService } from '@/services/cart.service';
 import { orderService, CreateOrderRequest } from '@/services/order.service';
+import { addressService } from '@/services/address.service';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
 import { Cart } from '@/types';
@@ -30,6 +33,8 @@ type CheckoutForm = {
   receiverName: string;
   phoneNumber: string;
 };
+
+const BANK = { id: 'mbbank', account: '0785680242', name: 'CONG TY TNHH TAPHOA SACH' };
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
   { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
@@ -46,8 +51,11 @@ export default function CheckoutPage() {
   const [note, setNote]                   = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
   const [hubDialogOpen, setHubDialogOpen] = useState(false);
+  const [addrOpen, setAddrOpen]           = useState(false);
+  const [qrOpen, setQrOpen]               = useState(false);
+  const [pendingForm, setPendingForm]     = useState<CheckoutForm | null>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CheckoutForm>();
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -58,6 +66,12 @@ export default function CheckoutPage() {
   const { data: cart, isLoading: cartLoading } = useQuery({
     queryKey: ['cart'],
     queryFn: cartService.get,
+    enabled: mounted && isAuthenticated(),
+  });
+
+  const { data: addresses } = useQuery({
+    queryKey: ['addresses'],
+    queryFn: addressService.getAll,
     enabled: mounted && isAuthenticated(),
   });
 
@@ -121,6 +135,7 @@ export default function CheckoutPage() {
     },
     onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      setQrOpen(false);
       router.push(`/checkout/success?orderId=${order.id}&payment=${paymentMethod}`);
     },
     onError: () => toast.error('Đặt hàng thất bại, vui lòng thử lại'),
@@ -131,7 +146,12 @@ export default function CheckoutPage() {
       toast.error('Vui lòng chọn điểm nhận hàng');
       return;
     }
-    createOrderMutation.mutate(form);
+    if (paymentMethod === 'BankTransfer') {
+      setPendingForm(form);
+      setQrOpen(true);
+    } else {
+      createOrderMutation.mutate(form);
+    }
   };
 
   // ── Guards ─────────────────────────────────────────────────────────────────
@@ -277,10 +297,56 @@ export default function CheckoutPage() {
 
             {/* 1. Receiver info */}
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
-                <h3 className="font-semibold text-gray-800 text-sm">Thông tin người nhận</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+                  <h3 className="font-semibold text-gray-800 text-sm">Thông tin người nhận</h3>
+                </div>
+
+                {/* Address picker trigger */}
+                {addresses && addresses.length > 0 && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setAddrOpen(v => !v)}
+                      className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                    >
+                      <BookUser className="h-3.5 w-3.5" />
+                      Địa chỉ đã lưu
+                      <ChevronDown className={`h-3 w-3 transition-transform ${addrOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {addrOpen && (
+                      <div className="absolute z-10 top-full right-0 mt-1.5 w-72 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                        {addresses.map(addr => (
+                          <button
+                            key={addr.id}
+                            type="button"
+                            onClick={() => {
+                              setValue('receiverName', addr.receiverName, { shouldValidate: true });
+                              setValue('phoneNumber', addr.phoneNumber, { shouldValidate: true });
+                              setAddrOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-emerald-50 border-b border-gray-50 last:border-0 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-semibold text-gray-800">{addr.receiverName}</p>
+                              {addr.isDefault && (
+                                <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Mặc định</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">{addr.phoneNumber}</p>
+                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                              {addr.streetAddress}, {addr.ward}, {addr.district}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-gray-600">Họ và tên *</Label>
@@ -443,7 +509,11 @@ export default function CheckoutPage() {
                 disabled={createOrderMutation.isPending}
                 className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
               >
-                {createOrderMutation.isPending ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+                {createOrderMutation.isPending
+                  ? 'Đang xử lý...'
+                  : paymentMethod === 'BankTransfer'
+                    ? 'Tiếp tục thanh toán'
+                    : 'Xác nhận đặt hàng'}
               </Button>
 
               <p className="text-xs text-center text-gray-400">
@@ -456,6 +526,79 @@ export default function CheckoutPage() {
       </form>
 
       <HubPickerDialog open={hubDialogOpen} onOpenChange={setHubDialogOpen} />
+
+      {/* ── BankTransfer QR Modal ── */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5 text-emerald-600" />
+              Thanh toán chuyển khoản
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Bank info */}
+            <div className="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Ngân hàng</span>
+                <span className="font-semibold text-gray-800">MB Bank</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Số tài khoản</span>
+                <span className="font-mono font-bold text-gray-900">{BANK.account}</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-500 shrink-0">Chủ tài khoản</span>
+                <span className="font-semibold text-gray-800 text-right text-xs">{BANK.name}</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between">
+                <span className="text-gray-500">Số tiền</span>
+                <span className="font-black text-emerald-600 text-base">{formatPrice(cart?.totalAmount ?? 0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Nội dung CK</span>
+                <span className="font-mono font-bold text-sm text-gray-800">THANH TOAN TAPHOA</span>
+              </div>
+            </div>
+
+            {/* QR code */}
+            <div className="flex justify-center">
+              <img
+                src={`https://img.vietqr.io/image/${BANK.id}-${BANK.account}-compact2.jpg?amount=${cart?.totalAmount ?? 0}&addInfo=${encodeURIComponent('THANH TOAN TAPHOA')}`}
+                alt="QR chuyển khoản"
+                className="w-52 h-52 rounded-xl border border-gray-200"
+              />
+            </div>
+
+            <p className="text-xs text-center text-gray-400 leading-relaxed">
+              Quét mã QR bằng app ngân hàng để thanh toán.<br />
+              Sau khi chuyển khoản thành công, nhấn xác nhận bên dưới.
+            </p>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setQrOpen(false)}
+                disabled={createOrderMutation.isPending}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                onClick={() => pendingForm && createOrderMutation.mutate(pendingForm)}
+                disabled={createOrderMutation.isPending}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+              >
+                {createOrderMutation.isPending ? 'Đang xử lý...' : 'Tôi đã thanh toán'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
