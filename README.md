@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TapHoa FE
 
-## Getting Started
+Frontend của nền tảng thương mại điện tử nông sản tươi sạch **TapHoa**, theo mô hình **O2O (Online-to-Offline)**: khách hàng đặt hàng online và đến điểm Hub gần nhất để nhận hàng.
 
-First, run the development server:
+> **Backend repo:** [TapHoa-BE](https://github.com/tennyhoang/TapHoa-BE)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Tech Stack
+
+| | |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 + shadcn/ui |
+| State management | Zustand (auth, hub selection) |
+| Server state | TanStack Query v5 |
+| HTTP client | Axios + JWT interceptor |
+| Notifications | Sonner |
+
+---
+
+## Tính năng
+
+- **Xác thực** — Đăng ký / Đăng nhập JWT, tự động đính kèm Bearer token
+- **Chọn Hub** — Chọn điểm nhận hàng gần nhất; `hubId` lưu vào Zustand dùng lúc checkout
+- **Danh mục sản phẩm** — Lọc theo category, sắp xếp, `isNew` (hàng mới), `isDiscount` (khuyến mãi)
+- **Giỏ hàng** — Quản lý server-side với TanStack Query
+- **Thanh toán** — COD hoặc chuyển khoản ngân hàng; trang success với hướng dẫn CK
+- **Theo dõi đơn hàng** — Timeline trạng thái đầy đủ
+- **Hồ sơ** — Lịch sử đơn hàng, sổ địa chỉ
+- **Admin** — Quản lý đơn hàng, sản phẩm, danh mục, người dùng
+
+---
+
+## Cấu trúc thư mục
+
+```
+src/
+├── app/                  # Next.js App Router pages
+│   ├── admin/            # Trang quản trị
+│   ├── auth/             # Đăng nhập / Đăng ký
+│   ├── cart/
+│   ├── checkout/
+│   ├── products/[id]/
+│   └── profile/
+├── components/
+│   ├── admin/
+│   ├── cart/
+│   ├── hub/              # HubPickerDialog
+│   ├── layout/           # Header, Footer
+│   ├── orders/
+│   ├── products/
+│   └── ui/               # shadcn/ui components
+├── services/             # Axios API calls
+├── store/                # Zustand stores (auth, hub)
+├── types/                # TypeScript types dùng chung
+└── lib/                  # Axios instance, format helpers
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Cài đặt & Chạy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Yêu cầu
+- Node.js 20+
+- Backend đang chạy tại `http://localhost:5084`
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Mở [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Biến môi trường
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tạo file `.env.local`:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5084/api/v1
+```
