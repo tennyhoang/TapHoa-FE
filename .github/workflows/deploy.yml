@@ -1,96 +1,250 @@
-name: CI/CD
+# =============================================================================
+# CI/CD Pipeline — TapHoa Frontend  (Next.js → Vercel)
+# =============================================================================
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  LUỒNG KIỂM DUYỆT (Branch Strategy)                                    │
+# │                                                                         │
+# │   dev ──PR──► staging ──PR──► main                                     │
+# │    │              │             │                                       │
+# │   push           push          push (chỉ xảy ra khi PR được merged)    │
+# │   CI + CD Dev    CI + CD Stg   CI + CD Prod                            │
+# │                                                                         │
+# │  Khi PR đang mở (chưa merge): chỉ chạy CI để Leader review code       │
+# │  Khi PR được merge: chạy CI rồi mới CD                                 │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# ──────────────────────────────────────────────────────────────────────────
+# [BẮT BUỘC] CÀI ĐẶT THỦ CÔNG TRÊN GITHUB REPO TRƯỚC KHI DÙNG FILE NÀY
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 1. BRANCH PROTECTION RULES (Settings → Branches → Add rule):
+#
+#    Nhánh `main`:
+#      ✅ Require a pull request before merging
+#         └ Require approvals: 1  ← Leader phải Approve
+#      ✅ Require status checks to pass before merging
+#         └ Thêm check: "CI — Lint · TypeCheck · Build"
+#      ✅ Do not allow bypassing the above settings
+#      ✅ Restrict who can push to matching branches (chỉ Leader)
+#         → Chặn tuyệt đối push trực tiếp vào main
+#
+#    Nhánh `staging`:
+#      ✅ Require a pull request before merging
+#      ✅ Require status checks: "CI — Lint · TypeCheck · Build"
+#
+# 2. GITHUB ENVIRONMENTS (Settings → Environments → New environment):
+#
+#    Tạo 3 environments: development  |  staging  |  production
+#
+#    Environment `production` (quan trọng nhất):
+#      ✅ Required reviewers: [tên Leader]
+#         → Thêm tầng bảo vệ: ngay cả khi PR đã merge, Leader vẫn phải
+#           bấm "Review deployments" trên GitHub UI để CD thực sự chạy
+#      ✅ Deployment branches: Selected branches → main
+#
+# 3. SECRETS CẦN THÊM VÀO TỪNG ENVIRONMENT:
+#
+#    Environment `development`:
+#      • VERCEL_TOKEN      — Vercel API token (lấy từ vercel.com/account/tokens)
+#      • VERCEL_ORG_ID     — ID tổ chức trên Vercel
+#      • VERCEL_PROJECT_ID — ID project trên Vercel
+#      • NEXT_PUBLIC_API_URL = https://dev-api.taphoa.vn  ← BE dev URL
+#
+#    Environment `staging`:
+#      • VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID  (giống dev)
+#      • NEXT_PUBLIC_API_URL = https://staging-api.taphoa.vn
+#
+#    Environment `production`:
+#      • VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID  (giống dev)
+#      • NEXT_PUBLIC_API_URL = https://api.taphoa.vn  ← URL thật production
+#
+# =============================================================================
+
+name: CI/CD — TapHoa FE
 
 on:
+  # ── Trigger A: Push lên các nhánh chính ─────────────────────────────────
+  # • dev     → CI + CD Development  (push trực tiếp từ dev)
+  # • staging → CI + CD Staging      (xảy ra khi PR dev→staging được merged)
+  # • main    → CI + CD Production   (xảy ra khi PR staging→main được merged)
+  #             ⚠ Với branch protection, push trực tiếp vào main là BẤT KHẢ THI
   push:
-    branches: [dev, staging, master]
+    branches:
+      - dev
+      - staging
+      - main
+
+  # ── Trigger B: Mở hoặc cập nhật Pull Request ────────────────────────────
+  # Khi ai đó mở PR nhắm vào staging hoặc main:
+  #   → Chỉ chạy job "ci" để kiểm tra code
+  #   → Các job deploy có điều kiện if: event_name == 'push' sẽ bị BỎ QUA
+  #   → Leader dùng kết quả CI để quyết định Approve hay Request Changes
   pull_request:
-    branches: [dev, staging, master]
+    branches:
+      - staging
+      - main
+    types:
+      - opened       # PR vừa được mở
+      - synchronize  # Có commit mới push lên nhánh nguồn của PR
+      - reopened     # PR được mở lại sau khi đóng
+
+# Tự động hủy run cũ trên cùng branch/PR khi có run mới hơn
+# → Tiết kiệm CI minutes, tránh deploy bản cũ đè lên bản mới
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # ── Build & Lint ───────────────────────────────────────────────────────────
-  build:
-    name: Build & Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+  # ===========================================================================
+  # JOB 1: CI — Kiểm tra chất lượng code
+  # ===========================================================================
+  # Chạy với MỌI trigger (push lên bất kỳ nhánh nào + mọi PR mở).
+  # Đây là "gate" duy nhất ngăn code xấu lọt qua — tất cả job CD đều
+  # phụ thuộc vào job này (needs: ci).
+  # ===========================================================================
+  ci:
+    name: CI — Lint · TypeCheck · Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm'         # Cache node_modules dựa trên package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci            # ci thay vì install: đảm bảo dùng đúng phiên bản trong lock file
 
-      - name: Lint
+      # ── Kiểm tra lỗi code style & tiềm ẩn ──────────────────────────────
+      - name: Lint (ESLint)
         run: npm run lint
 
-      - name: Type check
+      # ── Kiểm tra kiểu dữ liệu TypeScript ────────────────────────────────
+      # --noEmit: chỉ kiểm tra, không sinh file output
+      - name: Type check (TypeScript strict)
         run: npx tsc --noEmit
 
-      - name: Build
+      # ── Build thử — xác nhận code biên dịch thành công ──────────────────
+      # Dùng placeholder URL để build luôn pass dù secrets chưa được inject
+      # (trường hợp PR từ fork hoặc CI chạy độc lập không cần CD)
+      # URL thật sẽ được inject vào từng môi trường ở bước CD tương ứng
+      - name: Build (dry-run)
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_TELEMETRY_DISABLED: '1'   # Tắt telemetry Next.js để build nhanh hơn
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api-placeholder.taphoa.vn' }}
 
-  # ── Deploy: Development (dev branch) ──────────────────────────────────────
+
+  # ===========================================================================
+  # JOB 2: CD — Deploy to Development
+  # ===========================================================================
+  # Trigger: push vào nhánh 'dev' (thường là push trực tiếp của dev trong nhóm)
+  # Secrets:  lấy từ GitHub Environment 'development'
+  #           → NEXT_PUBLIC_API_URL sẽ trỏ tới BE dev server
+  # Kết quả: Vercel tạo một preview URL riêng cho môi trường dev
+  # ===========================================================================
   deploy-dev:
-    name: Deploy to Development
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
-    needs: build
+    name: CD — Deploy to Development
+    # Điều kiện kép:
+    #   1. event_name == 'push'       → không chạy khi PR mở (pull_request event)
+    #   2. ref == 'refs/heads/dev'    → chỉ chạy đúng nhánh dev
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: ci             # CI phải xanh trước khi được phép deploy
     runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - uses: actions/checkout@v4
+    environment: development   # GitHub sẽ bốc secrets từ environment 'development'
 
-      - name: Deploy to Vercel (Preview)
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel — Development preview
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-token:      ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          # Không có --prod: Vercel tạo preview URL, không ảnh hưởng production
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-  # ── Deploy: Staging (staging branch) ──────────────────────────────────────
+
+  # ===========================================================================
+  # JOB 3: CD — Deploy to Staging
+  # ===========================================================================
+  # Trigger: push vào nhánh 'staging'
+  #   → Thường xảy ra khi PR dev → staging được Leader merge
+  # Secrets:  lấy từ GitHub Environment 'staging'
+  #           → NEXT_PUBLIC_API_URL trỏ tới BE staging server
+  # Kết quả: Vercel deploy lên URL staging để QA/UAT test
+  # ===========================================================================
   deploy-staging:
-    name: Deploy to Staging
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    needs: build
+    name: CD — Deploy to Staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    needs: ci
     runs-on: ubuntu-latest
-    environment: staging
-    steps:
-      - uses: actions/checkout@v4
+    environment: staging       # GitHub sẽ bốc secrets từ environment 'staging'
 
-      - name: Deploy to Vercel (Staging Preview)
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel — Staging preview
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-token:      ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          # Không có --prod: staging vẫn là preview URL, không phải domain chính
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            --meta environment=staging
 
-  # ── Deploy: Production (master branch) ────────────────────────────────────
+
+  # ===========================================================================
+  # JOB 4: CD — Deploy to Production  ⚠ TẦNG KIỂM DUYỆT CAO NHẤT
+  # ===========================================================================
+  # Trigger: push vào nhánh 'main'
+  #
+  # TẠI SAO ĐÂY LÀ AN TOÀN?
+  #   • Branch protection chặn mọi push trực tiếp vào main
+  #   • Push vào main CHỈ xảy ra khi PR được Approved + Merged bởi Leader
+  #   • Environment 'production' có thể cấu hình "Required reviewers"
+  #     → Ngay cả sau khi merge, CD vẫn phải chờ Leader bấm xác nhận
+  #     trên GitHub UI (Settings → Environments → production → Required reviewers)
+  #
+  # Secrets:  lấy từ GitHub Environment 'production'
+  #           → NEXT_PUBLIC_API_URL trỏ tới BE production server thật
+  # Kết quả: Vercel deploy lên domain chính (--prod flag)
+  # ===========================================================================
   deploy-production:
-    name: Deploy to Production
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    needs: build
+    name: CD — Deploy to Production
+    # Pull_request event: KHÔNG chạy (khi PR đang mở, chờ review)
+    # Push event to main: CHẠY    (khi PR staging→main đã được merge)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: ci
     runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
+    environment: production    # GitHub sẽ bốc secrets từ environment 'production'
+                               # + chặn deploy nếu 'Required reviewers' chưa approve
 
-      - name: Deploy to Vercel (Production)
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel — Production (--prod)
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-token:      ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token:      ${{ secrets.GITHUB_TOKEN }}
+          # --prod: deploy lên production domain thật, không phải preview URL
           vercel-args: >-
             --prod
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
