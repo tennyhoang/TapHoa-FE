@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,26 +13,40 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { categoryService, CategoryPayload } from '@/services/category.service';
 import { Category } from '@/types';
 
-type CategoryForm = { name: string; description: string; imageUrl: string };
+type CategoryForm = { name: string; description: string; imageUrl: string; parentId: string };
 
-function CategoryFormDialog({ category, onClose }: { category?: Category; onClose: () => void }) {
+// ── Form Dialog ───────────────────────────────────────────────────────────────
+
+function CategoryFormDialog({
+  category,
+  parentCategories,
+  onClose,
+}: {
+  category?: Category;
+  parentCategories: Category[];
+  onClose: () => void;
+}) {
   const queryClient = useQueryClient();
   const { register, handleSubmit, control, formState: { errors } } = useForm<CategoryForm>({
     defaultValues: {
-      name: category?.name ?? '',
+      name:        category?.name        ?? '',
       description: category?.description ?? '',
-      imageUrl: category?.imageUrl ?? '',
+      imageUrl:    category?.imageUrl    ?? '',
+      parentId:    category?.parentId    ?? '',
     },
   });
 
   const mutation = useMutation({
     mutationFn: (data: CategoryForm) => {
       const payload: CategoryPayload = {
-        name: data.name,
+        name:        data.name,
         description: data.description || undefined,
-        imageUrl: data.imageUrl || undefined,
+        imageUrl:    data.imageUrl    || undefined,
+        parentId:    data.parentId    || undefined,
       };
-      return category ? categoryService.update(category.id, payload) : categoryService.create(payload);
+      return category
+        ? categoryService.update(category.id, payload)
+        : categoryService.create(payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -43,6 +57,9 @@ function CategoryFormDialog({ category, onClose }: { category?: Category; onClos
     onError: (err: any) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Thao tác thất bại'),
   });
 
+  // Exclude the category being edited from parent options (can't be its own parent)
+  const parentOptions = parentCategories.filter(c => c.id !== category?.id);
+
   return (
     <form onSubmit={handleSubmit(data => mutation.mutate(data))} className="space-y-3">
       <div className="space-y-1">
@@ -50,10 +67,25 @@ function CategoryFormDialog({ category, onClose }: { category?: Category; onClos
         <Input {...register('name', { required: true })} placeholder="Tên danh mục" />
         {errors.name && <p className="text-xs text-red-500">Vui lòng nhập tên</p>}
       </div>
+
+      <div className="space-y-1">
+        <Label>Thuộc danh mục cha</Label>
+        <select
+          {...register('parentId')}
+          className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="">Không có (Là danh mục gốc)</option>
+          {parentOptions.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="space-y-1">
         <Label>Mô tả</Label>
         <Input {...register('description')} placeholder="Mô tả danh mục" />
       </div>
+
       <div className="space-y-1">
         <Label>Ảnh danh mục</Label>
         <Controller
@@ -64,18 +96,40 @@ function CategoryFormDialog({ category, onClose }: { category?: Category; onClos
           )}
         />
       </div>
-      <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={mutation.isPending}>
+
+      <Button
+        type="submit"
+        className="w-full bg-emerald-600 hover:bg-emerald-700"
+        disabled={mutation.isPending}
+      >
         {mutation.isPending ? 'Đang lưu...' : category ? 'Cập nhật' : 'Thêm danh mục'}
       </Button>
     </form>
   );
 }
 
+// ── Tree row helpers ──────────────────────────────────────────────────────────
+
+function LevelBadge({ isChild }: { isChild: boolean }) {
+  return isChild ? (
+    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
+      <ChevronRight className="h-3 w-3" />
+      Danh mục con
+    </span>
+  ) : (
+    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-medium">
+      Danh mục cha
+    </span>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function AdminCategoriesPage() {
   const queryClient = useQueryClient();
   const [editCategory, setEditCategory] = useState<Category | undefined>();
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [createOpen, setCreateOpen]     = useState(false);
+  const [editOpen, setEditOpen]         = useState(false);
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
@@ -92,17 +146,57 @@ export default function AdminCategoriesPage() {
     onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Xóa thất bại'),
   });
 
+  // Build tree: parents first, then attach children beneath each parent.
+  // Works whether the API returns nested children[] or a flat list.
+  const treeRows = useMemo<{ cat: Category; isChild: boolean }[]>(() => {
+    if (!categories) return [];
+
+    // Build lookup by id
+    const byId = new Map(categories.map(c => [c.id, c]));
+
+    // Separate parents (no parentId) from children (has parentId pointing to an existing parent)
+    const parents  = categories.filter(c => !c.parentId || !byId.has(c.parentId));
+    const children = categories.filter(c =>  c.parentId &&  byId.has(c.parentId));
+
+    const childrenByParent = new Map<string, Category[]>();
+    for (const child of children) {
+      const list = childrenByParent.get(child.parentId!) ?? [];
+      list.push(child);
+      childrenByParent.set(child.parentId!, list);
+    }
+
+    const rows: { cat: Category; isChild: boolean }[] = [];
+    for (const parent of parents) {
+      rows.push({ cat: parent, isChild: false });
+      for (const child of (childrenByParent.get(parent.id) ?? [])) {
+        rows.push({ cat: child, isChild: true });
+      }
+    }
+    return rows;
+  }, [categories]);
+
+  // Only top-level categories can be selected as parent
+  const parentCategories = useMemo(
+    () => (categories ?? []).filter(c => !c.parentId),
+    [categories],
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh mục</h1>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700"><Plus className="h-4 w-4 mr-1" />Thêm danh mục</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="h-4 w-4 mr-1" />Thêm danh mục
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Thêm danh mục mới</DialogTitle></DialogHeader>
-            <CategoryFormDialog onClose={() => setCreateOpen(false)} />
+            <CategoryFormDialog
+              parentCategories={parentCategories}
+              onClose={() => setCreateOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -113,23 +207,45 @@ export default function AdminCategoriesPage() {
             <tr>
               <th className="text-left px-4 py-3">Ảnh</th>
               <th className="text-left px-4 py-3">Tên danh mục</th>
+              <th className="text-left px-4 py-3">Cấp độ</th>
               <th className="text-left px-4 py-3">Mô tả</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {isLoading && <tr><td colSpan={4} className="text-center py-8 text-gray-400">Đang tải...</td></tr>}
-            {!isLoading && !categories?.length && <tr><td colSpan={4} className="text-center py-8 text-gray-400">Chưa có danh mục</td></tr>}
-            {categories?.map(cat => (
-              <tr key={cat.id} className="hover:bg-gray-50">
+            {isLoading && (
+              <tr><td colSpan={5} className="text-center py-8 text-gray-400">Đang tải...</td></tr>
+            )}
+            {!isLoading && !treeRows.length && (
+              <tr><td colSpan={5} className="text-center py-8 text-gray-400">Chưa có danh mục</td></tr>
+            )}
+            {treeRows.map(({ cat, isChild }) => (
+              <tr
+                key={cat.id}
+                className={`hover:bg-gray-50 ${isChild ? 'bg-gray-50/50' : ''}`}
+              >
                 <td className="px-4 py-3">
                   {cat.imageUrl ? (
                     <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 object-cover rounded" />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-lg">🏷️</div>
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-lg">
+                      🏷️
+                    </div>
                   )}
                 </td>
-                <td className="px-4 py-3 font-medium">{cat.name}</td>
+                <td className="px-4 py-3 font-medium">
+                  {isChild ? (
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <span className="text-gray-300 pl-2">└─</span>
+                      {cat.name}
+                    </span>
+                  ) : (
+                    <span className="text-gray-900">{cat.name}</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <LevelBadge isChild={isChild} />
+                </td>
                 <td className="px-4 py-3 text-gray-500">{cat.description ?? '—'}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1 justify-end">
@@ -140,7 +256,11 @@ export default function AdminCategoriesPage() {
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => { if (confirm(`Xóa danh mục "${cat.name}"?`)) deleteMutation.mutate(cat.id); }}
+                      onClick={() => {
+                        if (confirm(`Xóa danh mục "${cat.name}"?`)) {
+                          deleteMutation.mutate(cat.id);
+                        }
+                      }}
                       className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-red-500"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -159,6 +279,7 @@ export default function AdminCategoriesPage() {
           {editCategory && (
             <CategoryFormDialog
               category={editCategory}
+              parentCategories={parentCategories}
               onClose={() => { setEditOpen(false); setEditCategory(undefined); }}
             />
           )}

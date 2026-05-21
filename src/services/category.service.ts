@@ -5,6 +5,7 @@ export interface CategoryPayload {
   name: string;
   description?: string;
   imageUrl?: string;
+  parentId?: string;
 }
 
 export const categoryService = {
