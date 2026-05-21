@@ -24,7 +24,10 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');
   }, [mounted]);

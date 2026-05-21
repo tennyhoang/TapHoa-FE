@@ -19,7 +19,10 @@ export default function DriverPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
   }, [mounted]);

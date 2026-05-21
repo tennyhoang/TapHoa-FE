@@ -39,6 +39,7 @@ function CategoryFormDialog({ category, onClose }: { category?: Category; onClos
       toast.success(category ? 'Cập nhật thành công!' : 'Thêm danh mục thành công!');
       onClose();
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Thao tác thất bại'),
   });
 
@@ -87,6 +88,7 @@ export default function AdminCategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Đã xóa danh mục');
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Xóa thất bại'),
   });
 

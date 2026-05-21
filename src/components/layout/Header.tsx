@@ -27,7 +27,8 @@ export function Header() {
 
   useEffect(() => {
     useAuthStore.persist.rehydrate();
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
   useInactivityLogout();
 

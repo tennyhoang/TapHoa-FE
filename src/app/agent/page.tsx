@@ -20,7 +20,10 @@ export default function AgentPage() {
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && (!isAuthenticated() || !isAgent())) router.replace('/');
   }, [mounted]);

@@ -60,6 +60,7 @@ export function ProductFormDialog({ product, categories, onClose }: Props) {
       toast.success(product ? 'Cập nhật thành công!' : 'Thêm sản phẩm thành công!');
       onClose();
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Thao tác thất bại'),
   });
 

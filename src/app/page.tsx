@@ -69,14 +69,18 @@ function HomeContent() {
   const [page, setPage]               = useState(1);
 
   useEffect(() => {
-    setMounted(true);
-    if (urlSearch) { setSearch(urlSearch); setSearchInput(urlSearch); }
-    if (urlSort)   setSortBy(urlSort);
+    const timer = setTimeout(() => {
+      setMounted(true);
+      if (urlSearch) { setSearch(urlSearch); setSearchInput(urlSearch); }
+      if (urlSort)   setSortBy(urlSort);
+    }, 0);
+    return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (urlSearch !== undefined) { setSearch(urlSearch); setSearchInput(urlSearch); }
     if (urlSort) setSortBy(urlSort);
   }, [urlSearch, urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
