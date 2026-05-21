@@ -26,7 +26,10 @@ export default function OrdersPage() {
   const [sortByAmount, setSortByAmount] = useState<'asc' | 'desc' | ''>('');
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');
   }, [mounted]);
