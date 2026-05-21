@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, User, LogOut, Package, Search, MapPin, LayoutDashboard, Truck, UserCog, X, ChevronDown } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Package, Search, MapPin, LayoutDashboard, Truck, UserCog, X, ChevronDown, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
@@ -16,12 +16,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 
+const HOT_KEYWORDS = [
+  'Rau cải sạch',
+  'Trái cây tươi',
+  'Sữa hữu cơ',
+  'Thịt bò Úc',
+  'Hải sản tươi',
+  'Bánh mì nguyên cám',
+];
+
 export function Header() {
   const router = useRouter();
   const { user, logout, isAuthenticated, isAdmin, isAgent, isDriver } = useAuthStore();
   const { currentHub, clearHub } = useHubStore();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [hubDialogOpen, setHubDialogOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +60,14 @@ export function Header() {
     if (search.trim()) {
       router.push(`/?search=${encodeURIComponent(search.trim())}`);
       setSearch('');
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSuggestionClick = (keyword: string) => {
+    router.push(`/?search=${encodeURIComponent(keyword)}`);
+    setSearch('');
+    setShowSuggestions(false);
   };
 
   return (
@@ -74,6 +91,8 @@ export function Header() {
             ref={inputRef}
             value={search}
             onChange={e => setSearch(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setShowSuggestions(false)}
             placeholder="Tìm sản phẩm bạn cần..."
             className="w-full pl-10 pr-10 py-2 rounded-lg text-sm bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 transition-colors"
           />
@@ -82,6 +101,31 @@ export function Header() {
               <X className="h-4 w-4" />
             </button>
           )}
+
+          {/* Hot keyword suggestions — always in DOM for smooth CSS transition */}
+          <div
+            onMouseDown={e => e.preventDefault()}
+            className={`absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl border border-gray-100 shadow-lg z-50 overflow-hidden transition-all duration-150 origin-top ${
+              showSuggestions && !search
+                ? 'opacity-100 scale-y-100 pointer-events-auto'
+                : 'opacity-0 scale-y-95 pointer-events-none'
+            }`}
+          >
+            <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold text-gray-400 tracking-widest uppercase">
+              Từ khóa phổ biến
+            </p>
+            {HOT_KEYWORDS.map(keyword => (
+              <button
+                key={keyword}
+                type="button"
+                onClick={() => handleSuggestionClick(keyword)}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors text-left"
+              >
+                <TrendingUp className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                {keyword}
+              </button>
+            ))}
+          </div>
         </form>
 
         {/* Actions */}
