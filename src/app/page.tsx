@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronRight, TrendingUp, MapPin } from 'lucide-react';
+import { Search, ChevronRight, TrendingUp, MapPin, LayoutGrid, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,7 +33,7 @@ function CategoryCircle({ cat, selected, onClick, index }: { cat: Category; sele
       <div
         className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-150
           ${selected
-            ? 'border-emerald-500'
+            ? 'border-emerald-500 ring-2 ring-emerald-200'
             : 'border-gray-200 group-hover:border-emerald-300'
           }`}
       >
@@ -52,6 +53,78 @@ function CategoryCircle({ cat, selected, onClick, index }: { cat: Category; sele
   );
 }
 
+function AllCategoriesModal({
+  open, onOpenChange, categories, selectedId, onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  categories: Category[];
+  selectedId?: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5 text-emerald-600" />
+            Tất cả danh mục
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-1 mt-2 max-h-[60vh] overflow-y-auto pr-1">
+          {categories.map((parent, i) => {
+            const parentActive =
+              selectedId === parent.id ||
+              parent.children.some(c => c.id === selectedId);
+
+            return (
+              <div key={parent.id}>
+                {/* Parent row */}
+                <button
+                  type="button"
+                  onClick={() => { onSelect(parent.id); onOpenChange(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
+                    ${parentActive
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'hover:bg-gray-50 text-gray-800'
+                    }`}
+                >
+                  <span className="text-xl w-7 text-center select-none shrink-0">
+                    {CAT_FALLBACKS[i % CAT_FALLBACKS.length]}
+                  </span>
+                  {parent.name}
+                  <ChevronRight className="h-4 w-4 ml-auto opacity-30" />
+                </button>
+
+                {/* Children pills */}
+                {parent.children.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pl-13 px-4 pb-2">
+                    {parent.children.map(child => (
+                      <button
+                        key={child.id}
+                        type="button"
+                        onClick={() => { onSelect(child.id); onOpenChange(false); }}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                          ${selectedId === child.id
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-emerald-400 hover:text-emerald-600'
+                          }`}
+                      >
+                        {child.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function HomeContent() {
   const searchParams  = useSearchParams();
   const urlSearch     = searchParams.get('search') ?? '';
@@ -61,12 +134,13 @@ function HomeContent() {
 
   const { currentHub } = useHubStore();
 
-  const [mounted, setMounted]         = useState(false);
-  const [search, setSearch]           = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const [categoryId, setCategoryId]   = useState<string | undefined>();
-  const [sortBy, setSortBy]           = useState('newest');
-  const [page, setPage]               = useState(1);
+  const [mounted, setMounted]             = useState(false);
+  const [search, setSearch]               = useState('');
+  const [searchInput, setSearchInput]     = useState('');
+  const [categoryId, setCategoryId]       = useState<string | undefined>();
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [sortBy, setSortBy]               = useState('newest');
+  const [page, setPage]                   = useState(1);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,9 +175,25 @@ function HomeContent() {
     enabled: mounted,
   });
 
+  // Resolve selected category name for display (searches parent + children)
+  const activeCategoryName = useMemo(() => {
+    if (!categoryId || !categories) return undefined;
+    for (const cat of categories) {
+      if (cat.id === categoryId) return cat.name;
+      const child = cat.children.find(c => c.id === categoryId);
+      if (child) return child.name;
+    }
+    return undefined;
+  }, [categoryId, categories]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearch(searchInput);
+    setPage(1);
+  };
+
+  const handleSelectCategory = (id: string) => {
+    setCategoryId(id);
     setPage(1);
   };
 
@@ -153,13 +243,17 @@ function HomeContent() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-800 text-sm">Danh mục sản phẩm</h2>
-            <button className="text-xs text-emerald-600 flex items-center gap-0.5 hover:underline">
+            <button
+              type="button"
+              onClick={() => setShowAllCategories(true)}
+              className="text-xs text-emerald-600 flex items-center gap-0.5 hover:underline"
+            >
               Xem tất cả <ChevronRight className="h-3 w-3" />
             </button>
           </div>
 
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {/* All */}
+            {/* Tất cả */}
             <button
               type="button"
               onClick={() => { setCategoryId(undefined); setPage(1); }}
@@ -168,7 +262,7 @@ function HomeContent() {
               <div
                 className={`w-14 h-14 rounded-full border-2 transition-all duration-150 flex items-center justify-center
                   ${!categoryId
-                    ? 'border-emerald-500 bg-emerald-600'
+                    ? 'border-emerald-500 bg-emerald-600 ring-2 ring-emerald-200'
                     : 'border-gray-200 bg-gray-50 group-hover:border-emerald-300'
                   }`}
               >
@@ -184,8 +278,11 @@ function HomeContent() {
                 key={cat.id}
                 cat={cat}
                 index={i}
-                selected={categoryId === cat.id}
-                onClick={() => { setCategoryId(cat.id); setPage(1); }}
+                selected={
+                  categoryId === cat.id ||
+                  cat.children.some(c => c.id === categoryId)
+                }
+                onClick={() => handleSelectCategory(cat.id)}
               />
             ))}
           </div>
@@ -240,18 +337,35 @@ function HomeContent() {
             ))}
           </div>
 
-          {/* Active search indicator */}
-          {search && (
-            <div className="flex items-center gap-2 mb-4 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
-              <Search className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm text-gray-600">Kết quả cho: <strong className="text-gray-800">{search}</strong></span>
-              <button
-                type="button"
-                className="ml-auto text-xs text-red-400 hover:text-red-600 font-medium"
-                onClick={() => { setSearch(''); setSearchInput(''); }}
-              >
-                ✕ Xóa
-              </button>
+          {/* Active filters row */}
+          {(search || activeCategoryName) && (
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {activeCategoryName && (
+                <span className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                  <LayoutGrid className="h-3 w-3" />
+                  {activeCategoryName}
+                  <button
+                    type="button"
+                    onClick={() => { setCategoryId(undefined); setPage(1); }}
+                    className="ml-0.5 hover:opacity-75"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {search && (
+                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                  <Search className="h-3 w-3" />
+                  {search}
+                  <button
+                    type="button"
+                    onClick={() => { setSearch(''); setSearchInput(''); }}
+                    className="ml-0.5 hover:opacity-75"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
             </div>
           )}
 
@@ -337,6 +451,15 @@ function HomeContent() {
           )}
         </div>
       </div>
+
+      {/* ── All Categories Modal ── */}
+      <AllCategoriesModal
+        open={showAllCategories}
+        onOpenChange={setShowAllCategories}
+        categories={categories ?? []}
+        selectedId={categoryId}
+        onSelect={handleSelectCategory}
+      />
     </div>
   );
 }
