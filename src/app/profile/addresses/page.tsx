@@ -33,7 +33,10 @@ export default function AddressesPage() {
   const [open, setOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<AddressForm>();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');
   }, [mounted]);

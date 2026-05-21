@@ -21,7 +21,10 @@ export default function CartPage() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const { data: cart, isLoading } = useQuery({
     queryKey: ['cart'],

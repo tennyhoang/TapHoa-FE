@@ -26,8 +26,9 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       onChange(res.data.url);
-    } catch (e: any) {
-      setError(e?.response?.data?.message ?? 'Upload thất bại');
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setError(err?.response?.data?.message ?? 'Upload thất bại');
     } finally {
       setUploading(false);
     }

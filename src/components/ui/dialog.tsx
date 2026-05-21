@@ -36,7 +36,10 @@ function DialogTrigger({ asChild, children }: { asChild?: boolean; children: Rea
 function DialogContent({ className, children }: { className?: string; children: React.ReactNode }) {
   const { open, onOpenChange } = React.useContext(DialogContext);
   const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => { setMounted(true); }, []);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   if (!mounted || !open) return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

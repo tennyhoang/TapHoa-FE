@@ -22,7 +22,10 @@ export default function OrderDetailPage() {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');
   }, [mounted]);

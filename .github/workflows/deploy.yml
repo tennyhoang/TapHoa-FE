@@ -45,19 +45,26 @@
 #
 # 3. SECRETS CẦN THÊM VÀO TỪNG ENVIRONMENT:
 #
-#    Environment `development`:
-#      • VERCEL_TOKEN      — Vercel API token (lấy từ vercel.com/account/tokens)
-#      • VERCEL_ORG_ID     — ID tổ chức trên Vercel
-#      • VERCEL_PROJECT_ID — ID project trên Vercel
-#      • NEXT_PUBLIC_API_URL = https://dev-api.taphoa.vn  ← BE dev URL
+#    Mỗi environment tương ứng với 1 project Vercel RIÊNG BIỆT.
+#    VERCEL_PROJECT_ID phải là ID của đúng project đó, không dùng chung.
 #
-#    Environment `staging`:
-#      • VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID  (giống dev)
+#    Environment `Development`:
+#      • VERCEL_TOKEN        — Vercel API token (lấy từ vercel.com/account/tokens)
+#      • VERCEL_ORG_ID       — ID tổ chức trên Vercel (dùng chung)
+#      • VERCEL_PROJECT_ID   — ID của Vercel project Dev
+#      • NEXT_PUBLIC_API_URL = https://dev-api.taphoa.vn
+#
+#    Environment `Staging`:
+#      • VERCEL_TOKEN        — (dùng chung)
+#      • VERCEL_ORG_ID       — (dùng chung)
+#      • VERCEL_PROJECT_ID   — ID của Vercel project Staging  ← khác với Dev
 #      • NEXT_PUBLIC_API_URL = https://staging-api.taphoa.vn
 #
-#    Environment `production`:
-#      • VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID  (giống dev)
-#      • NEXT_PUBLIC_API_URL = https://api.taphoa.vn  ← URL thật production
+#    Environment `Production`:
+#      • VERCEL_TOKEN        — (dùng chung)
+#      • VERCEL_ORG_ID       — (dùng chung)
+#      • VERCEL_PROJECT_ID   — ID của Vercel project Production  ← khác với Dev/Staging
+#      • NEXT_PUBLIC_API_URL = https://api.taphoa.vn
 #
 # =============================================================================
 
@@ -157,7 +164,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     needs: ci             # CI phải xanh trước khi được phép deploy
     runs-on: ubuntu-latest
-    environment: development   # GitHub sẽ bốc secrets từ environment 'development'
+    environment: Development   # Tên phải khớp CHÍNH XÁC với GitHub Environment (case-sensitive)
 
     steps:
       - name: Checkout source code
@@ -170,9 +177,11 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # Không có --prod: Vercel tạo preview URL, không ảnh hưởng production
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+
 
 
   # ===========================================================================
@@ -189,7 +198,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     needs: ci
     runs-on: ubuntu-latest
-    environment: staging       # GitHub sẽ bốc secrets từ environment 'staging'
+    environment: Staging       # Tên phải khớp CHÍNH XÁC với GitHub Environment (case-sensitive)
 
     steps:
       - name: Checkout source code
@@ -202,9 +211,11 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # Không có --prod: staging vẫn là preview URL, không phải domain chính
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+
 
 
   # ===========================================================================
@@ -230,7 +241,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: ci
     runs-on: ubuntu-latest
-    environment: production    # GitHub sẽ bốc secrets từ environment 'production'
+    environment: Production    # Tên phải khớp CHÍNH XÁC với GitHub Environment (case-sensitive)
                                # + chặn deploy nếu 'Required reviewers' chưa approve
 
     steps:
@@ -244,7 +255,9 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # --prod: deploy lên production domain thật, không phải preview URL
           vercel-args: >-
             --prod
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+

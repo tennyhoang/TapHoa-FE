@@ -57,7 +57,10 @@ export default function CheckoutPage() {
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CheckoutForm>();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');

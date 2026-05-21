@@ -21,7 +21,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { isAdmin, isAuthenticated, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (mounted && (!isAuthenticated() || !isAdmin())) {
