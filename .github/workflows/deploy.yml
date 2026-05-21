@@ -170,6 +170,7 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # Không có --prod: Vercel tạo preview URL, không ảnh hưởng production
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
@@ -202,6 +203,7 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # Không có --prod: staging vẫn là preview URL, không phải domain chính
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
@@ -244,6 +246,7 @@ jobs:
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token:      ${{ secrets.GITHUB_TOKEN }}
+          vercel-version:    'latest'
           # --prod: deploy lên production domain thật, không phải preview URL
           vercel-args: >-
             --prod
