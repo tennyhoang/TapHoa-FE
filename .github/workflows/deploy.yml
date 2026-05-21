@@ -182,17 +182,6 @@ jobs:
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      - name: Trigger Render Deploy Hook — Development
-        run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
-          echo "Render response: HTTP $HTTP_STATUS"
-          if [[ "$HTTP_STATUS" =~ ^2 ]]; then
-            echo "✅ Deploy triggered successfully on Development"
-          else
-            echo "❌ Deploy hook returned HTTP $HTTP_STATUS"
-            exit 1
-          fi
 
 
   # ===========================================================================
@@ -227,17 +216,6 @@ jobs:
           vercel-args: >-
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      - name: Trigger Render Deploy Hook — Staging
-        run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
-          echo "Render response: HTTP $HTTP_STATUS"
-          if [[ "$HTTP_STATUS" =~ ^2 ]]; then
-            echo "✅ Deploy triggered successfully on Staging"
-          else
-            echo "❌ Deploy hook returned HTTP $HTTP_STATUS"
-            exit 1
-          fi
 
 
   # ===========================================================================
@@ -283,14 +261,3 @@ jobs:
             --prod
             --env NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      - name: Trigger Render Deploy Hook — Production
-        run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
-          echo "Render response: HTTP $HTTP_STATUS"
-          if [[ "$HTTP_STATUS" =~ ^2 ]]; then
-            echo "✅ Deploy triggered successfully on Production"
-          else
-            echo "❌ Deploy hook returned HTTP $HTTP_STATUS"
-            exit 1
-          fi
