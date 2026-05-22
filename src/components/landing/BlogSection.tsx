@@ -4,24 +4,24 @@ import { ChevronRight } from 'lucide-react';
 const BLOGS = [
   {
     id: 1,
-    emoji: '🥗',
-    title: 'Bí quyết chọn rau củ tươi ngon tại chợ và siêu thị',
+    category: 'Mẹo nấu ăn',
+    title: 'Cách chọn rau củ tươi ngon — bí quyết từ chuyên gia',
     date: '20/05/2026',
-    desc: 'Rau củ tươi ngon cần được chọn kỹ từ màu sắc, độ cứng đến mùi hương tự nhiên...',
+    desc: 'Rau củ tươi hay không phụ thuộc vào cách chọn lựa và bảo quản đúng cách từ lúc mua về...',
   },
   {
     id: 2,
-    emoji: '🍱',
-    title: 'Thực đơn cả tuần tiết kiệm với rau củ quả mùa hè',
+    category: 'Dinh dưỡng',
+    title: 'Top 5 loại trái cây giàu vitamin C tốt nhất cho mùa hè',
     date: '18/05/2026',
-    desc: 'Lên kế hoạch bữa ăn cả tuần giúp tiết kiệm chi phí và đảm bảo dinh dưỡng cho cả gia đình...',
+    desc: 'Bổ sung vitamin C qua trái cây tươi hiệu quả hơn thực phẩm chức năng, lại an toàn hơn...',
   },
   {
     id: 3,
-    emoji: '🛒',
-    title: 'Mẹo mua sắm tạp hóa thông minh — tiết kiệm 30% mỗi tháng',
+    category: 'Công thức',
+    title: 'Bữa cơm gia đình ngon — thực đơn 5 ngày tiết kiệm',
     date: '15/05/2026',
-    desc: 'Mua đúng lúc, đúng lượng và biết tận dụng khuyến mãi là bí quyết tiết kiệm của nhiều bà nội trợ...',
+    desc: 'Lên thực đơn trước giúp tiết kiệm chi phí và giảm lãng phí thực phẩm đáng kể mỗi tuần...',
   },
 ];
 
@@ -30,12 +30,12 @@ export function BlogSection() {
     <section className="py-8">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-1 h-6 bg-orange-600 rounded-full" />
-          <h2 className="text-lg font-black text-stone-900">Cẩm nang ẩm thực</h2>
+          <div className="w-1 h-6 bg-blue-600 rounded-full" />
+          <h2 className="text-lg font-black text-gray-800">Cẩm nang ẩm thực</h2>
         </div>
         <Link
           href="#"
-          className="flex items-center gap-1 text-sm text-orange-600 hover:text-orange-700 font-semibold"
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-semibold"
         >
           Xem tất cả <ChevronRight className="h-4 w-4" />
         </Link>
@@ -46,17 +46,20 @@ export function BlogSection() {
           <Link
             key={blog.id}
             href="#"
-            className="flex gap-3 bg-white border border-orange-100 rounded-xl p-4 hover:border-orange-300 hover:shadow-sm transition-all group"
+            className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-sm transition-all group"
           >
-            <div className="w-20 h-20 rounded-lg bg-orange-50 flex items-center justify-center text-3xl shrink-0">
-              {blog.emoji}
+            {/* Placeholder thumbnail */}
+            <div className="h-36 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+              <span className="text-xs font-semibold text-blue-400 uppercase tracking-widest">
+                {blog.category}
+              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-orange-500 font-medium mb-1">{blog.date}</p>
-              <p className="text-sm font-semibold text-stone-800 line-clamp-2 group-hover:text-orange-700 transition-colors leading-snug">
+            <div className="p-4">
+              <p className="text-[11px] text-blue-500 font-medium mb-1">{blog.date}</p>
+              <p className="text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-blue-700 transition-colors leading-snug mb-2">
                 {blog.title}
               </p>
-              <p className="text-xs text-stone-400 line-clamp-2 mt-1">{blog.desc}</p>
+              <p className="text-xs text-gray-400 line-clamp-2">{blog.desc}</p>
             </div>
           </Link>
         ))}

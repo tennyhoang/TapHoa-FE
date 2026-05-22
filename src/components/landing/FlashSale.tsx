@@ -66,7 +66,9 @@ function FlashCard({ product }: { product: Product }) {
               sizes="(max-width: 640px) 50vw, 200px"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-5xl select-none">🛒</div>
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <span className="text-xs text-gray-400 font-medium">Chưa có ảnh</span>
+              </div>
           )}
           {discount && (
             <span className="absolute top-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">

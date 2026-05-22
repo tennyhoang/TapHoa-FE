@@ -13,68 +13,59 @@ import { Partners } from '@/components/landing/Partners';
 export default function HomePage() {
   return (
     <Suspense>
-      {/* Hero: full-width escape from main container padding */}
       <div className="-mx-4 -mt-6">
         <HeroSection />
       </div>
 
-      {/* Sub banners */}
       <SubBanners />
 
-      {/* Flash Sale */}
       <FlashSale />
 
-      {/* Category circles */}
       <div className="bg-white rounded-xl border border-gray-100 mt-6 px-4">
         <CategoryCirclesSection />
       </div>
 
-      {/* Product grid 1: Hàng mới về */}
       <ProductSection
         title="Hàng mới về"
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
-        viewAllHref="/products?isNew=true"
+        viewAllHref="/?isNew=true"
       />
 
-      {/* Inter banner 1 */}
       <InterBanner
-        href="/"
-        imageUrl="https://res.cloudinary.com/doy14nwx0/image/upload/v1779422936/Screenshot_2026-05-22_110849_snvdyk.png"
-        title="Thực phẩm tươi sống"
+        badge="Chương trình đặc biệt"
+        title="Rau củ quả tươi sạch VietGAP"
+        sub="Trực tiếp từ nông trại — kiểm định chất lượng trước khi giao"
+        cta="Đặt mua ngay"
+        href="/?isNew=true"
+        gradient="from-blue-800 to-cyan-600"
       />
 
-      {/* Product grid 2: Trái cây tươi */}
       <ProductSection
         title="Trái cây tươi"
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
-        viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
+        viewAllHref="/?search=tr%C3%A1i+c%C3%A2y"
       />
 
-      {/* Inter banner 2 */}
       <InterBanner
         badge="Tiết kiệm mỗi ngày"
         title="Thực phẩm tươi sống chất lượng"
-        sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh"
+        sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh tại Hub gần nhà"
         cta="Xem ngay"
-        href="/products"
-        gradient="from-orange-700 to-amber-500"
-        emoji="🛒"
+        href="/?isDiscount=true"
+        gradient="from-teal-800 to-teal-600"
       />
 
-      {/* Product grid 3: Giá tốt */}
       <ProductSection
         title="Giá tốt mỗi ngày"
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
-        viewAllHref="/products?isDiscount=true"
+        viewAllHref="/?isDiscount=true"
       />
 
-      {/* Blog */}
       <BlogSection />
 
-      {/* Partners */}
       <Partners />
     </Suspense>
   );
