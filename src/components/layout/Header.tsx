@@ -61,14 +61,14 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
-      router.push(`/?search=${encodeURIComponent(search.trim())}`);
+      router.push(`/products?search=${encodeURIComponent(search.trim())}`);
       setSearch('');
       setShowSuggestions(false);
     }
   };
 
   const handleSuggestionClick = (keyword: string) => {
-    router.push(`/?search=${encodeURIComponent(keyword)}`);
+    router.push(`/products?search=${encodeURIComponent(keyword)}`);
     setSearch('');
     setShowSuggestions(false);
   };
@@ -258,8 +258,8 @@ export function Header() {
       <div className="bg-gray-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center gap-1">
           <Link href="/" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Trang chủ</Link>
-          <Link href="/?isNew=true" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Hàng mới</Link>
-          <Link href="/?isDiscount=true" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Giá tốt mỗi ngày</Link>
+          <Link href="/products?isNew=true" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Hàng mới</Link>
+          <Link href="/products?isDiscount=true" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Giá tốt mỗi ngày</Link>
           <Link href="/profile/orders" className="text-xs text-gray-500 hover:text-blue-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Đơn hàng</Link>
 
           <div className="ml-auto shrink-0 flex items-center gap-1">

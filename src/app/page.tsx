@@ -34,7 +34,7 @@ export default function HomePage() {
         title="Hàng mới về"
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
-        viewAllHref="/?isNew=true"
+        viewAllHref="/products?isNew=true"
       />
 
       {/* Inter banner 1 */}
@@ -49,7 +49,7 @@ export default function HomePage() {
         title="Trái cây tươi"
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
-        viewAllHref="/?search=tr%C3%A1i+c%C3%A2y"
+        viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
       />
 
       {/* Inter banner 2 */}
@@ -68,7 +68,7 @@ export default function HomePage() {
         title="Giá tốt mỗi ngày"
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
-        viewAllHref="/?isDiscount=true"
+        viewAllHref="/products?isDiscount=true"
       />
 
       {/* Blog */}

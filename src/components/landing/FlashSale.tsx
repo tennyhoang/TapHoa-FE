@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { formatPrice } from '@/lib/format';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import type { Product } from '@/types';
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
@@ -23,7 +24,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-function FlashCard({ product }: { product: ReturnType<typeof Object.assign> }) {
+function FlashCard({ product }: { product: Product }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();

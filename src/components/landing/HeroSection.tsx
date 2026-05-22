@@ -31,7 +31,7 @@ const SLIDES = [
     title: 'Trái cây tươi ngon',
     sub: 'Trái cây nhiệt đới & nhập khẩu — chất lượng đảm bảo',
     cta: 'Khám phá',
-    href: '/?isDiscount=true',
+    href: '/products?isDiscount=true',
     emoji: '🍎',
   },
   {
@@ -48,7 +48,7 @@ const SLIDES = [
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Giới thiệu', href: '#' },
-  { label: 'Sản phẩm', href: '/' },
+  { label: 'Sản phẩm', href: '/products' },
   { label: 'Cẩm nang', href: '#' },
   { label: 'Liên hệ', href: '#' },
 ];
@@ -74,7 +74,7 @@ export function HeroSection() {
           {SIDEBAR_CATS.map(cat => (
             <li key={cat.label}>
               <Link
-                href={`/?search=${encodeURIComponent(cat.label)}`}
+                href={`/products?search=${encodeURIComponent(cat.label)}`}
                 className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors group"
               >
                 <span className="text-lg shrink-0">{cat.icon}</span>

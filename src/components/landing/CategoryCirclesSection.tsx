@@ -23,7 +23,7 @@ export function CategoryCirclesSection() {
         {categories.map((cat, i) => (
           <Link
             key={cat.id}
-            href={`/?categoryId=${cat.id}`}
+            href={`/products?categoryId=${cat.id}`}
             className="flex flex-col items-center gap-2 group"
           >
             <div className="w-16 h-16 rounded-full border-2 border-blue-200 group-hover:border-blue-500 bg-white flex items-center justify-center text-2xl shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-200 overflow-hidden">

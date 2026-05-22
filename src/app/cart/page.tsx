@@ -189,11 +189,10 @@ export default function CartPage() {
         {/* ── Right: sticky summary ── */}
         <div className="lg:sticky lg:top-6 space-y-3">
 
-          {/* Promo placeholder */}
-          <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-gray-300 transition-colors">
-            <Tag className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span className="text-sm text-gray-600 flex-1">Nhập mã giảm giá</span>
-            <ChevronRight className="h-4 w-4 text-gray-300" />
+          {/* Promo placeholder - not yet implemented */}
+          <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 opacity-60 cursor-not-allowed select-none">
+            <Tag className="h-4 w-4 text-gray-400 shrink-0" />
+            <span className="text-sm text-gray-400 flex-1">Mã giảm giá (sắp ra mắt)</span>
           </div>
 
           {/* Summary card */}

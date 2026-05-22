@@ -509,7 +509,7 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                disabled={createOrderMutation.isPending}
+                disabled={createOrderMutation.isPending || !currentHub}
                 className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
               >
                 {createOrderMutation.isPending
