@@ -39,13 +39,9 @@ export default function HomePage() {
 
       {/* Inter banner 1 */}
       <InterBanner
-        badge="Rau sạch VietGAP"
-        title="Rau củ Đà Lạt tươi mỗi ngày"
-        sub="Thu hoạch buổi sáng — giao tận tay trong ngày"
-        cta="Mua ngay"
         href="/"
-        gradient="from-green-800 to-emerald-600"
-        emoji="🥬"
+        imageUrl="https://res.cloudinary.com/doy14nwx0/image/upload/v1779422936/Screenshot_2026-05-22_110849_snvdyk.png"
+        title="Thực phẩm tươi sống"
       />
 
       {/* Product grid 2: Trái cây tươi */}

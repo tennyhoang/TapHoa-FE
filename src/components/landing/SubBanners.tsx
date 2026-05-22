@@ -15,19 +15,13 @@ interface SubBannerItem {
 const BANNERS: SubBannerItem[] = [
   {
     href: '/',
-    bg: 'from-green-600 to-emerald-500',
-    badge: 'Rau sạch VietGAP',
+    imageUrl: 'https://res.cloudinary.com/doy14nwx0/image/upload/v1779423079/Screenshot_2026-05-22_111056_qcn3l4.png',
     title: 'Rau củ Đà Lạt',
-    sub: 'Thu hoạch mỗi sáng — tươi ngon cả ngày',
-    emoji: '🥬',
   },
   {
-    href: '/?isDiscount=true',
-    bg: 'from-orange-500 to-amber-400',
-    badge: 'Giảm đến 20%',
-    title: 'Trái cây tươi ngon',
-    sub: 'Xoài, cam, bưởi — giá tốt mỗi ngày',
-    emoji: '🍊',
+    href: '/',
+    imageUrl: 'https://res.cloudinary.com/doy14nwx0/image/upload/v1779422898/Screenshot_2026-05-22_110728_kvqurx.png',
+    title: 'Thực phẩm tươi sống',
   },
 ];
 
