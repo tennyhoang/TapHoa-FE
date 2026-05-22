@@ -27,7 +27,7 @@ export function InterBanner({
   if (imageUrl) {
     return (
       <Link href={href}>
-        <div className="relative w-full rounded-xl overflow-hidden my-2" style={{ aspectRatio: '4/1' }}>
+        <div className="relative w-full rounded-xl overflow-hidden my-2" style={{ aspectRatio: '3/1' }}>
           <Image
             src={imageUrl}
             alt={title ?? 'Banner'}

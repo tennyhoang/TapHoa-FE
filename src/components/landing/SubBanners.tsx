@@ -31,7 +31,7 @@ export function SubBanners() {
       {BANNERS.map((b, i) => (
         <Link key={i} href={b.href}>
           {b.imageUrl ? (
-            <div className="relative h-28 rounded-xl overflow-hidden">
+            <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: '3/1' }}>
               <Image
                 src={b.imageUrl}
                 alt={b.title ?? 'Banner'}
@@ -42,7 +42,7 @@ export function SubBanners() {
             </div>
           ) : (
             <div
-              className={`relative h-28 rounded-xl overflow-hidden bg-gradient-to-r ${b.bg} flex items-center px-6 hover:opacity-95 transition-opacity`}
+              className={`relative h-32 rounded-xl overflow-hidden bg-gradient-to-r ${b.bg} flex items-center px-6 hover:opacity-95 transition-opacity`}
             >
               <div className="text-white z-10">
                 {b.badge && <p className="text-xs font-semibold opacity-80 mb-1">{b.badge}</p>}
