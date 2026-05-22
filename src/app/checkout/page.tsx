@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
   Banknote, CreditCard, Minus, Plus, Trash2, ChevronRight,
-  BookUser, ChevronDown, QrCode,
+  BookUser, ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,11 +49,9 @@ export default function CheckoutPage() {
 
   const [mounted, setMounted]             = useState(false);
   const [note, setNote]                   = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BankTransfer');
   const [hubDialogOpen, setHubDialogOpen] = useState(false);
   const [addrOpen, setAddrOpen]           = useState(false);
-  const [qrOpen, setQrOpen]               = useState(false);
-  const [pendingForm, setPendingForm]     = useState<CheckoutForm | null>(null);
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CheckoutForm>();
 
@@ -138,8 +136,7 @@ export default function CheckoutPage() {
     },
     onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      setQrOpen(false);
-      router.push(`/checkout/success?orderId=${order.id}&payment=${paymentMethod}`);
+      router.push(`/profile/orders/${order.id}`);
     },
     onError: () => toast.error('Đặt hàng thất bại, vui lòng thử lại'),
   });
@@ -149,12 +146,7 @@ export default function CheckoutPage() {
       toast.error('Vui lòng chọn điểm nhận hàng');
       return;
     }
-    if (paymentMethod === 'BankTransfer') {
-      setPendingForm(form);
-      setQrOpen(true);
-    } else {
-      createOrderMutation.mutate(form);
-    }
+    createOrderMutation.mutate(form);
   };
 
   // ── Guards ─────────────────────────────────────────────────────────────────
@@ -529,79 +521,6 @@ export default function CheckoutPage() {
       </form>
 
       <HubPickerDialog open={hubDialogOpen} onOpenChange={setHubDialogOpen} />
-
-      {/* ── BankTransfer QR Modal ── */}
-      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5 text-emerald-600" />
-              Thanh toán chuyển khoản
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Bank info */}
-            <div className="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Ngân hàng</span>
-                <span className="font-semibold text-gray-800">MB Bank</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Số tài khoản</span>
-                <span className="font-mono font-bold text-gray-900">{BANK.account}</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-gray-500 shrink-0">Chủ tài khoản</span>
-                <span className="font-semibold text-gray-800 text-right text-xs">{BANK.name}</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-gray-500">Số tiền</span>
-                <span className="font-black text-emerald-600 text-base">{formatPrice(cart?.totalAmount ?? 0)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Nội dung CK</span>
-                <span className="font-mono font-bold text-sm text-gray-800">THANH TOAN TAPHOA</span>
-              </div>
-            </div>
-
-            {/* QR code */}
-            <div className="flex justify-center">
-              <img
-                src={`https://img.vietqr.io/image/${BANK.id}-${BANK.account}-compact2.jpg?amount=${cart?.totalAmount ?? 0}&addInfo=${encodeURIComponent('THANH TOAN TAPHOA')}`}
-                alt="QR chuyển khoản"
-                className="w-52 h-52 rounded-xl border border-gray-200"
-              />
-            </div>
-
-            <p className="text-xs text-center text-gray-400 leading-relaxed">
-              Quét mã QR bằng app ngân hàng để thanh toán.<br />
-              Sau khi chuyển khoản thành công, nhấn xác nhận bên dưới.
-            </p>
-
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => setQrOpen(false)}
-                disabled={createOrderMutation.isPending}
-              >
-                Hủy
-              </Button>
-              <Button
-                type="button"
-                onClick={() => pendingForm && createOrderMutation.mutate(pendingForm)}
-                disabled={createOrderMutation.isPending}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-              >
-                {createOrderMutation.isPending ? 'Đang xử lý...' : 'Tôi đã thanh toán'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
