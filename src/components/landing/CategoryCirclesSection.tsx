@@ -25,7 +25,7 @@ export function CategoryCirclesSection() {
             href={`/?categoryId=${cat.id}`}
             className="flex flex-col items-center gap-2 group"
           >
-            <div className="w-16 h-16 rounded-full border-2 border-blue-200 group-hover:border-blue-500 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-200 overflow-hidden">
+            <div className="w-16 h-16 rounded-full border-2 border-emerald-200 group-hover:border-emerald-500 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-200 overflow-hidden">
               {cat.imageUrl ? (
                 <Image
                   src={cat.imageUrl}
@@ -35,12 +35,12 @@ export function CategoryCirclesSection() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-lg font-black text-blue-600 select-none">
+                <span className="text-lg font-black text-emerald-600 select-none">
                   {cat.name.charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
-            <span className="text-xs font-medium text-gray-600 group-hover:text-blue-600 text-center max-w-[72px] leading-tight transition-colors">
+            <span className="text-xs font-medium text-gray-600 group-hover:text-emerald-600 text-center max-w-[72px] leading-tight transition-colors">
               {cat.name}
             </span>
           </Link>

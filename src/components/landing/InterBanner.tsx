@@ -16,7 +16,7 @@ export function InterBanner({
   sub,
   cta = 'Xem ngay',
   href = '/',
-  gradient = 'from-blue-800 to-cyan-600',
+  gradient = 'from-emerald-800 to-cyan-600',
 }: InterBannerProps) {
   return (
     <div className={`rounded-xl overflow-hidden bg-gradient-to-r ${gradient} my-2`}>
@@ -31,7 +31,7 @@ export function InterBanner({
           <p className="text-white/75 text-sm mb-5">{sub}</p>
           <Link
             href={href}
-            className="inline-flex items-center gap-1.5 bg-white text-blue-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-blue-50 transition-colors"
+            className="inline-flex items-center gap-1.5 bg-white text-emerald-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-emerald-50 transition-colors"
           >
             {cta} <ChevronRight className="h-4 w-4" />
           </Link>

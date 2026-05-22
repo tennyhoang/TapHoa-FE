@@ -17,7 +17,7 @@ const SIDEBAR_CATS = [
 
 const SLIDES = [
   {
-    gradient: 'from-blue-900 via-blue-800 to-blue-700',
+    gradient: 'from-emerald-900 via-emerald-800 to-emerald-700',
     badge: 'Giảm đến 30%',
     title: 'Rau củ quả sạch',
     sub: 'VietGAP — thu hoạch và giao hàng trong ngày',
@@ -64,7 +64,7 @@ export function HeroSection() {
     <div className="grid grid-cols-12 gap-0 min-h-[320px]">
       {/* LEFT: Sidebar categories */}
       <aside className="hidden lg:flex col-span-3 flex-col bg-white border border-gray-200 rounded-l-xl overflow-hidden">
-        <div className="bg-blue-700 px-4 py-3 flex items-center gap-2 shrink-0">
+        <div className="bg-emerald-700 px-4 py-3 flex items-center gap-2 shrink-0">
           <Menu className="h-4 w-4 text-white" />
           <span className="text-white font-bold text-sm tracking-wide">Danh mục sản phẩm</span>
         </div>
@@ -73,10 +73,10 @@ export function HeroSection() {
             <li key={cat.label}>
               <Link
                 href={`/?search=${encodeURIComponent(cat.label)}`}
-                className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+                className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors group"
               >
                 <span>{cat.label}</span>
-                <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 text-blue-500 transition-opacity shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 text-emerald-500 transition-opacity shrink-0" />
               </Link>
             </li>
           ))}
@@ -93,8 +93,8 @@ export function HeroSection() {
               href={item.href}
               className={`px-3 py-1 text-sm rounded transition-colors ${
                 i === 0
-                  ? 'text-blue-700 font-semibold bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  ? 'text-emerald-700 font-semibold bg-emerald-50'
+                  : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
               }`}
             >
               {item.label}
@@ -120,7 +120,7 @@ export function HeroSection() {
                   <p className="text-white/75 text-sm mb-6">{s.sub}</p>
                   <Link
                     href={s.href}
-                    className="inline-flex items-center gap-2 bg-white text-blue-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-blue-50 transition-colors"
+                    className="inline-flex items-center gap-2 bg-white text-emerald-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-emerald-50 transition-colors"
                   >
                     {s.cta} <ChevronRight className="h-4 w-4" />
                   </Link>

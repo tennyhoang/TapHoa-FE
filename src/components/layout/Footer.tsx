@@ -142,8 +142,8 @@ export function Footer() {
               <h3 className="text-white font-semibold mb-3 text-sm">Thanh toán</h3>
               <div className="flex flex-wrap gap-2 mb-4">
                 {[
-                  { label: 'VISA', bg: 'bg-blue-600', text: 'text-white' },
-                  { label: 'MB Bank', bg: 'bg-white', text: 'text-blue-800' },
+                  { label: 'VISA', bg: 'bg-emerald-600', text: 'text-white' },
+                  { label: 'MB Bank', bg: 'bg-white', text: 'text-emerald-800' },
                   { label: 'MoMo', bg: 'bg-pink-500', text: 'text-white' },
                   { label: 'COD', bg: 'bg-green-600', text: 'text-white' },
                 ].map(m => (
@@ -156,7 +156,7 @@ export function Footer() {
               <h3 className="text-white font-semibold mb-2 text-sm">Kết nối</h3>
               <div className="flex gap-2">
                 {[
-                  { icon: 'fb', label: 'Facebook', color: 'hover:bg-blue-600' },
+                  { icon: 'fb', label: 'Facebook', color: 'hover:bg-emerald-600' },
                   { icon: 'ig', label: 'Instagram', color: 'hover:bg-pink-600' },
                   { icon: 'yt', label: 'Youtube', color: 'hover:bg-red-600' },
                 ].map(({ icon, label, color }) => (

@@ -9,7 +9,7 @@ const BANNERS = [
     href: '/?search=rau+c%E1%BB%A7',
   },
   {
-    bg: 'from-blue-600 to-cyan-500',
+    bg: 'from-emerald-600 to-cyan-500',
     badge: 'Mới về hôm nay',
     title: 'Trái cây nhập khẩu',
     sub: 'Nguồn gốc rõ ràng',

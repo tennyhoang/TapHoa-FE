@@ -38,7 +38,7 @@ export default function HomePage() {
         sub="Trực tiếp từ nông trại — kiểm định chất lượng trước khi giao"
         cta="Đặt mua ngay"
         href="/?isNew=true"
-        gradient="from-blue-800 to-cyan-600"
+        gradient="from-emerald-800 to-cyan-600"
       />
 
       <ProductSection
