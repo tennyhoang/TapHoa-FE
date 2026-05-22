@@ -31,7 +31,7 @@ export default function HomePage() {
 
       {/* Product grid 1: Hàng mới về */}
       <ProductSection
-        title="Hải sản mới về"
+        title="Hàng mới về"
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
         viewAllHref="/?isNew=true"
@@ -39,39 +39,39 @@ export default function HomePage() {
 
       {/* Inter banner 1 */}
       <InterBanner
-        badge="Chương trình đặc biệt"
-        title="Tôm Hùm Alaska tươi sống"
-        sub="Nhập khẩu trực tiếp — chỉ có tại TapHoa"
-        cta="Đặt mua ngay"
-        href="/?search=t%C3%B4m+h%C3%B9m"
-        gradient="from-blue-800 to-cyan-600"
-        emoji="🦞"
+        badge="Rau sạch VietGAP"
+        title="Rau củ Đà Lạt tươi mỗi ngày"
+        sub="Thu hoạch buổi sáng — giao tận tay trong ngày"
+        cta="Mua ngay"
+        href="/"
+        gradient="from-green-800 to-emerald-600"
+        emoji="🥬"
       />
 
-      {/* Product grid 2: Hải sản đông lạnh */}
+      {/* Product grid 2: Trái cây tươi */}
       <ProductSection
-        title="Hải sản đông lạnh"
-        queryKey="products-frozen"
-        params={{ search: 'đông lạnh', sortBy: 'newest' }}
-        viewAllHref="/?search=%C4%91%C3%B4ng+l%E1%BA%A1nh"
+        title="Trái cây tươi"
+        queryKey="products-fruits"
+        params={{ search: 'trái cây', sortBy: 'newest' }}
+        viewAllHref="/?search=tr%C3%A1i+c%C3%A2y"
       />
 
       {/* Inter banner 2 */}
       <InterBanner
-        badge="Tiết kiệm đến 30%"
-        title="Combo Gia Đình siêu tiết kiệm"
-        sub="Giao miễn phí — đảm bảo tươi ngon khi nhận hàng"
-        cta="Xem combo"
+        badge="Tiết kiệm mỗi ngày"
+        title="Thực phẩm tươi sống chất lượng"
+        sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh"
+        cta="Xem ngay"
         href="/"
-        gradient="from-teal-800 to-teal-600"
-        emoji="🎁"
+        gradient="from-blue-800 to-cyan-700"
+        emoji="🛒"
       />
 
-      {/* Product grid 3: Hải sản nhập khẩu */}
+      {/* Product grid 3: Giá tốt */}
       <ProductSection
-        title="Hải sản nhập khẩu"
-        queryKey="products-import"
-        params={{ isDiscount: true, sortBy: 'price_desc' }}
+        title="Giá tốt mỗi ngày"
+        queryKey="products-discount"
+        params={{ isDiscount: true, sortBy: 'price_asc' }}
         viewAllHref="/?isDiscount=true"
       />
 

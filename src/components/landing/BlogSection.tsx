@@ -4,24 +4,24 @@ import { ChevronRight } from 'lucide-react';
 const BLOGS = [
   {
     id: 1,
-    emoji: '🍳',
-    title: 'Cách chế biến tôm hùm Alaska đúng chuẩn nhà hàng',
+    emoji: '🥗',
+    title: 'Bí quyết chọn rau củ tươi ngon tại chợ và siêu thị',
     date: '20/05/2026',
-    desc: 'Tôm hùm Alaska cần được sơ chế kỹ trước khi nấu để giữ được vị ngọt tự nhiên và độ dai giòn...',
+    desc: 'Rau củ tươi ngon cần được chọn kỹ từ màu sắc, độ cứng đến mùi hương tự nhiên...',
   },
   {
     id: 2,
-    emoji: '🐟',
-    title: 'Top 5 món ngon từ cá hồi Na Uy cho bữa cơm gia đình',
+    emoji: '🍱',
+    title: 'Thực đơn cả tuần tiết kiệm với rau củ quả mùa hè',
     date: '18/05/2026',
-    desc: 'Cá hồi Na Uy với hàm lượng omega-3 cao, thích hợp cho nhiều cách chế biến từ áp chảo đến sashimi...',
+    desc: 'Lên kế hoạch bữa ăn cả tuần giúp tiết kiệm chi phí và đảm bảo dinh dưỡng cho cả gia đình...',
   },
   {
     id: 3,
-    emoji: '🍲',
-    title: 'Bí quyết nấu lẩu hải sản thơm ngon, không tanh',
+    emoji: '🛒',
+    title: 'Mẹo mua sắm tạp hóa thông minh — tiết kiệm 30% mỗi tháng',
     date: '15/05/2026',
-    desc: 'Để có nồi lẩu hải sản ngon, bước quan trọng nhất là chọn nguyên liệu tươi và sơ chế đúng cách...',
+    desc: 'Mua đúng lúc, đúng lượng và biết tận dụng khuyến mãi là bí quyết tiết kiệm của nhiều bà nội trợ...',
   },
 ];
 

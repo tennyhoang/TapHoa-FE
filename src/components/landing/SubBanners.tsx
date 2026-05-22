@@ -2,20 +2,20 @@ import Link from 'next/link';
 
 const BANNERS = [
   {
-    bg: 'from-orange-500 to-red-500',
-    badge: 'Khuyến mãi đặc biệt',
-    title: 'Tôm Sú Tươi',
-    sub: 'Giảm 25% hôm nay',
-    emoji: '🦐',
-    href: '/?search=t%C3%B4m+s%C3%BA',
+    bg: 'from-green-600 to-emerald-500',
+    badge: 'Rau sạch VietGAP',
+    title: 'Rau củ Đà Lạt',
+    sub: 'Thu hoạch mỗi sáng — tươi ngon cả ngày',
+    emoji: '🥬',
+    href: '/',
   },
   {
-    bg: 'from-blue-600 to-cyan-500',
-    badge: 'Mới về hôm nay',
-    title: 'Cá Hồi Na Uy',
-    sub: 'Nhập khẩu trực tiếp',
-    emoji: '🐟',
-    href: '/?search=c%C3%A1+h%E1%BB%93i',
+    bg: 'from-orange-500 to-amber-400',
+    badge: 'Giảm đến 20%',
+    title: 'Trái cây tươi ngon',
+    sub: 'Xoài, cam, bưởi — giá tốt mỗi ngày',
+    emoji: '🍊',
+    href: '/?isDiscount=true',
   },
 ];
 
