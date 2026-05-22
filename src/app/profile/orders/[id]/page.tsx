@@ -17,8 +17,8 @@ import { formatPrice, formatDate } from '@/lib/format';
 
 const BANK_NAME   = 'MB Bank';
 const BANK_CODE   = 'MB';
-const ACCOUNT_NO  = '0785680242';
-const ACCOUNT_NAME = 'NGUYEN VAN A'; // Tên chủ tài khoản (hiển thị trên QR)
+const ACCOUNT_NO  = '0000000001';
+const ACCOUNT_NAME = 'TAPHOA TEST';
 
 function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string }) {
   const addInfo = encodeURIComponent(paymentRef);
