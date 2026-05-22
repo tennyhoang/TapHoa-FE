@@ -108,6 +108,22 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
         </div>
       )}
 
+      {/* Manual URL input — nhập đường dẫn trực tiếp, ví dụ: /products/rau-muong.jpg */}
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          value={value ?? ''}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Hoặc nhập URL trực tiếp: /products/ten-anh.jpg"
+          className="flex-1 h-8 px-3 text-xs rounded-md border border-gray-200 bg-white text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+        />
+        {value && (
+          <button type="button" onClick={() => onChange('')} className="text-gray-400 hover:text-red-500 shrink-0">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       {uploading && value && (
         <div className="flex items-center gap-2 text-xs text-blue-600">
           <Loader2 className="h-3 w-3 animate-spin" /> Đang tải lên...
