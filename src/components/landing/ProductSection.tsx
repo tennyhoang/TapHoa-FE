@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { productService } from '@/services/product.service';
 import { ProductCard } from '@/components/products/ProductCard';
@@ -31,7 +30,7 @@ export function ProductSection({ title, queryKey, params, viewAllHref = '/produc
           href={viewAllHref}
           className="flex items-center gap-1 text-sm text-orange-600 hover:text-orange-700 font-semibold transition-colors"
         >
-          Xem tất cả <ChevronRight className="h-4 w-4" />
+          Xem tất cả →
         </Link>
       </div>
 

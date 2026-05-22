@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 
 interface InterBannerProps {
   badge?: string;
@@ -33,7 +32,7 @@ export function InterBanner({
             href={href}
             className="inline-flex items-center gap-1.5 bg-white text-emerald-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-emerald-50 transition-colors"
           >
-            {cta} <ChevronRight className="h-4 w-4" />
+            {cta} →
           </Link>
         </div>
       </div>

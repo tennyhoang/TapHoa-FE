@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 
 const BLOGS = [
   {
@@ -37,7 +36,7 @@ export function BlogSection() {
           href="#"
           className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
         >
-          Xem tất cả <ChevronRight className="h-4 w-4" />
+          Xem tất cả →
         </Link>
       </div>
 
