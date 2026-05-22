@@ -37,12 +37,12 @@ export default function AboutPage() {
 
       {/* Hero */}
       <section className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full border border-blue-100">
+        <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 text-sm font-semibold px-4 py-1.5 rounded-full border border-orange-100">
           🛒 Về chúng tôi
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
           TapHoa — Tạp hóa sạch <br className="hidden md:block" />
-          <span className="text-blue-600">ngay tại nhà bạn</span>
+          <span className="text-orange-600">ngay tại nhà bạn</span>
         </h1>
         <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
           Nền tảng mua sắm tạp hóa online kết nối hàng nghìn sản phẩm thiết yếu — từ rau củ quả, thực phẩm tươi sống
@@ -51,13 +51,13 @@ export default function AboutPage() {
         <div className="flex flex-wrap justify-center gap-3 pt-2">
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-full transition-colors text-sm"
+            className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2.5 rounded-full transition-colors text-sm"
           >
             Mua sắm ngay
           </Link>
           <a
             href="tel:18006868"
-            className="inline-flex items-center gap-2 border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold px-6 py-2.5 rounded-full transition-colors text-sm"
+            className="inline-flex items-center gap-2 border border-orange-200 text-orange-700 hover:bg-orange-50 font-semibold px-6 py-2.5 rounded-full transition-colors text-sm"
           >
             <Phone className="h-4 w-4" /> Gọi tư vấn
           </a>
@@ -67,8 +67,8 @@ export default function AboutPage() {
       {/* Stats */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {STATS.map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-blue-100 p-5 text-center shadow-sm">
-            <p className="text-3xl font-black text-blue-600 mb-1">{s.value}</p>
+          <div key={s.label} className="bg-white rounded-2xl border border-orange-100 p-5 text-center shadow-sm">
+            <p className="text-3xl font-black text-orange-600 mb-1">{s.value}</p>
             <p className="text-xs text-gray-500 font-medium">{s.label}</p>
           </div>
         ))}
@@ -77,7 +77,7 @@ export default function AboutPage() {
       {/* Story */}
       <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12 space-y-5">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-1 h-7 bg-blue-600 rounded-full" />
+          <div className="w-1 h-7 bg-orange-600 rounded-full" />
           <h2 className="text-2xl font-black text-gray-800">Câu chuyện TapHoa</h2>
         </div>
         <p className="text-gray-600 leading-relaxed">
@@ -98,18 +98,18 @@ export default function AboutPage() {
 
       {/* Mission & Vision */}
       <section className="grid md:grid-cols-2 gap-6">
-        <div className="bg-blue-600 rounded-2xl p-8 text-white space-y-3">
+        <div className="bg-orange-600 rounded-2xl p-8 text-white space-y-3">
           <span className="text-3xl">🎯</span>
           <h3 className="text-xl font-black">Sứ mệnh</h3>
-          <p className="text-blue-100 leading-relaxed text-sm">
+          <p className="text-orange-100 leading-relaxed text-sm">
             Xây dựng TapHoa trở thành nền tảng tạp hóa online đáng tin cậy nhất Việt Nam — nơi người tiêu dùng có thể
             mua sắm thực phẩm và hàng tiêu dùng hàng ngày với sự tiện lợi, minh bạch và an tâm tuyệt đối.
           </p>
         </div>
-        <div className="bg-blue-900 rounded-2xl p-8 text-white space-y-3">
+        <div className="bg-stone-900 rounded-2xl p-8 text-white space-y-3">
           <span className="text-3xl">🚀</span>
           <h3 className="text-xl font-black">Tầm nhìn</h3>
-          <p className="text-blue-200 leading-relaxed text-sm">
+          <p className="text-orange-200 leading-relaxed text-sm">
             Trong 3 năm tới, TapHoa hướng đến phủ sóng hệ thống hub nhận hàng tại toàn bộ các tỉnh thành lớn,
             mở rộng danh mục sản phẩm lên 20.000+ SKU và trở thành người bạn đồng hành mua sắm của triệu gia đình Việt.
           </p>
@@ -125,8 +125,8 @@ export default function AboutPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           {VALUES.map(v => (
             <div key={v.title} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex gap-4">
-              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                <v.icon className="h-5 w-5 text-blue-600" />
+              <div className="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                <v.icon className="h-5 w-5 text-orange-600" />
               </div>
               <div>
                 <h4 className="font-bold text-gray-800 mb-1">{v.title}</h4>
@@ -140,13 +140,13 @@ export default function AboutPage() {
       {/* Contact */}
       <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-1 h-7 bg-blue-600 rounded-full" />
+          <div className="w-1 h-7 bg-orange-600 rounded-full" />
           <h2 className="text-2xl font-black text-gray-800">Thông tin liên hệ</h2>
         </div>
         <div className="grid sm:grid-cols-2 gap-5">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <MapPin className="h-4 w-4 text-blue-600" />
+            <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+              <MapPin className="h-4 w-4 text-orange-600" />
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Địa chỉ</p>
@@ -154,27 +154,27 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <Phone className="h-4 w-4 text-blue-600" />
+            <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+              <Phone className="h-4 w-4 text-orange-600" />
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Hotline</p>
-              <a href="tel:18006868" className="text-sm text-blue-600 font-bold hover:underline">1800 6868</a>
+              <a href="tel:18006868" className="text-sm text-orange-600 font-bold hover:underline">1800 6868</a>
               <p className="text-xs text-gray-400">(miễn phí)</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <Mail className="h-4 w-4 text-blue-600" />
+            <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+              <Mail className="h-4 w-4 text-orange-600" />
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Email</p>
-              <a href="mailto:support@taphoa.vn" className="text-sm text-blue-600 font-medium hover:underline">support@taphoa.vn</a>
+              <a href="mailto:support@taphoa.vn" className="text-sm text-orange-600 font-medium hover:underline">support@taphoa.vn</a>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <Clock className="h-4 w-4 text-blue-600" />
+            <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+              <Clock className="h-4 w-4 text-orange-600" />
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Giờ hoạt động</p>

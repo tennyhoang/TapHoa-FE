@@ -16,10 +16,10 @@ import type { Product } from '@/types';
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-0.5">
-      <span className="bg-yellow-400 text-blue-900 font-black text-lg rounded px-2 py-0.5 min-w-[36px] text-center tabular-nums">
+      <span className="bg-amber-400 text-stone-900 font-black text-lg rounded px-2 py-0.5 min-w-[36px] text-center tabular-nums">
         {String(value).padStart(2, '0')}
       </span>
-      <span className="text-[9px] text-blue-200 font-semibold tracking-widest uppercase">{label}</span>
+      <span className="text-[9px] text-orange-200 font-semibold tracking-widest uppercase">{label}</span>
     </div>
   );
 }
@@ -55,8 +55,8 @@ function FlashCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="bg-white rounded-xl border border-blue-100 hover:border-blue-400 hover:shadow-md transition-all duration-150 flex flex-col overflow-hidden h-full">
-        <div className="relative aspect-square bg-gray-50 overflow-hidden">
+      <div className="bg-orange-50 rounded-xl border border-orange-100 hover:border-orange-300 hover:shadow-md transition-all duration-150 flex flex-col overflow-hidden h-full group">
+        <div className="relative aspect-square bg-white overflow-hidden">
           {product.thumbnailUrl ? (
             <Image
               src={product.thumbnailUrl}
@@ -66,35 +66,36 @@ function FlashCard({ product }: { product: Product }) {
               sizes="(max-width: 640px) 50vw, 200px"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-5xl">🐟</div>
+            <div className="w-full h-full flex items-center justify-center text-5xl select-none">🛒</div>
           )}
           {discount && (
-            <span className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+            <span className="absolute top-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
               -{discount}%
             </span>
           )}
           {product.stock === 0 && (
             <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-              <span className="text-xs text-gray-500 border border-gray-300 bg-white px-3 py-1 rounded">Hết hàng</span>
+              <span className="text-xs text-stone-500 border border-stone-300 bg-white px-3 py-1 rounded">Hết hàng</span>
             </div>
           )}
         </div>
+
         <div className="p-3 flex flex-col gap-1.5 flex-1">
-          <p className="text-xs font-semibold line-clamp-2 text-gray-800 leading-snug">{product.name}</p>
+          <p className="text-xs font-semibold line-clamp-2 text-stone-800 leading-snug">{product.name}</p>
           <div className="mt-auto">
             {product.discountPrice ? (
               <>
-                <p className="text-blue-600 font-black text-sm">{formatPrice(product.discountPrice)}</p>
-                <p className="text-gray-400 text-xs line-through">{formatPrice(product.price)}</p>
+                <p className="text-orange-600 font-black text-sm">{formatPrice(product.discountPrice)}</p>
+                <p className="text-stone-400 text-xs line-through">{formatPrice(product.price)}</p>
               </>
             ) : (
-              <p className="text-blue-600 font-black text-sm">{formatPrice(product.price)}</p>
+              <p className="text-orange-600 font-black text-sm">{formatPrice(product.price)}</p>
             )}
           </div>
           <button
             onClick={handleAdd}
             disabled={isPending || product.stock === 0}
-            className="w-full text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+            className="w-full text-xs font-bold bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
           >
             <ShoppingCart className="h-3 w-3" />
             {isPending ? 'Đang thêm...' : 'THÊM VÀO GIỎ'}
@@ -128,32 +129,30 @@ export function FlashSale() {
   const products = data?.items ?? [];
 
   return (
-    <section className="mt-6 rounded-xl overflow-hidden border border-blue-200">
-      {/* Header */}
-      <div className="bg-blue-800 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <section className="mt-6 rounded-xl overflow-hidden border border-orange-200">
+      <div className="bg-orange-700 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <Zap className="h-6 w-6 text-yellow-400 fill-yellow-400 shrink-0" />
           <div>
             <span className="text-white font-black text-xl tracking-wide">FLASH SALE</span>
-            <span className="text-blue-300 text-sm ml-3">Giờ vàng giảm giá</span>
+            <span className="text-orange-200 text-sm ml-3">Giờ vàng giảm giá</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-blue-300 text-xs">Kết thúc sau:</span>
+          <span className="text-orange-200 text-xs">Kết thúc sau:</span>
           <div className="flex items-end gap-1">
             <CountdownUnit value={time.h} label="Giờ" />
-            <span className="text-yellow-400 font-black text-xl mb-4">:</span>
+            <span className="text-amber-400 font-black text-xl mb-4">:</span>
             <CountdownUnit value={time.m} label="Phút" />
-            <span className="text-yellow-400 font-black text-xl mb-4">:</span>
+            <span className="text-amber-400 font-black text-xl mb-4">:</span>
             <CountdownUnit value={time.s} label="Giây" />
           </div>
         </div>
       </div>
 
-      {/* Products */}
-      <div className="bg-blue-50/50 p-4">
+      <div className="bg-orange-50/60 p-4">
         {products.length === 0 ? (
-          <p className="text-center py-10 text-gray-400 text-sm">Chưa có sản phẩm Flash Sale hôm nay</p>
+          <p className="text-center py-10 text-stone-400 text-sm">Chưa có sản phẩm Flash Sale hôm nay</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {products.map(p => (

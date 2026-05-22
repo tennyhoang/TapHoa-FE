@@ -14,7 +14,7 @@ interface Props {
   viewAllHref?: string;
 }
 
-export function ProductSection({ title, queryKey, params, viewAllHref = '/' }: Props) {
+export function ProductSection({ title, queryKey, params, viewAllHref = '/products' }: Props) {
   const { data, isLoading } = useQuery({
     queryKey: [queryKey],
     queryFn: () => productService.getAll({ pageSize: 5, ...params }),
@@ -24,12 +24,12 @@ export function ProductSection({ title, queryKey, params, viewAllHref = '/' }: P
     <section className="py-6">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-1 h-6 bg-blue-600 rounded-full" />
-          <h2 className="text-lg font-black text-gray-800">{title}</h2>
+          <div className="w-1 h-6 bg-orange-600 rounded-full" />
+          <h2 className="text-lg font-black text-stone-900">{title}</h2>
         </div>
         <Link
           href={viewAllHref}
-          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+          className="flex items-center gap-1 text-sm text-orange-600 hover:text-orange-700 font-semibold transition-colors"
         >
           Xem tất cả <ChevronRight className="h-4 w-4" />
         </Link>
@@ -38,7 +38,7 @@ export function ProductSection({ title, queryKey, params, viewAllHref = '/' }: P
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl overflow-hidden border border-gray-200">
+            <div key={i} className="bg-white rounded-xl overflow-hidden border border-orange-100">
               <Skeleton className="aspect-square" />
               <div className="p-3 space-y-2">
                 <Skeleton className="h-4 w-full" />
@@ -48,7 +48,7 @@ export function ProductSection({ title, queryKey, params, viewAllHref = '/' }: P
           ))}
         </div>
       ) : !data?.items.length ? (
-        <p className="text-center py-12 text-gray-400 text-sm">Chưa có sản phẩm</p>
+        <p className="text-center py-12 text-stone-400 text-sm">Chưa có sản phẩm</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {data.items.map(p => (
@@ -60,7 +60,7 @@ export function ProductSection({ title, queryKey, params, viewAllHref = '/' }: P
       <div className="text-center mt-6">
         <Link
           href={viewAllHref}
-          className="inline-flex items-center gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-8 py-2.5 rounded-full text-sm transition-all duration-150"
+          className="inline-flex items-center gap-2 border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-semibold px-8 py-2.5 rounded-full text-sm transition-all duration-150"
         >
           Xem tất cả {title}
         </Link>

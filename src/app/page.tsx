@@ -58,8 +58,8 @@ export default function HomePage() {
         title="Thực phẩm tươi sống chất lượng"
         sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh"
         cta="Xem ngay"
-        href="/"
-        gradient="from-blue-800 to-cyan-700"
+        href="/products"
+        gradient="from-orange-700 to-amber-500"
         emoji="🛒"
       />
 
