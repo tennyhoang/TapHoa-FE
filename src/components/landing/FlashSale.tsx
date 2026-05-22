@@ -43,6 +43,7 @@ function FlashCard({ product }: { product: Product }) {
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isAuthenticated()) {
       toast.error('Vui lòng đăng nhập để mua hàng');
       router.push('/auth/login');
