@@ -139,6 +139,26 @@ export interface UpdateOrderStatusRequest {
   status: OrderStatus;
 }
 
+export interface DriverHubBatch {
+  hubId: string;
+  hubName: string;
+  hubFullAddress: string;
+  orderCount: number;
+  totalAmount: number;
+  orders: Order[];
+}
+
+export interface AdminUser {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role: string;
+  isActive: boolean;
+  agentHubId?: string;
+  createdAt: string;
+}
+
 export interface Review {
   id: string;
   userId: string;

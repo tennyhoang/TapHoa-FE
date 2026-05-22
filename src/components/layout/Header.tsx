@@ -255,9 +255,12 @@ export function Header() {
       <div className="bg-orange-50 border-t border-orange-100">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center gap-1">
           <Link href="/" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Trang chủ</Link>
-          <Link href="/products?isNew=true" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Hàng mới</Link>
-          <Link href="/products?isDiscount=true" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Giá tốt mỗi ngày</Link>
-          <Link href="/profile/orders" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Đơn hàng</Link>
+          <Link href="/gioi-thieu" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Giới thiệu</Link>
+          <Link href="/products" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Sản phẩm</Link>
+          <Link href="/cam-nang" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Cẩm nang</Link>
+          <Link href="/lien-he" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0">Liên hệ</Link>
+          <Link href="/products?isNew=true" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0 hidden sm:block">Hàng mới</Link>
+          <Link href="/products?isDiscount=true" className="text-xs text-stone-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-white shrink-0 hidden md:block">Giá tốt</Link>
 
           <div className="ml-auto shrink-0 flex items-center gap-1">
             <button

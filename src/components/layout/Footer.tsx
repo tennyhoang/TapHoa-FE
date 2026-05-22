@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const HUBS = [
-  { name: 'Hub Quận 1', address: 'Kho Tổng Quận 1, TP.HCM' },
-  { name: 'Hub Quận 7', address: 'Phú Mỹ Hưng, Quận 7, TP.HCM' },
-  { name: 'Hub Bình Thạnh', address: 'Bình Thạnh, TP.HCM' },
-  { name: 'Hub Thủ Đức', address: 'TP. Thủ Đức, TP.HCM' },
+  { name: 'Hub Quận 1',    address: '12 Lý Tự Trọng, Quận 1, TP.HCM' },
+  { name: 'Hub Bình Thạnh', address: '45 Đinh Bộ Lĩnh, Quận Bình Thạnh, TP.HCM' },
+  { name: 'Hub Hoàn Kiếm', address: '8 Hàng Bài, Quận Hoàn Kiếm, Hà Nội' },
 ];
 
 export function Footer() {
@@ -16,6 +16,7 @@ export function Footer() {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
+    toast.success('Đăng ký thành công! Bạn sẽ nhận được ưu đãi sớm nhất.');
     setEmail('');
   };
 
@@ -82,15 +83,16 @@ export function Footer() {
 
           {/* Col 2: Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm">Về chúng tôi</h3>
+            <h3 className="text-white font-semibold mb-4 text-sm">Khám phá</h3>
             <ul className="space-y-2 text-sm">
               {[
-                { label: 'Trang chủ', href: '/' },
-                { label: 'Giới thiệu', href: '/gioi-thieu' },
-                { label: 'Sản phẩm', href: '/products' },
-                { label: 'Hàng mới về', href: '/products?isNew=true' },
-                { label: 'Giá tốt mỗi ngày', href: '/products?isDiscount=true' },
-                { label: 'Giỏ hàng', href: '/cart' },
+                { label: 'Trang chủ',        href: '/' },
+                { label: 'Giới thiệu',        href: '/gioi-thieu' },
+                { label: 'Sản phẩm',          href: '/products' },
+                { label: 'Cẩm nang',          href: '/cam-nang' },
+                { label: 'Hàng mới về',       href: '/products?isNew=true' },
+                { label: 'Giá tốt mỗi ngày',  href: '/products?isDiscount=true' },
+                { label: 'Liên hệ',           href: '/lien-he' },
               ].map(item => (
                 <li key={item.label}>
                   <Link href={item.href} className="hover:text-orange-400 transition-colors">
@@ -106,15 +108,14 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-4 text-sm">Chính sách</h3>
             <ul className="space-y-2 text-sm">
               {[
-                'Chính sách đổi trả',
-                'Chính sách bảo mật',
-                'Chính sách vận chuyển',
-                'Điều khoản sử dụng',
-                'Hỗ trợ khách hàng',
-                'Câu hỏi thường gặp',
+                { label: 'Chính sách đổi trả',      href: '/lien-he' },
+                { label: 'Chính sách bảo mật',       href: '/lien-he' },
+                { label: 'Chính sách vận chuyển',    href: '/lien-he' },
+                { label: 'Điều khoản sử dụng',       href: '/lien-he' },
+                { label: 'Câu hỏi thường gặp',       href: '/lien-he' },
               ].map(item => (
-                <li key={item}>
-                  <a href="#" className="hover:text-orange-400 transition-colors">{item}</a>
+                <li key={item.label}>
+                  <Link href={item.href} className="hover:text-orange-400 transition-colors">{item.label}</Link>
                 </li>
               ))}
             </ul>
