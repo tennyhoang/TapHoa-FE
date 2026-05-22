@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Gift } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -52,27 +52,22 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
-              { icon: '🎁', text: 'Ưu đãi chào mừng thành viên mới' },
-              { icon: '📦', text: 'Theo dõi đơn hàng dễ dàng' },
-              { icon: '❤️', text: 'Lưu địa chỉ giao hàng tiện lợi' },
-            ].map((item, i) => (
+              'Ưu đãi chào mừng thành viên mới',
+              'Theo dõi đơn hàng dễ dàng',
+              'Lưu địa chỉ giao hàng tiện lợi',
+            ].map((text, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xl">{item.icon}</span>
-                <span className="text-sm text-emerald-100">{item.text}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-300 shrink-0" />
+                <span className="text-sm text-emerald-100">{text}</span>
               </div>
             ))}
           </div>
 
           <div className="bg-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <Gift className="h-8 w-8 text-white/80" />
-              <div>
-                <p className="font-semibold text-sm">Miễn phí đăng ký</p>
-                <p className="text-xs text-emerald-200">Không mất phí hàng tháng</p>
-              </div>
-            </div>
+            <p className="font-semibold text-sm">Miễn phí đăng ký</p>
+            <p className="text-xs text-emerald-200 mt-0.5">Không mất phí hàng tháng</p>
           </div>
         </div>
 

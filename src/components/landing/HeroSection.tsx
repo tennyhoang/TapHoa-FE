@@ -21,7 +21,7 @@ const SLIDES = [
     title: 'Rau củ quả sạch',
     sub: 'VietGAP — thu hoạch và giao hàng trong ngày',
     cta: 'Mua ngay',
-    href: '/',
+    href: '/products?search=rau+c%E1%BB%A7',
   },
   {
     gradient: 'from-cyan-900 via-cyan-800 to-cyan-600',
@@ -29,7 +29,7 @@ const SLIDES = [
     title: 'Trái cây tươi nhập khẩu',
     sub: 'Nguồn gốc rõ ràng — kiểm định chất lượng',
     cta: 'Khám phá',
-    href: '/',
+    href: '/products?search=tr%C3%A1i+c%C3%A2y',
   },
   {
     gradient: 'from-teal-900 via-teal-800 to-teal-700',
@@ -37,7 +37,7 @@ const SLIDES = [
     title: 'Combo Gia Đình',
     sub: 'Tiết kiệm hơn khi mua combo — nhận tại Hub gần nhà',
     cta: 'Xem combo',
-    href: '/',
+    href: '/products?isDiscount=true',
   },
 ];
 
@@ -68,7 +68,7 @@ export function HeroSection() {
           {SIDEBAR_CATS.map(cat => (
             <li key={cat.label}>
               <Link
-                href={`/?search=${encodeURIComponent(cat.label)}`}
+                href={`/products?search=${encodeURIComponent(cat.label)}`}
                 className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
               >
                 <span>{cat.label}</span>

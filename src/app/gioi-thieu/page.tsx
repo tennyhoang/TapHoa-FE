@@ -38,7 +38,7 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 text-sm font-semibold px-4 py-1.5 rounded-full border border-orange-100">
-          🛒 Về chúng tôi
+          Về chúng tôi
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
           TapHoa — Tạp hóa sạch <br className="hidden md:block" />
@@ -99,7 +99,6 @@ export default function AboutPage() {
       {/* Mission & Vision */}
       <section className="grid md:grid-cols-2 gap-6">
         <div className="bg-orange-600 rounded-2xl p-8 text-white space-y-3">
-          <span className="text-3xl">🎯</span>
           <h3 className="text-xl font-black">Sứ mệnh</h3>
           <p className="text-orange-100 leading-relaxed text-sm">
             Xây dựng TapHoa trở thành nền tảng tạp hóa online đáng tin cậy nhất Việt Nam — nơi người tiêu dùng có thể
@@ -107,7 +106,6 @@ export default function AboutPage() {
           </p>
         </div>
         <div className="bg-stone-900 rounded-2xl p-8 text-white space-y-3">
-          <span className="text-3xl">🚀</span>
           <h3 className="text-xl font-black">Tầm nhìn</h3>
           <p className="text-orange-200 leading-relaxed text-sm">
             Trong 3 năm tới, TapHoa hướng đến phủ sóng hệ thống hub nhận hàng tại toàn bộ các tỉnh thành lớn,

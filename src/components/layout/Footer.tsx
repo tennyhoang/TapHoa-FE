@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Send } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 
 const HUBS = [
   { name: 'Hub Quận 1', address: 'Kho Tổng Quận 1, TP.HCM' },
@@ -39,9 +39,8 @@ export function Footer() {
             />
             <button
               type="submit"
-              className="flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
+              className="bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
             >
-              <Send className="h-4 w-4" />
               Đăng ký
             </button>
           </form>
@@ -124,7 +123,7 @@ export function Footer() {
           {/* Col 4: Hub map + Payment */}
           <div className="space-y-5">
             <div>
-              <h3 className="text-white font-semibold mb-3 text-sm">🗺️ Hệ thống Hub nhận hàng</h3>
+              <h3 className="text-white font-semibold mb-3 text-sm">Hệ thống Hub nhận hàng</h3>
               <ul className="space-y-2">
                 {HUBS.map(hub => (
                   <li key={hub.name} className="flex items-start gap-2 text-xs">

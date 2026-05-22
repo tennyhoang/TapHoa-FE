@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronRight, TrendingUp, LayoutGrid, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,8 @@ const SORT_OPTIONS = [
   { value: 'name',       label: 'Tên A → Z'      },
 ];
 
-const CAT_FALLBACKS = ['🥬', '🐟', '🥩', '🍎', '🥚', '🧀', '🌽', '🍄'];
 
-function CategoryCircle({ cat, selected, onClick, index }: {
+function CategoryCircle({ cat, selected, onClick }: {
   cat: Category; selected: boolean; onClick: () => void; index: number
 }) {
   return (
@@ -41,8 +40,10 @@ function CategoryCircle({ cat, selected, onClick, index }: {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gray-50 flex items-center justify-center text-xl select-none">
-            {CAT_FALLBACKS[index % CAT_FALLBACKS.length]}
+          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+            <span className="text-lg font-black text-gray-400 select-none">
+              {cat.name.charAt(0).toUpperCase()}
+            </span>
           </div>
         )}
       </div>
@@ -66,13 +67,10 @@ function AllCategoriesModal({ open, onOpenChange, categories, selectedId, onSele
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <LayoutGrid className="h-5 w-5 text-blue-600" />
-            Tất cả danh mục
-          </DialogTitle>
+          <DialogTitle>Tất cả danh mục</DialogTitle>
         </DialogHeader>
         <div className="space-y-1 mt-2 max-h-[60vh] overflow-y-auto pr-1">
-          {categories.map((parent, i) => {
+          {categories.map((parent) => {
             const parentActive = selectedId === parent.id || parent.children.some(c => c.id === selectedId);
             return (
               <div key={parent.id}>
@@ -82,11 +80,8 @@ function AllCategoriesModal({ open, onOpenChange, categories, selectedId, onSele
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
                     ${parentActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-800'}`}
                 >
-                  <span className="text-xl w-7 text-center select-none shrink-0">
-                    {CAT_FALLBACKS[i % CAT_FALLBACKS.length]}
-                  </span>
                   {parent.name}
-                  <ChevronRight className="h-4 w-4 ml-auto opacity-30" />
+                  <span className="ml-auto text-xs opacity-40">›</span>
                 </button>
                 {parent.children.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 px-4 pb-2">
@@ -229,9 +224,9 @@ function ProductsContent() {
             <button
               type="button"
               onClick={() => setShowAllCategories(true)}
-              className="text-xs text-blue-600 flex items-center gap-0.5 hover:underline"
+              className="text-xs text-blue-600 hover:underline"
             >
-              Xem tất cả <ChevronRight className="h-3 w-3" />
+              Xem tất cả →
             </button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
@@ -246,7 +241,9 @@ function ProductsContent() {
                   : 'border-gray-200 bg-gray-50 group-hover:border-blue-300'
                 }`}
               >
-                <span className="text-xl select-none">🛒</span>
+                <span className={`text-xs font-bold select-none ${!categoryId ? 'text-white' : 'text-gray-500'}`}>
+                  Tất cả
+                </span>
               </div>
               <span className={`text-xs font-medium transition-colors ${!categoryId ? 'text-blue-600' : 'text-gray-600'}`}>
                 Tất cả
@@ -270,9 +267,7 @@ function ProductsContent() {
         <aside className="hidden lg:block w-48 shrink-0">
           <div className="border border-gray-200 rounded-xl overflow-hidden sticky top-28 bg-white">
             <div className="px-4 py-3 border-b border-gray-100">
-              <p className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-blue-600" /> Sắp xếp
-              </p>
+              <p className="font-semibold text-sm text-gray-700">Sắp xếp</p>
             </div>
             <div className="p-2">
               {SORT_OPTIONS.map(opt => (
@@ -318,7 +313,6 @@ function ProductsContent() {
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {activeCategoryName && (
                 <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                  <LayoutGrid className="h-3 w-3" />
                   {activeCategoryName}
                   <button type="button" onClick={() => { setCategoryId(undefined); setPage(1); }} className="ml-0.5 hover:opacity-75">
                     <X className="h-3 w-3" />
@@ -353,8 +347,7 @@ function ProductsContent() {
             </div>
           ) : data?.items.length === 0 ? (
             <div className="text-center py-24 space-y-3">
-              <div className="text-5xl">🔍</div>
-              <p className="text-gray-500">Không tìm thấy sản phẩm nào.</p>
+              <p className="text-gray-400 text-lg font-semibold">Không tìm thấy sản phẩm nào.</p>
               <button type="button" onClick={clearAll} className="text-sm text-blue-600 hover:underline">
                 Xem tất cả sản phẩm
               </button>

@@ -17,7 +17,7 @@ export function Partners() {
         {PARTNERS.map(name => (
           <div
             key={name}
-            className="bg-white border border-gray-200 rounded-xl px-6 py-3 hover:border-emerald-300 hover:shadow-sm transition-all cursor-pointer"
+            className="bg-white border border-gray-200 rounded-xl px-6 py-3"
           >
             <span className="text-sm font-semibold text-gray-600">{name}</span>
           </div>

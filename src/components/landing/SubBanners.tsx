@@ -6,14 +6,14 @@ const BANNERS = [
     badge: 'Khuyến mãi đặc biệt',
     title: 'Rau củ VietGAP',
     sub: 'Giảm 25% — hôm nay',
-    href: '/?search=rau+c%E1%BB%A7',
+    href: '/products?search=rau+c%E1%BB%A7',
   },
   {
     bg: 'from-emerald-600 to-cyan-500',
     badge: 'Mới về hôm nay',
     title: 'Trái cây nhập khẩu',
     sub: 'Nguồn gốc rõ ràng',
-    href: '/?search=tr%C3%A1i+c%C3%A2y',
+    href: '/products?search=tr%C3%A1i+c%C3%A2y',
   },
 ];
 

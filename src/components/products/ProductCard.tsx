@@ -67,7 +67,9 @@ export function ProductCard({ product }: { product: Product }) {
               sizes="(max-width: 768px) 50vw, 25vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl text-stone-300 select-none">🥬</div>
+            <div className="w-full h-full flex items-center justify-center bg-gray-50">
+              <span className="text-xs text-gray-400 font-medium">Chưa có ảnh</span>
+            </div>
           )}
 
           {discount && (

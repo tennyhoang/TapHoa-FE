@@ -29,7 +29,7 @@ export default function HomePage() {
         title="Hàng mới về"
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
-        viewAllHref="/?isNew=true"
+        viewAllHref="/products?isNew=true"
       />
 
       <InterBanner
@@ -37,7 +37,7 @@ export default function HomePage() {
         title="Rau củ quả tươi sạch VietGAP"
         sub="Trực tiếp từ nông trại — kiểm định chất lượng trước khi giao"
         cta="Đặt mua ngay"
-        href="/?isNew=true"
+        href="/products?isNew=true"
         gradient="from-emerald-800 to-cyan-600"
       />
 
@@ -45,7 +45,7 @@ export default function HomePage() {
         title="Trái cây tươi"
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
-        viewAllHref="/?search=tr%C3%A1i+c%C3%A2y"
+        viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
       />
 
       <InterBanner
@@ -53,7 +53,7 @@ export default function HomePage() {
         title="Thực phẩm tươi sống chất lượng"
         sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh tại Hub gần nhà"
         cta="Xem ngay"
-        href="/?isDiscount=true"
+        href="/products?isDiscount=true"
         gradient="from-teal-800 to-teal-600"
       />
 
@@ -61,7 +61,7 @@ export default function HomePage() {
         title="Giá tốt mỗi ngày"
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
-        viewAllHref="/?isDiscount=true"
+        viewAllHref="/products?isDiscount=true"
       />
 
       <BlogSection />

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, ShoppingBag } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -60,27 +60,22 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
-              { icon: '🚀', text: 'Giao hàng nhanh toàn quốc' },
-              { icon: '💎', text: 'Hàng nghìn sản phẩm chất lượng' },
-              { icon: '🔒', text: 'Thanh toán an toàn, bảo mật' },
-            ].map((item, i) => (
+              'Giao hàng nhanh toàn quốc',
+              'Hàng nghìn sản phẩm chất lượng',
+              'Thanh toán an toàn, bảo mật',
+            ].map((text, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xl">{item.icon}</span>
-                <span className="text-sm text-emerald-100">{item.text}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-300 shrink-0" />
+                <span className="text-sm text-emerald-100">{text}</span>
               </div>
             ))}
           </div>
 
           <div className="bg-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <ShoppingBag className="h-8 w-8 text-white/80" />
-              <div>
-                <p className="font-semibold text-sm">Hơn 10,000 sản phẩm</p>
-                <p className="text-xs text-emerald-200">đang chờ bạn khám phá</p>
-              </div>
-            </div>
+            <p className="font-semibold text-sm">Hơn 10,000 sản phẩm</p>
+            <p className="text-xs text-emerald-200 mt-0.5">đang chờ bạn khám phá</p>
           </div>
         </div>
 

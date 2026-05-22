@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 const BLOGS = [
   {
     id: 1,
@@ -32,22 +30,14 @@ export function BlogSection() {
           <div className="w-1 h-6 bg-emerald-600 rounded-full" />
           <h2 className="text-lg font-black text-gray-800">Cẩm nang ẩm thực</h2>
         </div>
-        <Link
-          href="#"
-          className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
-        >
-          Xem tất cả →
-        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {BLOGS.map(blog => (
-          <Link
+          <div
             key={blog.id}
-            href="#"
-            className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-emerald-300 hover:shadow-sm transition-all group"
+            className="bg-white border border-gray-200 rounded-xl overflow-hidden"
           >
-            {/* Placeholder thumbnail */}
             <div className="h-36 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
               <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">
                 {blog.category}
@@ -55,12 +45,12 @@ export function BlogSection() {
             </div>
             <div className="p-4">
               <p className="text-[11px] text-emerald-500 font-medium mb-1">{blog.date}</p>
-              <p className="text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug mb-2">
+              <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2">
                 {blog.title}
               </p>
               <p className="text-xs text-gray-400 line-clamp-2">{blog.desc}</p>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </section>

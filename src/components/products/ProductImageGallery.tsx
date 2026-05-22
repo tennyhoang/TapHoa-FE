@@ -33,7 +33,9 @@ export function ProductImageGallery({ thumbnailUrl, images, productName, outOfSt
             priority
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-8xl">📦</div>
+          <div className="w-full h-full flex items-center justify-center bg-gray-50">
+            <span className="text-sm text-gray-400 font-medium">Chưa có ảnh</span>
+          </div>
         )}
 
         {discountPct && (
