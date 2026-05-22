@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Zap, ShoppingCart } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '@/services/product.service';
 import { cartService } from '@/services/cart.service';
@@ -99,8 +98,7 @@ function FlashCard({ product }: { product: Product }) {
             disabled={isPending || product.stock === 0}
             className="w-full text-xs font-bold bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
           >
-            <ShoppingCart className="h-3 w-3" />
-            {isPending ? 'Đang thêm...' : 'THÊM VÀO GIỎ'}
+            {isPending ? 'Đang thêm...' : 'Thêm vào giỏ'}
           </button>
         </div>
       </div>
@@ -134,7 +132,6 @@ export function FlashSale() {
     <section className="mt-6 rounded-xl overflow-hidden border border-orange-200">
       <div className="bg-orange-700 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Zap className="h-6 w-6 text-yellow-400 fill-yellow-400 shrink-0" />
           <div>
             <span className="text-white font-black text-xl tracking-wide">FLASH SALE</span>
             <span className="text-orange-200 text-sm ml-3">Giờ vàng giảm giá</span>

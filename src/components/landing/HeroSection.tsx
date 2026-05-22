@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 
 const SIDEBAR_CATS = [
   { label: 'Rau củ quả' },
@@ -58,14 +57,11 @@ export function HeroSection() {
     return () => clearInterval(t);
   }, []);
 
-  const slide = SLIDES[current];
-
   return (
     <div className="grid grid-cols-12 gap-0 min-h-[320px]">
       {/* LEFT: Sidebar categories */}
       <aside className="hidden lg:flex col-span-3 flex-col bg-white border border-gray-200 rounded-l-xl overflow-hidden">
-        <div className="bg-emerald-700 px-4 py-3 flex items-center gap-2 shrink-0">
-          <Menu className="h-4 w-4 text-white" />
+        <div className="bg-emerald-700 px-4 py-3 shrink-0">
           <span className="text-white font-bold text-sm tracking-wide">Danh mục sản phẩm</span>
         </div>
         <ul className="flex-1 divide-y divide-gray-100 overflow-y-auto">
@@ -73,10 +69,10 @@ export function HeroSection() {
             <li key={cat.label}>
               <Link
                 href={`/?search=${encodeURIComponent(cat.label)}`}
-                className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors group"
+                className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
               >
                 <span>{cat.label}</span>
-                <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 text-emerald-500 transition-opacity shrink-0" />
+                <span className="text-xs text-emerald-400 opacity-0 group-hover:opacity-100">›</span>
               </Link>
             </li>
           ))}
@@ -122,7 +118,7 @@ export function HeroSection() {
                     href={s.href}
                     className="inline-flex items-center gap-2 bg-white text-emerald-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-emerald-50 transition-colors"
                   >
-                    {s.cta} <ChevronRight className="h-4 w-4" />
+                    {s.cta} →
                   </Link>
                 </div>
               </div>
@@ -132,17 +128,17 @@ export function HeroSection() {
           {/* Arrows */}
           <button
             onClick={() => setCurrent(c => (c - 1 + SLIDES.length) % SLIDES.length)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 backdrop-blur-sm transition-colors z-10"
+            className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center backdrop-blur-sm transition-colors z-10 text-lg font-light"
             aria-label="Trước"
           >
-            <ChevronLeft className="h-5 w-5" />
+            ‹
           </button>
           <button
             onClick={() => setCurrent(c => (c + 1) % SLIDES.length)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 backdrop-blur-sm transition-colors z-10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center backdrop-blur-sm transition-colors z-10 text-lg font-light"
             aria-label="Sau"
           >
-            <ChevronRight className="h-5 w-5" />
+            ›
           </button>
 
           {/* Dots */}
