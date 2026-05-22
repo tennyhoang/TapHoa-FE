@@ -4,12 +4,13 @@ import { OrderStatus } from '@/types';
 import { ORDER_STATUS_LABEL } from '@/lib/format';
 
 const FILTER_OPTIONS: { label: string; value: OrderStatus | undefined }[] = [
-  { label: 'Tất cả', value: undefined },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Pending], value: OrderStatus.Pending },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Confirmed], value: OrderStatus.Confirmed },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Shipping], value: OrderStatus.Shipping },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Delivered], value: OrderStatus.Delivered },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Cancelled], value: OrderStatus.Cancelled },
+  { label: 'Tất cả',                                                    value: undefined },
+  { label: ORDER_STATUS_LABEL[OrderStatus.PendingPayment],              value: OrderStatus.PendingPayment },
+  { label: ORDER_STATUS_LABEL[OrderStatus.Paid_WaitingForBatch],        value: OrderStatus.Paid_WaitingForBatch },
+  { label: ORDER_STATUS_LABEL[OrderStatus.ShippingToHub],               value: OrderStatus.ShippingToHub },
+  { label: ORDER_STATUS_LABEL[OrderStatus.InHub_ReadyForPickup],        value: OrderStatus.InHub_ReadyForPickup },
+  { label: ORDER_STATUS_LABEL[OrderStatus.Completed],                   value: OrderStatus.Completed },
+  { label: ORDER_STATUS_LABEL[OrderStatus.Cancelled],                   value: OrderStatus.Cancelled },
 ];
 
 interface Props {

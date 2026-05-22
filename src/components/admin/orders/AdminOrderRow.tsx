@@ -12,31 +12,11 @@ import { orderService } from '@/services/order.service';
 import { Order, OrderStatus } from '@/types';
 import { formatPrice, formatDate } from '@/lib/format';
 
-// BE uses JsonStringEnumConverter so responses are strings, but keep numeric fallback
-const STATUS_FROM_NUMBER: Record<number, OrderStatus> = {
-  0: OrderStatus.Pending,
-  1: OrderStatus.Confirmed,
-  2: OrderStatus.Shipping,
-  3: OrderStatus.ArrivedAtHub,
-  4: OrderStatus.Delivered,
-  5: OrderStatus.Cancelled,
-  6: OrderStatus.Refunded,
-};
+// ─── Admin can cancel PendingPayment/Paid_WaitingForBatch orders ──────────────
 
-function resolveStatus(raw: unknown): OrderStatus {
-  if (typeof raw === 'number') return STATUS_FROM_NUMBER[raw] ?? OrderStatus.Pending;
-  const s = String(raw);
-  return (
-    (Object.values(OrderStatus).find(v => v.toLowerCase() === s.toLowerCase()) as OrderStatus) ??
-    OrderStatus.Pending
-  );
-}
-
-// ─── Admin can only confirm Pending orders and cancel Pending/Confirmed ────────
-
-function getAdminActions(status: OrderStatus): { confirm?: true; cancel?: true } {
-  if (status === OrderStatus.Pending)   return { confirm: true, cancel: true };
-  if (status === OrderStatus.Confirmed) return { cancel: true };
+function getAdminActions(status: OrderStatus): { cancel?: true } {
+  if (status === OrderStatus.PendingPayment || status === OrderStatus.Paid_WaitingForBatch)
+    return { cancel: true };
   return {};
 }
 
@@ -49,17 +29,8 @@ export function AdminOrderRow({ order }: Props) {
   const [expanded,      setExpanded]      = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  const status = resolveStatus(order.status);
+  const status = order.status;
   const actions = getAdminActions(status);
-
-  const confirmMutation = useMutation({
-    mutationFn: () => orderService.updateOrderStatus(order.id, OrderStatus.Confirmed),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast.success('Đã xác nhận đơn hàng');
-    },
-    onError: () => toast.error('Xác nhận thất bại'),
-  });
 
   const cancelMutation = useMutation({
     mutationFn: () => orderService.updateOrderStatus(order.id, OrderStatus.Cancelled),
@@ -78,7 +49,7 @@ export function AdminOrderRow({ order }: Props) {
     ? `${order.hub.address}, ${order.hub.ward}, ${order.hub.district}, ${order.hub.city}`
     : '';
 
-  const isPending = confirmMutation.isPending || cancelMutation.isPending;
+  const isPending = cancelMutation.isPending;
 
   return (
     <>
@@ -117,20 +88,9 @@ export function AdminOrderRow({ order }: Props) {
           <OrderStatusBadge status={status} />
         </td>
 
-        {/* Actions — Admin: Confirm (Pending) + Cancel (Pending/Confirmed) */}
+        {/* Actions — Admin: Cancel (PendingPayment / Paid_WaitingForBatch) */}
         <td className="px-5 py-4">
           <div className="flex gap-1.5 justify-end items-center flex-wrap">
-            {actions.confirm && (
-              <button
-                disabled={isPending}
-                onClick={() => confirmMutation.mutate()}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
-                  disabled:opacity-50 disabled:cursor-not-allowed shadow-sm
-                  bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                {confirmMutation.isPending ? '...' : 'Xác nhận'}
-              </button>
-            )}
             {actions.cancel && (
               <button
                 disabled={isPending}

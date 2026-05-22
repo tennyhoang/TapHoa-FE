@@ -95,13 +95,13 @@ export interface OrderHubInfo {
 }
 
 export enum OrderStatus {
-  Pending      = 'Pending',
-  Confirmed    = 'Confirmed',
-  Shipping     = 'Shipping',
-  ArrivedAtHub = 'ArrivedAtHub',
-  Delivered    = 'Delivered',
-  Cancelled    = 'Cancelled',
-  Refunded     = 'Refunded',
+  PendingPayment      = 'PendingPayment',
+  Paid_WaitingForBatch = 'Paid_WaitingForBatch',
+  ShippingToHub       = 'ShippingToHub',
+  InHub_ReadyForPickup = 'InHub_ReadyForPickup',
+  Completed           = 'Completed',
+  Cancelled           = 'Cancelled',
+  Refunded            = 'Refunded',
 }
 
 export interface Order {
@@ -112,21 +112,17 @@ export interface Order {
   status: OrderStatus;
   totalAmount: number;
   note?: string;
+  paymentRef?: string;
+  paidAt?: string;
   hub: OrderHubInfo;
   items: OrderItem[];
   createdAt: string;
   cancelReason?: string;
-  confirmedAt?: string;
-  shippingAt?: string;
-  arrivedAtHubAt?: string;
-  deliveredAt?: string;
+  shippingToHubAt?: string;
+  inHubAt?: string;
+  completedAt?: string;
   cancelledAt?: string;
   refundedAt?: string;
-  canConfirm?: boolean;
-  canShip?: boolean;
-  canArriveAtHub?: boolean;
-  canDeliver?: boolean;
-  canCancel?: boolean;
 }
 
 export interface OrderFilterParams {
