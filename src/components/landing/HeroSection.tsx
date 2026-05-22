@@ -47,7 +47,7 @@ const SLIDES = [
 
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
-  { label: 'Giới thiệu', href: '#' },
+  { label: 'Giới thiệu', href: '/gioi-thieu' },
   { label: 'Sản phẩm', href: '/products' },
   { label: 'Cẩm nang', href: '#' },
   { label: 'Liên hệ', href: '#' },

@@ -79,10 +79,10 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               {[
                 { label: 'Trang chủ', href: '/' },
-                { label: 'Giới thiệu', href: '#' },
-                { label: 'Sản phẩm', href: '/' },
-                { label: 'Hàng mới về', href: '/?isNew=true' },
-                { label: 'Giá tốt mỗi ngày', href: '/?isDiscount=true' },
+                { label: 'Giới thiệu', href: '/gioi-thieu' },
+                { label: 'Sản phẩm', href: '/products' },
+                { label: 'Hàng mới về', href: '/products?isNew=true' },
+                { label: 'Giá tốt mỗi ngày', href: '/products?isDiscount=true' },
                 { label: 'Giỏ hàng', href: '/cart' },
               ].map(item => (
                 <li key={item.label}>
