@@ -7,7 +7,7 @@ const BANNERS = [
     eyebrow: 'Hôm nay giảm 25%',
     title: 'Rau củ VietGAP',
     sub: 'Tươi sạch, giá tốt',
-    href: '/products?search=rau+c%E1%BB%A7',
+    href: '/products?categoryName=Rau+c%E1%BB%A7',
     badge: '-25%',
   },
   {
@@ -15,7 +15,7 @@ const BANNERS = [
     eyebrow: 'Mới về hôm nay',
     title: 'Trái cây nhập khẩu',
     sub: 'Nguồn gốc rõ ràng',
-    href: '/products?search=tr%C3%A1i+c%C3%A2y',
+    href: '/products?categoryName=Tr%C3%A1i+c%C3%A2y',
     badge: 'New',
   },
 ];

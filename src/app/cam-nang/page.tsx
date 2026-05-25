@@ -1,61 +1,22 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { BookOpen, ArrowRight } from 'lucide-react';
+import { Article } from '@/services/article.service';
+import { ArticleGrid } from '@/components/cam-nang/ArticleGrid';
 
-const ARTICLES = [
-  {
-    image: 'https://images.unsplash.com/photo-1557844352-761f2565b576?w=600&q=85&auto=format&fit=crop',
-    category: 'Dinh dưỡng',
-    categoryColor: 'oklch(0.54 0.158 145)',
-    title: 'Rau xanh tươi — bí quyết chọn mua đúng cách',
-    desc: 'Hướng dẫn phân biệt rau sạch VietGAP với rau thông thường, cách bảo quản và chế biến giữ nguyên dinh dưỡng.',
-    readTime: '4 phút',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=85&auto=format&fit=crop',
-    category: 'Mua sắm thông minh',
-    categoryColor: 'oklch(0.57 0.135 196)',
-    title: 'Mua thực phẩm online — 5 điều cần biết trước khi đặt',
-    desc: 'Kinh nghiệm mua thực phẩm online an toàn, tiết kiệm — từ cách đọc nhãn đến kiểm tra nguồn gốc xuất xứ.',
-    readTime: '5 phút',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=85&auto=format&fit=crop',
-    category: 'Hệ thống Hub',
-    categoryColor: 'oklch(0.55 0.15 280)',
-    title: 'Hub nhận hàng TapHoa hoạt động như thế nào?',
-    desc: 'Hiểu rõ quy trình từ khi đặt hàng đến khi lấy hàng tại Hub — đảm bảo thực phẩm tươi ngon và an toàn.',
-    readTime: '3 phút',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=85&auto=format&fit=crop',
-    category: 'Sản phẩm nổi bật',
-    categoryColor: 'oklch(0.75 0.155 55)',
-    title: 'Gạo ST25 — Gạo ngon nhất thế giới đã đến TapHoa',
-    desc: 'Câu chuyện đằng sau giống gạo ST25 đoạt giải quốc tế và lý do trở thành lựa chọn số 1 của triệu gia đình.',
-    readTime: '6 phút',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&q=85&auto=format&fit=crop',
-    category: 'Dinh dưỡng',
-    categoryColor: 'oklch(0.54 0.158 145)',
-    title: 'Thực phẩm tươi sống — cách bảo quản đúng trong tủ lạnh',
-    desc: 'Mẹo bảo quản thịt, cá, rau củ đúng cách giúp kéo dài độ tươi và giữ an toàn cho cả gia đình.',
-    readTime: '4 phút',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=85&auto=format&fit=crop',
-    category: 'Mua sắm thông minh',
-    categoryColor: 'oklch(0.57 0.135 196)',
-    title: 'Lên thực đơn tuần — tiết kiệm 30% chi phí ăn uống',
-    desc: 'Cách lập kế hoạch bữa ăn khoa học, kết hợp mua sắm theo nhóm để tiết kiệm mà vẫn đảm bảo dinh dưỡng.',
-    readTime: '7 phút',
-  },
-];
+async function getArticles(): Promise<Article[]> {
+  try {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5084/api/v1';
+    const res = await fetch(`${apiBase}/articles`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
 
-const CATEGORIES = ['Tất cả', 'Dinh dưỡng', 'Mua sắm thông minh', 'Hệ thống Hub', 'Sản phẩm nổi bật'];
+export default async function CamNangPage() {
+  const articles = await getArticles();
 
-export default function CamNangPage() {
   return (
     <div className="max-w-5xl mx-auto py-4 space-y-12">
 
@@ -72,7 +33,8 @@ export default function CamNangPage() {
           <BookOpen className="h-4 w-4" />
           Cẩm nang mua sắm
         </div>
-        <h1 className="font-editorial font-black text-foreground leading-tight"
+        <h1
+          className="font-editorial font-black text-foreground leading-tight"
           style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}
         >
           Kiến thức & kinh nghiệm mua sắm
@@ -82,65 +44,7 @@ export default function CamNangPage() {
         </p>
       </section>
 
-      {/* Category filter */}
-      <div className="flex gap-2 flex-wrap justify-center">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            className="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
-            style={cat === 'Tất cả' ? {
-              background: 'oklch(0.57 0.135 196)',
-              color: 'white',
-              borderColor: 'oklch(0.57 0.135 196)',
-            } : {
-              background: 'transparent',
-              color: 'oklch(0.52 0.022 192)',
-              borderColor: 'oklch(0.88 0.008 90)',
-            }}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Articles grid — varied layout */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {ARTICLES.map(article => (
-          <Link key={article.title} href="/cam-nang" className="group block">
-            <div className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-border hover:shadow-[0_4px_20px_oklch(0_0_0/0.07)] transition-all duration-200 h-full flex flex-col">
-              <div className="relative h-44 overflow-hidden">
-                <Image
-                  src={article.image}
-                  alt={article.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                <span
-                  className="absolute top-3.5 left-3.5 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm"
-                  style={{ background: `${article.categoryColor}cc` }}
-                >
-                  {article.category}
-                </span>
-              </div>
-              <div className="p-5 flex flex-col gap-2 flex-1">
-                <h3 className="font-editorial font-bold text-base text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                  {article.title}
-                </h3>
-                <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed flex-1">
-                  {article.desc}
-                </p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-[11px] text-muted-foreground">{article.readTime} đọc</span>
-                  <span className="text-primary text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                    Đọc tiếp <ArrowRight className="h-3 w-3" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <ArticleGrid articles={articles} />
 
       {/* CTA */}
       <section

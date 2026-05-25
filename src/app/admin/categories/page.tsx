@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
-import { Plus, Pencil, Trash2, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronRight, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -228,8 +228,8 @@ export default function AdminCategoriesPage() {
                   {cat.imageUrl ? (
                     <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 object-cover rounded" />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-lg">
-                      🏷️
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+                      <Tag className="h-4 w-4" />
                     </div>
                   )}
                 </td>

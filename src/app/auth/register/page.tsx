@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Gift, Package, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -80,12 +80,12 @@ export default function RegisterPage() {
               </p>
               <div className="space-y-3">
                 {[
-                  { icon: '🎁', text: 'Ưu đãi chào mừng thành viên mới' },
-                  { icon: '📦', text: 'Theo dõi đơn hàng dễ dàng' },
-                  { icon: '📍', text: 'Lưu địa chỉ Hub tiện lợi' },
+                  { icon: Gift, text: 'Ưu đãi chào mừng thành viên mới' },
+                  { icon: Package, text: 'Theo dõi đơn hàng dễ dàng' },
+                  { icon: MapPin, text: 'Lưu địa chỉ Hub tiện lợi' },
                 ].map((p, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <span className="text-lg">{p.icon}</span>
+                    <p.icon className="h-4 w-4 text-white/60 shrink-0" />
                     <span className="text-sm text-white/75">{p.text}</span>
                   </div>
                 ))}

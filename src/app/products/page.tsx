@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { Search, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -114,24 +115,29 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const urlSearch     = searchParams.get('search') ?? '';
-  const urlCategoryId = searchParams.get('categoryId') ?? '';
-  const urlSort       = searchParams.get('sortBy') ?? '';
-  const urlIsNew      = searchParams.get('isNew') === 'true';
-  const urlIsDiscount = searchParams.get('isDiscount') === 'true';
+  const urlSearch       = searchParams.get('search') ?? '';
+  const urlCategoryId   = searchParams.get('categoryId') ?? '';
+  const urlCategoryName = searchParams.get('categoryName') ?? '';
+  const urlSort         = searchParams.get('sortBy') ?? '';
+  const urlIsNew        = searchParams.get('isNew') === 'true';
+  const urlIsDiscount   = searchParams.get('isDiscount') === 'true';
 
   const [mounted, setMounted]                     = useState(false);
   const [searchInput, setSearchInput]             = useState('');
-  const [search, setSearch]                       = useState('');
+  const debouncedSearch                            = useDebounce(searchInput, 300);
   const [categoryId, setCategoryId]               = useState<string | undefined>();
   const [sortBy, setSortBy]                       = useState('newest');
   const [page, setPage]                           = useState(1);
+  const [pageSearch, setPageSearch]               = useState(''); // tracks which search the current page belongs to
   const [showAllCategories, setShowAllCategories] = useState(false);
+
+  // Reset page to 1 when debounced search changes — derived, no setState in effect needed
+  const effectivePage = pageSearch === debouncedSearch ? page : 1;
 
   useEffect(() => {
     const t = setTimeout(() => {
       setMounted(true);
-      if (urlSearch)     { setSearch(urlSearch); setSearchInput(urlSearch); }
+      if (urlSearch)     setSearchInput(urlSearch);
       if (urlCategoryId) setCategoryId(urlCategoryId);
       if (urlSort)       setSortBy(urlSort);
     }, 0);
@@ -145,34 +151,46 @@ function ProductsContent() {
     enabled: mounted,
   });
 
+  // Resolve categoryId from URL name when categories load — no setState in effect
+  const resolvedCategoryId = useMemo(() => {
+    if (!urlCategoryName || !categories || categoryId) return undefined;
+    const lower = urlCategoryName.toLowerCase();
+    for (const cat of categories) {
+      if (cat.name.toLowerCase().includes(lower) || lower.includes(cat.name.toLowerCase())) {
+        return cat.id;
+      }
+    }
+    return undefined;
+  }, [urlCategoryName, categories, categoryId]);
+
+  const effectiveCategoryId = categoryId ?? resolvedCategoryId;
+
   const { data, isLoading } = useQuery({
-    queryKey: ['products-listing', search, categoryId, sortBy, page, urlIsNew, urlIsDiscount],
+    queryKey: ['products-listing', debouncedSearch, effectiveCategoryId, sortBy, effectivePage, urlIsNew, urlIsDiscount],
     queryFn: () => productService.getAll({
-      search:     search || undefined,
-      categoryId: categoryId || undefined,
+      search:     debouncedSearch || undefined,
+      categoryId: effectiveCategoryId || undefined,
       sortBy,
-      page,
+      page:       effectivePage,
       pageSize:   20,
       isNew:      urlIsNew      || undefined,
       isDiscount: urlIsDiscount || undefined,
     }),
-    enabled: mounted,
+    enabled: mounted && (!urlCategoryName || !!effectiveCategoryId),
   });
 
   const activeCategoryName = useMemo(() => {
-    if (!categoryId || !categories) return undefined;
+    if (!effectiveCategoryId || !categories) return undefined;
     for (const cat of categories) {
-      if (cat.id === categoryId) return cat.name;
-      const child = cat.children.find(c => c.id === categoryId);
+      if (cat.id === effectiveCategoryId) return cat.name;
+      const child = cat.children.find(c => c.id === effectiveCategoryId);
       if (child) return child.name;
     }
     return undefined;
-  }, [categoryId, categories]);
+  }, [effectiveCategoryId, categories]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearch(searchInput);
-    setPage(1);
   };
 
   const handleSelectCategory = (id: string) => {
@@ -181,7 +199,7 @@ function ProductsContent() {
   };
 
   const clearAll = () => {
-    setSearch(''); setSearchInput(''); setCategoryId(undefined); setPage(1);
+    setSearchInput(''); setPageSearch(''); setCategoryId(undefined); setPage(1);
     router.push('/products');
   };
 
@@ -193,7 +211,7 @@ function ProductsContent() {
       ? 'Giá tốt mỗi ngày'
       : urlSearch
         ? `Kết quả: "${urlSearch}"`
-        : activeCategoryName ?? 'Tất cả sản phẩm';
+        : activeCategoryName ?? (urlCategoryName || 'Tất cả sản phẩm');
 
   return (
     <div className="space-y-0">
@@ -236,16 +254,16 @@ function ProductsContent() {
               className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
             >
               <div className={`w-14 h-14 rounded-2xl border-2 transition-all duration-150 flex items-center justify-center
-                ${!categoryId
+                ${!effectiveCategoryId
                   ? 'border-primary bg-primary ring-2 ring-primary/20'
                   : 'border-border bg-muted group-hover:border-primary/50'
                 }`}
               >
-                <span className={`text-xs font-bold select-none ${!categoryId ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                <span className={`text-xs font-bold select-none ${!effectiveCategoryId ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
                   Tất cả
                 </span>
               </div>
-              <span className={`text-xs font-medium transition-colors ${!categoryId ? 'text-primary' : 'text-foreground/70'}`}>
+              <span className={`text-xs font-medium transition-colors ${!effectiveCategoryId ? 'text-primary' : 'text-foreground/70'}`}>
                 Tất cả
               </span>
             </button>
@@ -254,7 +272,7 @@ function ProductsContent() {
                 key={cat.id}
                 cat={cat}
                 index={i}
-                selected={categoryId === cat.id || cat.children.some(c => c.id === categoryId)}
+                selected={effectiveCategoryId === cat.id || cat.children.some(c => c.id === effectiveCategoryId)}
                 onClick={() => handleSelectCategory(cat.id)}
               />
             ))}
@@ -309,7 +327,7 @@ function ProductsContent() {
           </div>
 
           {/* Active filters */}
-          {(search || activeCategoryName) && (
+          {(debouncedSearch || activeCategoryName) && (
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {activeCategoryName && (
                 <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -319,11 +337,11 @@ function ProductsContent() {
                   </button>
                 </span>
               )}
-              {search && (
+              {debouncedSearch && (
                 <span className="inline-flex items-center gap-1.5 bg-muted text-foreground text-xs font-medium px-3 py-1.5 rounded-full border border-border">
                   <Search className="h-3 w-3" />
-                  {search}
-                  <button type="button" onClick={() => { setSearch(''); setSearchInput(''); setPage(1); }} className="ml-0.5 hover:opacity-75">
+                  {debouncedSearch}
+                  <button type="button" onClick={() => { setSearchInput(''); setPageSearch(''); setPage(1); }} className="ml-0.5 hover:opacity-75">
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -365,25 +383,25 @@ function ProductsContent() {
 
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-10">
-                  <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}
+                  <Button variant="outline" disabled={effectivePage === 1} onClick={() => { setPageSearch(debouncedSearch); setPage(p => p - 1); }}
                     className="rounded-xl px-5 border-border text-muted-foreground hover:border-primary/50 hover:text-primary">
                     ← Trước
                   </Button>
                   <div className="flex gap-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const p = page <= 3 ? i + 1 : page - 2 + i;
+                      const p = effectivePage <= 3 ? i + 1 : effectivePage - 2 + i;
                       if (p < 1 || p > totalPages) return null;
                       return (
-                        <button key={p} type="button" onClick={() => setPage(p)}
+                        <button key={p} type="button" onClick={() => { setPageSearch(debouncedSearch); setPage(p); }}
                           className={`w-9 h-9 rounded-xl text-sm font-semibold transition-colors
-                            ${p === page ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}
+                            ${p === effectivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}
                         >
                           {p}
                         </button>
                       );
                     })}
                   </div>
-                  <Button variant="outline" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
+                  <Button variant="outline" disabled={effectivePage === totalPages} onClick={() => { setPageSearch(debouncedSearch); setPage(p => p + 1); }}
                     className="rounded-xl px-5 border-border text-muted-foreground hover:border-primary/50 hover:text-primary">
                     Sau →
                   </Button>
