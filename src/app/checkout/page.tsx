@@ -142,6 +142,7 @@ export default function CheckoutPage() {
     },
     onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
       router.push(`/profile/orders/${order.id}`);
     },
     onError: () => toast.error('Đặt hàng thất bại, vui lòng thử lại'),
