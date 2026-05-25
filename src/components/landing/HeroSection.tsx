@@ -78,10 +78,13 @@ export function HeroSection() {
         </div>
       ))}
 
+      {/* Mobile bottom gradient for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.10_0.02_195/0.70)] via-transparent to-transparent sm:hidden pointer-events-none" />
+
       {/* Content */}
       <div className="relative h-full max-w-7xl mx-auto px-4 lg:px-8 flex items-center">
         <div
-          className="text-white max-w-lg"
+          className="text-white max-w-lg pl-10 sm:pl-0"
           style={{
             opacity: animating ? 0 : 1,
             transform: animating ? 'translateY(12px)' : 'translateY(0)',
@@ -89,7 +92,7 @@ export function HeroSection() {
           }}
         >
           <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-[0.15em]"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full mb-3 sm:mb-4 uppercase tracking-[0.15em]"
             style={{
               background: `${slide.accent}33`,
               color: 'white',
@@ -111,7 +114,7 @@ export function HeroSection() {
             ))}
           </h1>
 
-          <p className="text-white/75 text-sm leading-relaxed mb-8 max-w-md">
+          <p className="text-white/75 text-sm leading-relaxed mb-5 sm:mb-8 max-w-md">
             {slide.sub}
           </p>
 

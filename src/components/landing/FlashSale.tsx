@@ -17,7 +17,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <span
-        className="font-black text-2xl tabular-nums rounded-xl px-3 py-1.5 min-w-[52px] text-center leading-none"
+        className="font-black text-xl sm:text-2xl tabular-nums rounded-xl px-2 sm:px-3 py-1.5 min-w-[44px] sm:min-w-[52px] text-center leading-none"
         style={{
           background: 'oklch(0.75 0.155 55)',
           color: 'oklch(0.20 0.04 50)',

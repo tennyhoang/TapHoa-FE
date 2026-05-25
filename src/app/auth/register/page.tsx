@@ -14,7 +14,14 @@ import { useAuthStore } from '@/store/auth.store';
 import { authService } from '@/services/auth.service';
 import { LoginResponse } from '@/types';
 
-type FormData = { fullName: string; email: string; password: string; confirmPassword: string };
+type FormData = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+  termsAccepted: boolean;
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,7 +33,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      const res = await authService.register(data.fullName, data.email, data.password) as LoginResponse;
+      const res = await authService.register(data.fullName, data.email, data.password, data.phoneNumber) as LoginResponse;
       login(res.accessToken, res.email, res.fullName, res.role);
       toast.success('Đăng ký thành công!');
       router.push('/');
@@ -96,15 +103,16 @@ export default function RegisterPage() {
         </div>
 
         {/* Right panel */}
-        <div className="flex-1 bg-card p-8 md:p-12 flex flex-col justify-center">
-          <div className="mb-7">
+        <div className="flex-1 bg-card p-8 md:p-10 flex flex-col justify-center">
+          <div className="mb-6">
             <h1 className="font-editorial font-black text-2xl text-foreground">Đăng ký tài khoản</h1>
             <p className="text-muted-foreground text-sm mt-1.5">Điền thông tin để bắt đầu mua sắm</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Full name */}
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Họ và tên</Label>
+              <Label className="text-sm font-semibold text-foreground">Họ và tên <span className="text-red-400">*</span></Label>
               <Input
                 placeholder="Nguyễn Văn A"
                 className="h-11 rounded-xl border-border bg-muted/30 focus:bg-card"
@@ -113,20 +121,37 @@ export default function RegisterPage() {
               {errors.fullName && <p className="text-xs text-red-500">{errors.fullName.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-sm font-semibold text-foreground">Email</Label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                className="h-11 rounded-xl border-border bg-muted/30 focus:bg-card"
-                {...register('email', { required: 'Vui lòng nhập email' })}
-              />
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+            {/* Email + Phone in 2 cols */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-foreground">Email <span className="text-red-400">*</span></Label>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  className="h-11 rounded-xl border-border bg-muted/30 focus:bg-card"
+                  {...register('email', { required: 'Vui lòng nhập email' })}
+                />
+                {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-foreground">Số điện thoại <span className="text-red-400">*</span></Label>
+                <Input
+                  type="tel"
+                  placeholder="0912 345 678"
+                  className="h-11 rounded-xl border-border bg-muted/30 focus:bg-card"
+                  {...register('phoneNumber', {
+                    required: 'Vui lòng nhập số điện thoại',
+                    pattern: { value: /^[0-9]{9,11}$/, message: 'Số điện thoại không hợp lệ' },
+                  })}
+                />
+                {errors.phoneNumber && <p className="text-xs text-red-500">{errors.phoneNumber.message}</p>}
+              </div>
             </div>
 
+            {/* Password + Confirm */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-sm font-semibold text-foreground">Mật khẩu</Label>
+                <Label className="text-sm font-semibold text-foreground">Mật khẩu <span className="text-red-400">*</span></Label>
                 <div className="relative">
                   <Input
                     type={showPassword ? 'text' : 'password'}
@@ -149,7 +174,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-sm font-semibold text-foreground">Xác nhận</Label>
+                <Label className="text-sm font-semibold text-foreground">Xác nhận <span className="text-red-400">*</span></Label>
                 <Input
                   type="password"
                   placeholder="••••••••"
@@ -162,9 +187,28 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Terms */}
+            <div className="space-y-1.5">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary accent-primary cursor-pointer"
+                  {...register('termsAccepted', { required: 'Bạn phải đồng ý với điều khoản sử dụng' })}
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  Tôi đồng ý với{' '}
+                  <Link href="/lien-he" className="text-primary hover:underline font-medium">Điều khoản sử dụng</Link>
+                  {' '}và{' '}
+                  <Link href="/lien-he" className="text-primary hover:underline font-medium">Chính sách bảo mật</Link>
+                  {' '}của TapHoa <span className="text-red-400">*</span>
+                </span>
+              </label>
+              {errors.termsAccepted && <p className="text-xs text-red-500">{errors.termsAccepted.message}</p>}
+            </div>
+
             <Button
               type="submit"
-              className="w-full h-11 font-bold text-sm rounded-xl shadow-sm mt-2"
+              className="w-full h-11 font-bold text-sm rounded-xl shadow-sm"
               style={{ background: 'oklch(0.57 0.135 196)', color: 'white' }}
               disabled={loading}
             >
@@ -177,7 +221,7 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <div className="mt-7 pt-6 border-t border-border text-center">
+          <div className="mt-6 pt-5 border-t border-border text-center">
             <p className="text-sm text-muted-foreground">
               Đã có tài khoản?{' '}
               <Link href="/auth/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
