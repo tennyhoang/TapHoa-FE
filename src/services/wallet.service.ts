@@ -23,9 +23,16 @@ export interface PagedWalletTransactions {
   totalPages: number;
 }
 
-export interface WalletAmountResult {
-  newBalance: number;
+export interface InitiateTopupResult {
+  paymentRef: string;
   amount: number;
+}
+
+export interface WithdrawRequestData {
+  amount: number;
+  bankName: string;
+  accountNumber: string;
+  holderName: string;
 }
 
 export const walletService = {
@@ -33,13 +40,12 @@ export const walletService = {
     api.get<WalletResponse>('/wallet/me').then(r => r.data),
 
   getTransactions: (page = 1, pageSize = 20) =>
-    api
-      .get<PagedWalletTransactions>('/wallet/me/transactions', { params: { page, pageSize } })
+    api.get<PagedWalletTransactions>('/wallet/me/transactions', { params: { page, pageSize } })
       .then(r => r.data),
 
-  topup: (amount: number) =>
-    api.post<WalletAmountResult>('/wallet/me/topup', { amount }).then(r => r.data),
+  initiateTopup: (amount: number) =>
+    api.post<InitiateTopupResult>('/wallet/me/topup/initiate', { amount }).then(r => r.data),
 
-  withdraw: (amount: number) =>
-    api.post<WalletAmountResult>('/wallet/me/withdraw', { amount }).then(r => r.data),
+  createWithdrawRequest: (data: WithdrawRequestData) =>
+    api.post<{ id: string }>('/wallet/me/withdraw-request', data).then(r => r.data),
 };
