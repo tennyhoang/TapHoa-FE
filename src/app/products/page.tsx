@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { Search, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -124,6 +125,7 @@ function ProductsContent() {
   const [mounted, setMounted]                     = useState(false);
   const [searchInput, setSearchInput]             = useState('');
   const [search, setSearch]                       = useState('');
+  const debouncedSearchInput                       = useDebounce(searchInput, 300);
   const [categoryId, setCategoryId]               = useState<string | undefined>();
   const [sortBy, setSortBy]                       = useState('newest');
   const [page, setPage]                           = useState(1);
@@ -139,6 +141,13 @@ function ProductsContent() {
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    setSearch(debouncedSearchInput);
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchInput]);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
