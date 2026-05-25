@@ -111,6 +111,7 @@ export interface Order {
   customerEmail?: string;
   status: OrderStatus;
   totalAmount: number;
+  walletAmountUsed?: number;
   note?: string;
   paymentRef?: string;
   paidAt?: string;

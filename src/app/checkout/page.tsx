@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
   Banknote, CreditCard, Wallet, Minus, Plus, Trash2, ChevronRight,
-  BookUser, ChevronDown,
+  BookUser, ChevronDown, Check, ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,6 @@ type CheckoutForm = {
   phoneNumber: string;
 };
 
-
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
   { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
   { value: 'BankTransfer', label: 'Chuyển khoản ngân hàng',   sub: 'VNPAY / Ngân hàng',           Icon: CreditCard },
@@ -47,11 +46,12 @@ export default function CheckoutPage() {
   const { currentHub } = useHubStore();
   const queryClient = useQueryClient();
 
-  const [mounted, setMounted]             = useState(false);
-  const [note, setNote]                   = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BankTransfer');
-  const [hubDialogOpen, setHubDialogOpen] = useState(false);
-  const [addrOpen, setAddrOpen]           = useState(false);
+  const [mounted, setMounted]               = useState(false);
+  const [note, setNote]                     = useState('');
+  const [paymentMethod, setPaymentMethod]   = useState<PaymentMethod>('BankTransfer');
+  const [useWalletToggle, setUseWalletToggle] = useState(false);
+  const [hubDialogOpen, setHubDialogOpen]   = useState(false);
+  const [addrOpen, setAddrOpen]             = useState(false);
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CheckoutForm>();
 
@@ -137,6 +137,7 @@ export default function CheckoutPage() {
         phoneNumber:   form.phoneNumber,
         paymentMethod,
         note:          note || undefined,
+        useWallet:     useWalletToggle && hasPartialWallet,
       };
       return orderService.create(payload);
     },
@@ -192,7 +193,32 @@ export default function CheckoutPage() {
     );
   }
 
-  const itemCount = cart.items.reduce((s, i) => s + i.quantity, 0);
+  const walletBalance    = walletData?.balance ?? 0;
+  const totalAmount      = cart.totalAmount;
+  const itemCount        = cart.items.reduce((s, i) => s + i.quantity, 0);
+  const hasFullWallet    = walletBalance >= totalAmount;
+  const hasPartialWallet = walletBalance > 0 && walletBalance < totalAmount;
+
+  // When partial wallet toggle is on, clamp to available balance
+  const effectiveWalletUsed  = useWalletToggle && hasPartialWallet ? walletBalance : 0;
+  const remainingAfterWallet = totalAmount - effectiveWalletUsed;
+
+  // Reset wallet toggle if balance changes to cover full amount
+  const visibleOptions = (useWalletToggle && hasPartialWallet)
+    ? PAYMENT_OPTIONS.filter(o => o.value !== 'Wallet')
+    : PAYMENT_OPTIONS;
+
+  const submitLabel = () => {
+    if (createOrderMutation.isPending) return 'Đang xử lý...';
+    if (useWalletToggle && hasPartialWallet) {
+      return paymentMethod === 'COD'
+        ? `Đặt hàng — COD ${formatPrice(remainingAfterWallet)}`
+        : `Tiếp tục thanh toán ${formatPrice(remainingAfterWallet)}`;
+    }
+    if (paymentMethod === 'Wallet') return `Thanh toán ${formatPrice(totalAmount)} từ ví`;
+    if (paymentMethod === 'BankTransfer') return 'Tiếp tục thanh toán';
+    return 'Xác nhận đặt hàng';
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -307,7 +333,6 @@ export default function CheckoutPage() {
                   <h3 className="font-semibold text-gray-800 text-sm">Thông tin người nhận</h3>
                 </div>
 
-                {/* Address picker trigger */}
                 {addresses && addresses.length > 0 && (
                   <div className="relative">
                     <button
@@ -433,15 +458,60 @@ export default function CheckoutPage() {
                 <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
                 <h3 className="font-semibold text-gray-800 text-sm">Phương thức thanh toán</h3>
               </div>
+
+              {/* Partial wallet toggle — shown when 0 < balance < totalAmount */}
+              {hasPartialWallet && (
+                <button
+                  type="button"
+                  onClick={() => setUseWalletToggle(v => !v)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all ${
+                    useWalletToggle
+                      ? 'border-violet-400 bg-violet-50'
+                      : 'border-dashed border-gray-200 hover:border-violet-300 hover:bg-violet-50/40'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    useWalletToggle ? 'bg-violet-100' : 'bg-gray-50'
+                  }`}>
+                    <Wallet className={`h-4 w-4 ${useWalletToggle ? 'text-violet-600' : 'text-gray-400'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold ${useWalletToggle ? 'text-violet-700' : 'text-gray-600'}`}>
+                      Dùng số dư ví để giảm trừ
+                    </p>
+                    <p className="text-xs mt-0.5 text-gray-400">
+                      Trừ <span className="font-semibold text-violet-500">{formatPrice(walletBalance)}</span>
+                      {useWalletToggle && (
+                        <>
+                          {' '}
+                          <ArrowRight className="inline h-3 w-3 text-gray-300" />
+                          {' '}còn lại{' '}
+                          <span className="font-semibold text-orange-500">{formatPrice(remainingAfterWallet)}</span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <div className={`w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-all ${
+                    useWalletToggle ? 'bg-violet-500 border-violet-500' : 'border-gray-300'
+                  }`}>
+                    {useWalletToggle && <Check className="h-3 w-3 text-white" />}
+                  </div>
+                </button>
+              )}
+
+              {/* Payment options */}
               <div className="space-y-2">
-                {PAYMENT_OPTIONS.map(opt => {
-                  const walletBalance = walletData?.balance ?? 0;
-                  const isWalletOpt = opt.value === 'Wallet';
-                  const walletInsufficient = isWalletOpt && cart && walletBalance < cart.totalAmount;
-                  const isDisabled = walletInsufficient;
+                {visibleOptions.map(opt => {
+                  const isWalletOpt          = opt.value === 'Wallet';
+                  const walletInsufficient   = isWalletOpt && !hasFullWallet;
+                  const isDisabled           = walletInsufficient;
                   const subLabel = isWalletOpt
                     ? `Số dư: ${formatPrice(walletBalance)}${walletInsufficient ? ' — Không đủ' : ''}`
-                    : opt.sub;
+                    : (useWalletToggle && hasPartialWallet && opt.value !== 'Wallet')
+                      ? opt.value === 'COD'
+                        ? `Trả ${formatPrice(remainingAfterWallet)} khi nhận tại trạm`
+                        : `Chuyển khoản ${formatPrice(remainingAfterWallet)}`
+                      : opt.sub;
 
                   return (
                     <button
@@ -501,17 +571,46 @@ export default function CheckoutPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-500">
                   <span>Tạm tính ({itemCount} sản phẩm)</span>
-                  <span className="font-medium text-gray-700">{formatPrice(cart.totalAmount)}</span>
+                  <span className="font-medium text-gray-700">{formatPrice(totalAmount)}</span>
                 </div>
+
+                {/* Wallet deduction row */}
+                {useWalletToggle && hasPartialWallet && (
+                  <div className="flex justify-between text-violet-600">
+                    <span className="flex items-center gap-1.5">
+                      <Wallet className="h-3.5 w-3.5" />
+                      Trừ từ ví
+                    </span>
+                    <span className="font-semibold">-{formatPrice(walletBalance)}</span>
+                  </div>
+                )}
+                {paymentMethod === 'Wallet' && hasFullWallet && (
+                  <div className="flex justify-between text-violet-600">
+                    <span className="flex items-center gap-1.5">
+                      <Wallet className="h-3.5 w-3.5" />
+                      Thanh toán từ ví
+                    </span>
+                    <span className="font-semibold">-{formatPrice(totalAmount)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-gray-500">
                   <span>Phí vận chuyển</span>
                   <span className="text-teal-600 font-medium">Miễn phí</span>
                 </div>
               </div>
+
               <Separator />
+
               <div className="flex justify-between items-baseline">
-                <span className="font-bold text-gray-800">Tổng thanh toán</span>
-                <span className="text-2xl font-black text-teal-600">{formatPrice(cart.totalAmount)}</span>
+                <span className="font-bold text-gray-800">
+                  {(useWalletToggle && hasPartialWallet) ? 'Cần thanh toán thêm' : 'Tổng thanh toán'}
+                </span>
+                <span className={`text-2xl font-black ${
+                  (useWalletToggle && hasPartialWallet) ? 'text-orange-500' : 'text-teal-600'
+                }`}>
+                  {formatPrice(useWalletToggle && hasPartialWallet ? remainingAfterWallet : totalAmount)}
+                </span>
               </div>
 
               {!currentHub && (
@@ -526,13 +625,7 @@ export default function CheckoutPage() {
                 disabled={createOrderMutation.isPending || !currentHub}
                 className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
               >
-                {createOrderMutation.isPending
-                  ? 'Đang xử lý...'
-                  : paymentMethod === 'BankTransfer'
-                    ? 'Tiếp tục thanh toán'
-                    : paymentMethod === 'Wallet'
-                      ? `Thanh toán ${cart ? formatPrice(cart.totalAmount) : ''} từ ví`
-                      : 'Xác nhận đặt hàng'}
+                {submitLabel()}
               </Button>
 
               <p className="text-xs text-center text-gray-400">
