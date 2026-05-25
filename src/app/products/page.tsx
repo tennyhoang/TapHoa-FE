@@ -30,25 +30,25 @@ function CategoryCircle({ cat, selected, onClick }: {
       onClick={onClick}
       className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
     >
-      <div className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-150
+      <div className={`w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all duration-150
         ${selected
-          ? 'border-blue-500 ring-2 ring-blue-200'
-          : 'border-gray-200 group-hover:border-blue-300'
+          ? 'border-primary ring-2 ring-primary/20'
+          : 'border-border group-hover:border-primary/50'
         }`}
       >
         {cat.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-            <span className="text-lg font-black text-gray-400 select-none">
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <span className="text-lg font-black text-muted-foreground select-none">
               {cat.name.charAt(0).toUpperCase()}
             </span>
           </div>
         )}
       </div>
       <span className={`text-xs font-medium text-center leading-tight max-w-[56px] truncate transition-colors
-        ${selected ? 'text-blue-600' : 'text-gray-600 group-hover:text-blue-600'}`}
+        ${selected ? 'text-primary' : 'text-foreground/70 group-hover:text-primary'}`}
       >
         {cat.name}
       </span>
@@ -78,7 +78,7 @@ function AllCategoriesModal({ open, onOpenChange, categories, selectedId, onSele
                   type="button"
                   onClick={() => { onSelect(parent.id); onOpenChange(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
-                    ${parentActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-800'}`}
+                    ${parentActive ? 'bg-primary/10 text-primary' : 'hover:bg-muted/60 text-foreground'}`}
                 >
                   {parent.name}
                   <span className="ml-auto text-xs opacity-40">›</span>
@@ -92,8 +92,8 @@ function AllCategoriesModal({ open, onOpenChange, categories, selectedId, onSele
                         onClick={() => { onSelect(child.id); onOpenChange(false); }}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
                           ${selectedId === child.id
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-blue-400 hover:text-blue-600'
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-primary'
                           }`}
                       >
                         {child.name}
@@ -199,18 +199,18 @@ function ProductsContent() {
     <div className="space-y-0">
       {/* Page header + search */}
       <div className="mb-6">
-        <h1 className="text-xl font-black text-gray-800 mb-4">{pageTitle}</h1>
+        <h1 className="font-editorial font-black text-2xl text-foreground mb-4">{pageTitle}</h1>
         <form onSubmit={handleSearch} className="flex gap-2 max-w-xl">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Tìm sản phẩm..."
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              className="pl-10 h-10 rounded-lg"
+              className="pl-10 h-10 rounded-xl border-border bg-muted/40 focus:bg-card"
             />
           </div>
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 h-10 px-5 rounded-lg font-semibold">
+          <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-5 rounded-xl font-semibold">
             Tìm
           </Button>
         </form>
@@ -220,11 +220,11 @@ function ProductsContent() {
       {categories && categories.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <p className="font-semibold text-gray-700 text-sm">Danh mục</p>
+            <p className="font-semibold text-foreground/80 text-sm">Danh mục</p>
             <button
               type="button"
               onClick={() => setShowAllCategories(true)}
-              className="text-xs text-blue-600 hover:underline"
+              className="text-xs text-primary hover:underline font-medium"
             >
               Xem tất cả →
             </button>
@@ -235,17 +235,17 @@ function ProductsContent() {
               onClick={() => { setCategoryId(undefined); setPage(1); }}
               className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
             >
-              <div className={`w-14 h-14 rounded-full border-2 transition-all duration-150 flex items-center justify-center
+              <div className={`w-14 h-14 rounded-2xl border-2 transition-all duration-150 flex items-center justify-center
                 ${!categoryId
-                  ? 'border-blue-500 bg-blue-600 ring-2 ring-blue-200'
-                  : 'border-gray-200 bg-gray-50 group-hover:border-blue-300'
+                  ? 'border-primary bg-primary ring-2 ring-primary/20'
+                  : 'border-border bg-muted group-hover:border-primary/50'
                 }`}
               >
-                <span className={`text-xs font-bold select-none ${!categoryId ? 'text-white' : 'text-gray-500'}`}>
+                <span className={`text-xs font-bold select-none ${!categoryId ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
                   Tất cả
                 </span>
               </div>
-              <span className={`text-xs font-medium transition-colors ${!categoryId ? 'text-blue-600' : 'text-gray-600'}`}>
+              <span className={`text-xs font-medium transition-colors ${!categoryId ? 'text-primary' : 'text-foreground/70'}`}>
                 Tất cả
               </span>
             </button>
@@ -265,9 +265,9 @@ function ProductsContent() {
       <div className="flex gap-6">
         {/* Sidebar sort (desktop) */}
         <aside className="hidden lg:block w-48 shrink-0">
-          <div className="border border-gray-200 rounded-xl overflow-hidden sticky top-28 bg-white">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <p className="font-semibold text-sm text-gray-700">Sắp xếp</p>
+          <div className="border border-border/60 rounded-2xl overflow-hidden sticky top-28 bg-card">
+            <div className="px-4 py-3 border-b border-border/60">
+              <p className="font-semibold text-sm text-foreground/80">Sắp xếp</p>
             </div>
             <div className="p-2">
               {SORT_OPTIONS.map(opt => (
@@ -275,10 +275,10 @@ function ProductsContent() {
                   key={opt.value}
                   type="button"
                   onClick={() => { setSortBy(opt.value); setPage(1); }}
-                  className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors
+                  className={`w-full text-left text-sm px-3 py-2 rounded-xl transition-colors
                     ${sortBy === opt.value
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : 'hover:bg-gray-50 text-gray-600'
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'hover:bg-muted/60 text-muted-foreground'
                     }`}
                 >
                   {opt.label}
@@ -299,8 +299,8 @@ function ProductsContent() {
                 onClick={() => { setSortBy(opt.value); setPage(1); }}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border shrink-0 transition-colors
                   ${sortBy === opt.value
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-card text-muted-foreground border-border hover:border-primary/50'
                   }`}
               >
                 {opt.label}
@@ -312,7 +312,7 @@ function ProductsContent() {
           {(search || activeCategoryName) && (
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {activeCategoryName && (
-                <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full">
                   {activeCategoryName}
                   <button type="button" onClick={() => { setCategoryId(undefined); setPage(1); }} className="ml-0.5 hover:opacity-75">
                     <X className="h-3 w-3" />
@@ -320,7 +320,7 @@ function ProductsContent() {
                 </span>
               )}
               {search && (
-                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                <span className="inline-flex items-center gap-1.5 bg-muted text-foreground text-xs font-medium px-3 py-1.5 rounded-full border border-border">
                   <Search className="h-3 w-3" />
                   {search}
                   <button type="button" onClick={() => { setSearch(''); setSearchInput(''); setPage(1); }} className="ml-0.5 hover:opacity-75">
@@ -335,9 +335,9 @@ function ProductsContent() {
           {!mounted || isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl overflow-hidden border border-gray-200">
+                <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border/60">
                   <Skeleton className="aspect-square" />
-                  <div className="p-3 space-y-2">
+                  <div className="p-3.5 space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-2/3" />
                     <Skeleton className="h-5 w-1/2" />
@@ -347,16 +347,16 @@ function ProductsContent() {
             </div>
           ) : data?.items.length === 0 ? (
             <div className="text-center py-24 space-y-3">
-              <p className="text-gray-400 text-lg font-semibold">Không tìm thấy sản phẩm nào.</p>
-              <button type="button" onClick={clearAll} className="text-sm text-blue-600 hover:underline">
+              <p className="text-muted-foreground text-lg font-semibold">Không tìm thấy sản phẩm nào.</p>
+              <button type="button" onClick={clearAll} className="text-sm text-primary hover:underline font-medium">
                 Xem tất cả sản phẩm
               </button>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm text-gray-500">
-                  <span className="font-semibold text-gray-800">{data?.totalCount}</span> sản phẩm
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{data?.totalCount}</span> sản phẩm
                 </p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -366,7 +366,7 @@ function ProductsContent() {
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-10">
                   <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}
-                    className="rounded-lg px-5 border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600">
+                    className="rounded-xl px-5 border-border text-muted-foreground hover:border-primary/50 hover:text-primary">
                     ← Trước
                   </Button>
                   <div className="flex gap-1">
@@ -375,8 +375,8 @@ function ProductsContent() {
                       if (p < 1 || p > totalPages) return null;
                       return (
                         <button key={p} type="button" onClick={() => setPage(p)}
-                          className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors
-                            ${p === page ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                          className={`w-9 h-9 rounded-xl text-sm font-semibold transition-colors
+                            ${p === page ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}
                         >
                           {p}
                         </button>
@@ -384,7 +384,7 @@ function ProductsContent() {
                     })}
                   </div>
                   <Button variant="outline" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
-                    className="rounded-lg px-5 border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600">
+                    className="rounded-xl px-5 border-border text-muted-foreground hover:border-primary/50 hover:text-primary">
                     Sau →
                   </Button>
                 </div>

@@ -1,22 +1,34 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/lib/providers';
 import { Topbar } from '@/components/landing/Topbar';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  weight: ['400', '600', '700', '900'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'TapHoa - Mua sắm online',
-  description: 'Nền tảng thương mại điện tử TapHoa - Mua sắm thả ga, giá cả hợp lý',
+  title: 'TapHoa — Thực phẩm tươi sạch tận Hub',
+  description: 'Rau củ VietGAP, trái cây tươi, thịt cá sạch — đặt online, nhận tại Hub gần nhà bạn.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
-      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col`} suppressHydrationWarning>
+    <html lang="vi" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="font-sans bg-background text-foreground min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
           <Topbar />
           <Header />

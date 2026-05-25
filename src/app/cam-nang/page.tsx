@@ -1,54 +1,55 @@
 import Link from 'next/link';
-import { BookOpen, Leaf, ShoppingBag, Truck, Star, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { BookOpen, ArrowRight } from 'lucide-react';
 
 const ARTICLES = [
   {
-    icon: Leaf,
+    image: 'https://images.unsplash.com/photo-1557844352-761f2565b576?w=600&q=85&auto=format&fit=crop',
     category: 'Dinh dưỡng',
+    categoryColor: 'oklch(0.54 0.158 145)',
     title: 'Rau xanh tươi — bí quyết chọn mua đúng cách',
-    desc: 'Hướng dẫn phân biệt rau sạch VietGAP với rau thông thường, cách bảo quản và chế biến để giữ nguyên dinh dưỡng.',
-    readTime: '4 phút đọc',
-    color: 'bg-green-50 text-green-600',
+    desc: 'Hướng dẫn phân biệt rau sạch VietGAP với rau thông thường, cách bảo quản và chế biến giữ nguyên dinh dưỡng.',
+    readTime: '4 phút',
   },
   {
-    icon: ShoppingBag,
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=85&auto=format&fit=crop',
     category: 'Mua sắm thông minh',
+    categoryColor: 'oklch(0.57 0.135 196)',
     title: 'Mua thực phẩm online — 5 điều cần biết trước khi đặt',
-    desc: 'Kinh nghiệm mua thực phẩm online an toàn, tiết kiệm và hiệu quả — từ cách đọc nhãn đến kiểm tra nguồn gốc xuất xứ.',
-    readTime: '5 phút đọc',
-    color: 'bg-blue-50 text-blue-600',
+    desc: 'Kinh nghiệm mua thực phẩm online an toàn, tiết kiệm — từ cách đọc nhãn đến kiểm tra nguồn gốc xuất xứ.',
+    readTime: '5 phút',
   },
   {
-    icon: Truck,
+    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=85&auto=format&fit=crop',
     category: 'Hệ thống Hub',
+    categoryColor: 'oklch(0.55 0.15 280)',
     title: 'Hub nhận hàng TapHoa hoạt động như thế nào?',
-    desc: 'Hiểu rõ quy trình từ khi đặt hàng đến khi lấy hàng tại hub — đảm bảo thực phẩm tươi ngon và an toàn.',
-    readTime: '3 phút đọc',
-    color: 'bg-purple-50 text-purple-600',
+    desc: 'Hiểu rõ quy trình từ khi đặt hàng đến khi lấy hàng tại Hub — đảm bảo thực phẩm tươi ngon và an toàn.',
+    readTime: '3 phút',
   },
   {
-    icon: Star,
+    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=85&auto=format&fit=crop',
     category: 'Sản phẩm nổi bật',
-    title: 'Gạo ST25 — "Gạo ngon nhất thế giới" đã đến TapHoa',
-    desc: 'Câu chuyện đằng sau giống gạo ST25 đoạt giải quốc tế và lý do tại sao nó trở thành lựa chọn số 1 của triệu gia đình.',
-    readTime: '6 phút đọc',
-    color: 'bg-orange-50 text-orange-600',
+    categoryColor: 'oklch(0.75 0.155 55)',
+    title: 'Gạo ST25 — Gạo ngon nhất thế giới đã đến TapHoa',
+    desc: 'Câu chuyện đằng sau giống gạo ST25 đoạt giải quốc tế và lý do trở thành lựa chọn số 1 của triệu gia đình.',
+    readTime: '6 phút',
   },
   {
-    icon: Leaf,
+    image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&q=85&auto=format&fit=crop',
     category: 'Dinh dưỡng',
+    categoryColor: 'oklch(0.54 0.158 145)',
     title: 'Thực phẩm tươi sống — cách bảo quản đúng trong tủ lạnh',
-    desc: 'Mẹo bảo quản thịt, cá, rau củ đúng cách giúp kéo dài độ tươi và giữ an toàn thực phẩm cho cả gia đình.',
-    readTime: '4 phút đọc',
-    color: 'bg-emerald-50 text-emerald-600',
+    desc: 'Mẹo bảo quản thịt, cá, rau củ đúng cách giúp kéo dài độ tươi và giữ an toàn cho cả gia đình.',
+    readTime: '4 phút',
   },
   {
-    icon: ShoppingBag,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=85&auto=format&fit=crop',
     category: 'Mua sắm thông minh',
+    categoryColor: 'oklch(0.57 0.135 196)',
     title: 'Lên thực đơn tuần — tiết kiệm 30% chi phí ăn uống',
-    desc: 'Cách lập kế hoạch bữa ăn khoa học, kết hợp mua sắm theo nhóm để tiết kiệm tối đa mà vẫn đảm bảo dinh dưỡng.',
-    readTime: '7 phút đọc',
-    color: 'bg-yellow-50 text-yellow-600',
+    desc: 'Cách lập kế hoạch bữa ăn khoa học, kết hợp mua sắm theo nhóm để tiết kiệm mà vẫn đảm bảo dinh dưỡng.',
+    readTime: '7 phút',
   },
 ];
 
@@ -56,78 +57,106 @@ const CATEGORIES = ['Tất cả', 'Dinh dưỡng', 'Mua sắm thông minh', 'H�
 
 export default function CamNangPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-10 py-4">
+    <div className="max-w-5xl mx-auto py-4 space-y-12">
 
       {/* Hero */}
-      <section className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 text-sm font-semibold px-4 py-1.5 rounded-full border border-orange-100">
+      <section className="text-center space-y-4">
+        <div
+          className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-1.5 rounded-full border"
+          style={{
+            background: 'oklch(0.94 0.055 196)',
+            color: 'oklch(0.40 0.12 196)',
+            borderColor: 'oklch(0.85 0.08 196)',
+          }}
+        >
           <BookOpen className="h-4 w-4" />
           Cẩm nang mua sắm
         </div>
-        <h1 className="text-3xl md:text-4xl font-black text-gray-900">
-          Kiến thức & kinh nghiệm <span className="text-orange-600">mua sắm thông minh</span>
+        <h1 className="font-editorial font-black text-foreground leading-tight"
+          style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}
+        >
+          Kiến thức & kinh nghiệm mua sắm
         </h1>
-        <p className="text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
-          Tổng hợp các bài viết hữu ích về dinh dưỡng, cách chọn thực phẩm, và mẹo tiết kiệm từ đội ngũ TapHoa.
+        <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">
+          Tổng hợp các bài viết hữu ích về dinh dưỡng, cách chọn thực phẩm và mẹo tiết kiệm từ đội ngũ TapHoa.
         </p>
       </section>
 
       {/* Category filter */}
       <div className="flex gap-2 flex-wrap justify-center">
         {CATEGORIES.map(cat => (
-          <span
+          <button
             key={cat}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border cursor-pointer transition-colors ${
-              cat === 'Tất cả'
-                ? 'bg-orange-600 text-white border-orange-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-600'
-            }`}
+            className="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
+            style={cat === 'Tất cả' ? {
+              background: 'oklch(0.57 0.135 196)',
+              color: 'white',
+              borderColor: 'oklch(0.57 0.135 196)',
+            } : {
+              background: 'transparent',
+              color: 'oklch(0.52 0.022 192)',
+              borderColor: 'oklch(0.88 0.008 90)',
+            }}
           >
             {cat}
-          </span>
+          </button>
         ))}
       </div>
 
-      {/* Articles grid */}
-      <div className="grid sm:grid-cols-2 gap-5">
+      {/* Articles grid — varied layout */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {ARTICLES.map(article => (
-          <div
-            key={article.title}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow group cursor-pointer"
-          >
-            <div className="flex items-start gap-4">
-              <div className={`w-10 h-10 rounded-xl ${article.color} flex items-center justify-center shrink-0`}>
-                <article.icon className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className={`text-xs font-semibold ${article.color.split(' ')[1]} bg-transparent`}>
+          <Link key={article.title} href="/cam-nang" className="group block">
+            <div className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-border hover:shadow-[0_4px_20px_oklch(0_0_0/0.07)] transition-all duration-200 h-full flex flex-col">
+              <div className="relative h-44 overflow-hidden">
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <span
+                  className="absolute top-3.5 left-3.5 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm"
+                  style={{ background: `${article.categoryColor}cc` }}
+                >
                   {article.category}
                 </span>
-                <h3 className="font-bold text-gray-800 mt-1 leading-snug group-hover:text-orange-600 transition-colors">
+              </div>
+              <div className="p-5 flex flex-col gap-2 flex-1">
+                <h3 className="font-editorial font-bold text-base text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                   {article.title}
                 </h3>
-                <p className="text-gray-500 text-sm mt-2 leading-relaxed line-clamp-2">
+                <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed flex-1">
                   {article.desc}
                 </p>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-xs text-gray-400">{article.readTime}</span>
-                  <span className="text-xs font-semibold text-orange-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-[11px] text-muted-foreground">{article.readTime} đọc</span>
+                  <span className="text-primary text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
                     Đọc tiếp <ArrowRight className="h-3 w-3" />
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* CTA */}
-      <section className="bg-orange-50 rounded-2xl border border-orange-100 p-8 text-center space-y-4">
-        <h2 className="text-xl font-black text-gray-800">Bắt đầu mua sắm thông minh ngay hôm nay</h2>
-        <p className="text-gray-500 text-sm">Hàng nghìn sản phẩm tươi ngon đang chờ bạn — giao tận hub gần nhà.</p>
+      <section
+        className="rounded-3xl p-10 text-center space-y-5 relative overflow-hidden"
+        style={{ background: 'oklch(0.18 0.038 192)' }}
+      >
+        <h2 className="font-editorial font-black text-white text-2xl">
+          Bắt đầu mua sắm thông minh
+        </h2>
+        <p className="text-sm" style={{ color: 'oklch(0.60 0.04 192)' }}>
+          Hàng nghìn sản phẩm tươi ngon — giao tận Hub gần nhà bạn.
+        </p>
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2.5 rounded-full transition-colors text-sm"
+          className="inline-flex items-center gap-2 font-bold px-7 py-3 rounded-full text-sm transition-colors"
+          style={{ background: 'oklch(0.57 0.135 196)', color: 'white' }}
         >
           Khám phá sản phẩm <ArrowRight className="h-4 w-4" />
         </Link>

@@ -1,160 +1,179 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-
-const SIDEBAR_CATS = [
-  { label: 'Rau củ quả' },
-  { label: 'Trái cây tươi' },
-  { label: 'Thịt & Cá tươi' },
-  { label: 'Trứng & Sữa' },
-  { label: 'Gạo & Ngũ cốc' },
-  { label: 'Hàng khô & Gia vị' },
-  { label: 'Thực phẩm đông lạnh' },
-  { label: 'Đồ uống' },
-];
+import Image from 'next/image';
 
 const SLIDES = [
   {
-    gradient: 'from-emerald-900 via-emerald-800 to-emerald-700',
-    badge: 'Giảm đến 30%',
-    title: 'Rau củ quả sạch',
-    sub: 'VietGAP — thu hoạch và giao hàng trong ngày',
-    cta: 'Mua ngay',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1400&q=85&auto=format&fit=crop',
+    eyebrow: 'VietGAP Certified',
+    title: 'Rau củ quả\ntươi sạch',
+    sub: 'Thu hoạch sáng — giao tận Hub buổi chiều. Kiểm định chất lượng từng lô hàng.',
+    cta: 'Chọn rau củ',
     href: '/products?search=rau+c%E1%BB%A7',
+    accent: 'oklch(0.54 0.158 145)',
   },
   {
-    gradient: 'from-cyan-900 via-cyan-800 to-cyan-600',
-    badge: 'Mới về hôm nay',
-    title: 'Trái cây tươi nhập khẩu',
-    sub: 'Nguồn gốc rõ ràng — kiểm định chất lượng',
-    cta: 'Khám phá',
+    image: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=1400&q=85&auto=format&fit=crop',
+    eyebrow: 'Mới về hôm nay',
+    title: 'Trái cây tươi\nnhập khẩu',
+    sub: 'Nguồn gốc rõ ràng từ nông trại đối tác — ngọt, mọng nước, an toàn cho cả gia đình.',
+    cta: 'Khám phá trái cây',
     href: '/products?search=tr%C3%A1i+c%C3%A2y',
+    accent: 'oklch(0.75 0.155 55)',
   },
   {
-    gradient: 'from-teal-900 via-teal-800 to-teal-700',
-    badge: 'Tiết kiệm 20%',
-    title: 'Combo Gia Đình',
-    sub: 'Tiết kiệm hơn khi mua combo — nhận tại Hub gần nhà',
+    image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=85&auto=format&fit=crop',
+    eyebrow: 'Tiết kiệm mỗi ngày',
+    title: 'Combo gia đình\ngiá tốt',
+    sub: 'Bộ thực phẩm thiết yếu được tuyển chọn kỹ — nhận nhanh tại Hub gần nhà bạn nhất.',
     cta: 'Xem combo',
     href: '/products?isDiscount=true',
+    accent: 'oklch(0.57 0.135 196)',
   },
-];
-
-const NAV_LINKS = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Giới thiệu', href: '#' },
-  { label: 'Sản phẩm', href: '/' },
-  { label: 'Cẩm nang', href: '#' },
-  { label: 'Liên hệ', href: '#' },
 ];
 
 export function HeroSection() {
   const [current, setCurrent] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  const go = useCallback((next: number) => {
+    if (animating) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setCurrent(next);
+      setAnimating(false);
+    }, 300);
+  }, [animating]);
 
   useEffect(() => {
-    const t = setInterval(() => setCurrent(c => (c + 1) % SLIDES.length), 4500);
+    const t = setInterval(() => {
+      go((current + 1) % SLIDES.length);
+    }, 5500);
     return () => clearInterval(t);
-  }, []);
+  }, [current, go]);
+
+  const slide = SLIDES[current];
 
   return (
-    <div className="grid grid-cols-12 gap-0 min-h-[320px]">
-      {/* LEFT: Sidebar categories */}
-      <aside className="hidden lg:flex col-span-3 flex-col bg-white border border-gray-200 rounded-l-xl overflow-hidden">
-        <div className="bg-emerald-700 px-4 py-3 shrink-0">
-          <span className="text-white font-bold text-sm tracking-wide">Danh mục sản phẩm</span>
+    <div className="relative overflow-hidden" style={{ height: 'clamp(360px, 52vw, 560px)' }}>
+      {/* Background images */}
+      {SLIDES.map((s, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: i === current ? 1 : 0 }}
+        >
+          <Image
+            src={s.image}
+            alt={s.title}
+            fill
+            priority={i === 0}
+            className="object-cover"
+            sizes="100vw"
+          />
+          {/* Editorial overlay: dark gradient from left */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.10_0.02_195/0.88)] via-[oklch(0.10_0.02_195/0.55)] to-transparent" />
         </div>
-        <ul className="flex-1 divide-y divide-gray-100 overflow-y-auto">
-          {SIDEBAR_CATS.map(cat => (
-            <li key={cat.label}>
-              <Link
-                href={`/products?search=${encodeURIComponent(cat.label)}`}
-                className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
-              >
-                <span>{cat.label}</span>
-                <span className="text-xs text-emerald-400 opacity-0 group-hover:opacity-100">›</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      ))}
 
-      {/* RIGHT: Nav + Banner */}
-      <div className="col-span-12 lg:col-span-9 flex flex-col">
-        {/* Sub-nav */}
-        <nav className="hidden lg:flex items-center gap-1 bg-white border border-gray-200 border-l-0 px-4 h-10 shrink-0">
-          {NAV_LINKS.map((item, i) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`px-3 py-1 text-sm rounded transition-colors ${
-                i === 0
-                  ? 'text-emerald-700 font-semibold bg-emerald-50'
-                  : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Banner carousel */}
-        <div className="relative flex-1 overflow-hidden rounded-r-xl lg:rounded-tr-xl lg:rounded-br-xl rounded-b-xl lg:rounded-bl-none">
-          {SLIDES.map((s, i) => (
-            <div
-              key={i}
-              className={`absolute inset-0 bg-gradient-to-br ${s.gradient} transition-opacity duration-700 ${
-                i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
-            >
-              <div className="h-full flex items-center px-10 md:px-14">
-                <div className="text-white max-w-lg">
-                  <span className="inline-block bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
-                    {s.badge}
-                  </span>
-                  <h2 className="text-3xl md:text-4xl font-black mb-3 leading-tight">{s.title}</h2>
-                  <p className="text-white/75 text-sm mb-6">{s.sub}</p>
-                  <Link
-                    href={s.href}
-                    className="inline-flex items-center gap-2 bg-white text-emerald-800 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-emerald-50 transition-colors"
-                  >
-                    {s.cta} →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Arrows */}
-          <button
-            onClick={() => setCurrent(c => (c - 1 + SLIDES.length) % SLIDES.length)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center backdrop-blur-sm transition-colors z-10 text-lg font-light"
-            aria-label="Trước"
+      {/* Content */}
+      <div className="relative h-full max-w-7xl mx-auto px-4 lg:px-8 flex items-center">
+        <div
+          className="text-white max-w-lg"
+          style={{
+            opacity: animating ? 0 : 1,
+            transform: animating ? 'translateY(12px)' : 'translateY(0)',
+            transition: 'opacity 0.35s ease, transform 0.35s ease',
+          }}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-[0.15em]"
+            style={{
+              background: `${slide.accent}33`,
+              color: 'white',
+              border: `1px solid ${slide.accent}66`,
+            }}
           >
-            ‹
-          </button>
-          <button
-            onClick={() => setCurrent(c => (c + 1) % SLIDES.length)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center backdrop-blur-sm transition-colors z-10 text-lg font-light"
-            aria-label="Sau"
-          >
-            ›
-          </button>
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: slide.accent }}
+            />
+            {slide.eyebrow}
+          </span>
 
-          {/* Dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === current ? 'bg-white w-6' : 'bg-white/50 w-1.5'
-                }`}
-                aria-label={`Slide ${i + 1}`}
-              />
+          <h1 className="font-editorial font-black text-white mb-4 leading-[1.05]"
+            style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)' }}
+          >
+            {slide.title.split('\n').map((line, i) => (
+              <span key={i} className="block">{line}</span>
             ))}
+          </h1>
+
+          <p className="text-white/75 text-sm leading-relaxed mb-8 max-w-md">
+            {slide.sub}
+          </p>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href={slide.href}
+              className="inline-flex items-center gap-2 bg-white text-foreground font-bold px-7 py-3 rounded-full text-sm hover:bg-primary hover:text-white transition-all duration-200 shadow-lg"
+            >
+              {slide.cta}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </Link>
+            <Link
+              href="/products"
+              className="text-white/80 hover:text-white text-sm font-medium transition-colors underline-offset-2 hover:underline"
+            >
+              Xem tất cả
+            </Link>
           </div>
         </div>
+      </div>
+
+      {/* Slide indicators */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => go(i)}
+            aria-label={`Slide ${i + 1}`}
+            className="transition-all duration-400"
+            style={{
+              height: '3px',
+              width: i === current ? '32px' : '12px',
+              borderRadius: '2px',
+              background: i === current ? 'white' : 'rgba(255,255,255,0.4)',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Prev / Next */}
+      <button
+        onClick={() => go((current - 1 + SLIDES.length) % SLIDES.length)}
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
+        aria-label="Trước"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button
+        onClick={() => go((current + 1) % SLIDES.length)}
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
+        aria-label="Sau"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      {/* Slide counter */}
+      <div className="absolute top-5 right-6 text-white/60 text-xs font-mono z-10 hidden md:block">
+        {String(current + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
       </div>
     </div>
   );

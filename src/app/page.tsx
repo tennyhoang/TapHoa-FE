@@ -21,28 +21,30 @@ export default function HomePage() {
 
       <FlashSale />
 
-      <div className="bg-white rounded-xl border border-gray-100 mt-6 px-4">
+      <div className="bg-card rounded-3xl border border-border/60 mt-6 px-4">
         <CategoryCirclesSection />
       </div>
 
       <ProductSection
         title="Hàng mới về"
+        subtitle="Thu hoạch sáng — có mặt tại Hub trong ngày"
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
         viewAllHref="/products?isNew=true"
       />
 
       <InterBanner
-        badge="Chương trình đặc biệt"
-        title="Rau củ quả tươi sạch VietGAP"
-        sub="Trực tiếp từ nông trại — kiểm định chất lượng trước khi giao"
+        badge="Chứng nhận VietGAP"
+        title="Rau củ quả tươi sạch từ nông trại"
+        sub="Kiểm định chất lượng từng lô hàng trước khi đến tay bạn — minh bạch nguồn gốc."
         cta="Đặt mua ngay"
         href="/products?isNew=true"
-        gradient="from-emerald-800 to-cyan-600"
+        imageKey="farm"
       />
 
       <ProductSection
         title="Trái cây tươi"
+        subtitle="Nhập khẩu và nội địa, nguồn gốc rõ ràng"
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
         viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
@@ -51,14 +53,15 @@ export default function HomePage() {
       <InterBanner
         badge="Tiết kiệm mỗi ngày"
         title="Thực phẩm tươi sống chất lượng"
-        sub="Thịt, cá, trứng, sữa — tươi ngon, giao nhanh tại Hub gần nhà"
-        cta="Xem ngay"
+        sub="Thịt, cá, trứng, sữa — tươi ngon, nhận nhanh tại Hub gần nhà bạn."
+        cta="Xem giá tốt"
         href="/products?isDiscount=true"
-        gradient="from-teal-800 to-teal-600"
+        imageKey="fresh"
       />
 
       <ProductSection
         title="Giá tốt mỗi ngày"
+        subtitle="Ưu đãi cập nhật liên tục, không cần chờ flash sale"
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
         viewAllHref="/products?isDiscount=true"

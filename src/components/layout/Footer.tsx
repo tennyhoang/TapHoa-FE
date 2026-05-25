@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
 
 const HUBS = [
-  { name: 'Hub Quận 1',    address: '12 Lý Tự Trọng, Quận 1, TP.HCM' },
-  { name: 'Hub Bình Thạnh', address: '45 Đinh Bộ Lĩnh, Quận Bình Thạnh, TP.HCM' },
-  { name: 'Hub Hoàn Kiếm', address: '8 Hàng Bài, Quận Hoàn Kiếm, Hà Nội' },
+  { name: 'Hub Quận 1', address: '12 Lý Tự Trọng, Quận 1, TP.HCM' },
+  { name: 'Hub Bình Thạnh', address: '45 Đinh Bộ Lĩnh, Bình Thạnh, TP.HCM' },
+  { name: 'Hub Hoàn Kiếm', address: '8 Hàng Bài, Hoàn Kiếm, Hà Nội' },
 ];
 
 export function Footer() {
@@ -16,31 +16,47 @@ export function Footer() {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Đăng ký thành công! Bạn sẽ nhận được ưu đãi sớm nhất.');
+    toast.success('Đăng ký thành công! Ưu đãi sẽ gửi đến email của bạn.');
     setEmail('');
   };
 
   return (
-    <footer className="bg-stone-900 text-stone-400 mt-16">
-      {/* Newsletter */}
-      <div className="border-b border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="text-white font-black text-lg">Nhận ưu đãi độc quyền</p>
-            <p className="text-stone-400 text-sm">Đăng ký email để nhận tin khuyến mãi mới nhất từ TapHoa</p>
+    <footer style={{ background: 'oklch(0.13 0.022 188)', color: 'oklch(0.62 0.03 192)' }}>
+
+      {/* Newsletter strip */}
+      <div style={{ borderBottom: '1px solid oklch(1 0 0 / 0.08)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: 'oklch(0.57 0.135 196/0.20)' }}
+            >
+              <Leaf className="h-5 w-5" style={{ color: 'oklch(0.72 0.13 196)' }} />
+            </div>
+            <div>
+              <p className="text-white font-editorial font-bold text-lg leading-tight">Nhận ưu đãi mỗi tuần</p>
+              <p className="text-sm mt-0.5" style={{ color: 'oklch(0.55 0.028 192)' }}>
+                Thực đơn gợi ý, mẹo chọn thực phẩm tươi và khuyến mãi sớm nhất
+              </p>
+            </div>
           </div>
-          <form onSubmit={handleSubscribe} className="flex gap-2 w-full sm:w-auto">
+          <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto shrink-0">
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="Nhập email của bạn..."
+              placeholder="Email của bạn..."
               required
-              className="flex-1 sm:w-64 px-4 py-2.5 rounded-lg bg-stone-800 border border-stone-700 text-white placeholder-stone-500 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-colors"
+              className="flex-1 md:w-60 px-4 py-2.5 rounded-xl text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 transition-all"
+              style={{
+                background: 'oklch(1 0 0 / 0.07)',
+                border: '1px solid oklch(1 0 0 / 0.12)',
+              }}
             />
             <button
               type="submit"
-              className="bg-orange-600 hover:bg-orange-500 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
+              className="text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors shrink-0"
+              style={{ background: 'oklch(0.57 0.135 196)' }}
             >
               Đăng ký
             </button>
@@ -49,53 +65,62 @@ export function Footer() {
       </div>
 
       {/* Main */}
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
-          {/* Col 1: Company */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="bg-orange-600 text-white rounded-lg w-8 h-8 flex items-center justify-center font-black text-base shrink-0">T</div>
-              <span className="text-white text-lg font-black">TapHoa</span>
+          {/* Brand */}
+          <div className="space-y-5">
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'oklch(0.57 0.135 196)' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+                  <circle cx="12" cy="9" r="2.5" fill="white" stroke="none"/>
+                </svg>
+              </div>
+              <span className="text-white font-editorial font-black text-xl">TapHoa</span>
             </div>
-            <p className="text-sm leading-relaxed">
-              Nền tảng tạp hóa online uy tín — hàng nghìn sản phẩm chất lượng, giao tận hub gần nhà bạn.
+
+            <p className="text-sm leading-relaxed" style={{ color: 'oklch(0.52 0.025 192)' }}>
+              Nền tảng thực phẩm tươi sạch — rau củ VietGAP, trái cây nhập khẩu, thịt cá tươi ngon, nhận tại Hub gần nhà bạn.
             </p>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="text-orange-400 text-xs font-semibold">MST:</span>
-                <span>0123456789</span>
+
+            <ul className="space-y-2.5 text-sm">
+              <li className="flex items-start gap-2.5">
+                <MapPin className="h-4 w-4 shrink-0 mt-0.5" style={{ color: 'oklch(0.68 0.13 196)' }} />
+                <span>123 Nguyễn Văn Cừ, Quận 1, TP. HCM</span>
               </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
-                <span>123 Nguyễn Văn Cừ, Q.1, TP. HCM</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-orange-400 shrink-0" />
+              <li className="flex items-center gap-2.5">
+                <Mail className="h-4 w-4 shrink-0" style={{ color: 'oklch(0.68 0.13 196)' }} />
                 <span>support@taphoa.vn</span>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-orange-400 shrink-0" />
-                <span>1800 6868</span>
+              <li className="flex items-center gap-2.5">
+                <Phone className="h-4 w-4 shrink-0" style={{ color: 'oklch(0.68 0.13 196)' }} />
+                <span className="text-white font-medium">1800 6868</span>
               </li>
             </ul>
           </div>
 
-          {/* Col 2: Links */}
+          {/* Explore */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm">Khám phá</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-white font-semibold mb-5 text-sm tracking-wide">Khám phá</h3>
+            <ul className="space-y-3 text-sm">
               {[
-                { label: 'Trang chủ',        href: '/' },
-                { label: 'Giới thiệu',        href: '/gioi-thieu' },
-                { label: 'Sản phẩm',          href: '/products' },
-                { label: 'Cẩm nang',          href: '/cam-nang' },
-                { label: 'Hàng mới về',       href: '/products?isNew=true' },
-                { label: 'Giá tốt mỗi ngày',  href: '/products?isDiscount=true' },
-                { label: 'Liên hệ',           href: '/lien-he' },
+                { label: 'Trang chủ', href: '/' },
+                { label: 'Giới thiệu', href: '/gioi-thieu' },
+                { label: 'Tất cả sản phẩm', href: '/products' },
+                { label: 'Hàng mới về', href: '/products?isNew=true' },
+                { label: 'Giá tốt mỗi ngày', href: '/products?isDiscount=true' },
+                { label: 'Cẩm nang ẩm thực', href: '/cam-nang' },
+                { label: 'Liên hệ', href: '/lien-he' },
               ].map(item => (
                 <li key={item.label}>
-                  <Link href={item.href} className="hover:text-orange-400 transition-colors">
+                  <Link
+                    href={item.href}
+                    className="transition-colors hover:text-white"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -103,35 +128,37 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Policy */}
+          {/* Policy */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm">Chính sách</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-white font-semibold mb-5 text-sm tracking-wide">Chính sách</h3>
+            <ul className="space-y-3 text-sm">
               {[
-                { label: 'Chính sách đổi trả',      href: '/lien-he' },
-                { label: 'Chính sách bảo mật',       href: '/lien-he' },
-                { label: 'Chính sách vận chuyển',    href: '/lien-he' },
-                { label: 'Điều khoản sử dụng',       href: '/lien-he' },
-                { label: 'Câu hỏi thường gặp',       href: '/lien-he' },
-              ].map(item => (
-                <li key={item.label}>
-                  <Link href={item.href} className="hover:text-orange-400 transition-colors">{item.label}</Link>
+                'Chính sách đổi trả',
+                'Chính sách bảo mật',
+                'Chính sách vận chuyển',
+                'Điều khoản sử dụng',
+                'Câu hỏi thường gặp',
+              ].map(label => (
+                <li key={label}>
+                  <Link href="/lien-he" className="transition-colors hover:text-white">
+                    {label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Col 4: Hub map + Payment */}
-          <div className="space-y-5">
+          {/* Hubs + Payment */}
+          <div className="space-y-6">
             <div>
-              <h3 className="text-white font-semibold mb-3 text-sm">Hệ thống Hub nhận hàng</h3>
-              <ul className="space-y-2">
+              <h3 className="text-white font-semibold mb-4 text-sm tracking-wide">Hub nhận hàng</h3>
+              <ul className="space-y-3">
                 {HUBS.map(hub => (
-                  <li key={hub.name} className="flex items-start gap-2 text-xs">
-                    <MapPin className="h-3.5 w-3.5 text-orange-400 shrink-0 mt-0.5" />
+                  <li key={hub.name} className="flex items-start gap-2.5 text-xs">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: 'oklch(0.68 0.13 196)' }} />
                     <div>
-                      <p className="text-stone-300 font-medium">{hub.name}</p>
-                      <p className="text-stone-500">{hub.address}</p>
+                      <p className="text-white font-medium">{hub.name}</p>
+                      <p className="mt-0.5" style={{ color: 'oklch(0.48 0.02 192)' }}>{hub.address}</p>
                     </div>
                   </li>
                 ))}
@@ -139,34 +166,42 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-3 text-sm">Thanh toán</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
+              <h3 className="text-white font-semibold mb-3 text-sm tracking-wide">Thanh toán</h3>
+              <div className="flex flex-wrap gap-2 mb-5">
                 {[
-                  { label: 'VISA', bg: 'bg-emerald-600', text: 'text-white' },
-                  { label: 'MB Bank', bg: 'bg-white', text: 'text-emerald-800' },
-                  { label: 'MoMo', bg: 'bg-pink-500', text: 'text-white' },
-                  { label: 'COD', bg: 'bg-green-600', text: 'text-white' },
+                  { label: 'VietQR', bg: 'oklch(0.57 0.135 196)', text: 'white' },
+                  { label: 'MoMo', bg: 'oklch(0.55 0.18 340)', text: 'white' },
+                  { label: 'VISA', bg: 'oklch(0.38 0.12 264)', text: 'white' },
+                  { label: 'COD', bg: 'oklch(0.52 0.15 145)', text: 'white' },
                 ].map(m => (
-                  <span key={m.label} className={`${m.bg} ${m.text} text-xs font-bold px-3 py-1.5 rounded-lg`}>
+                  <span
+                    key={m.label}
+                    className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+                    style={{ background: m.bg, color: m.text }}
+                  >
                     {m.label}
                   </span>
                 ))}
               </div>
 
-              <h3 className="text-white font-semibold mb-2 text-sm">Kết nối</h3>
+              <h3 className="text-white font-semibold mb-3 text-sm tracking-wide">Kết nối</h3>
               <div className="flex gap-2">
                 {[
-                  { icon: 'fb', label: 'Facebook', color: 'hover:bg-emerald-600' },
-                  { icon: 'ig', label: 'Instagram', color: 'hover:bg-pink-600' },
-                  { icon: 'yt', label: 'Youtube', color: 'hover:bg-red-600' },
-                ].map(({ icon, label, color }) => (
+                  { label: 'fb', title: 'Facebook' },
+                  { label: 'ig', title: 'Instagram' },
+                  { label: 'yt', title: 'Youtube' },
+                ].map(({ label, title }) => (
                   <a
-                    key={label}
+                    key={title}
                     href="#"
-                    aria-label={label}
-                    className={`w-9 h-9 rounded-lg bg-stone-800 ${color} flex items-center justify-center text-stone-400 hover:text-white transition-colors text-xs font-bold uppercase`}
+                    aria-label={title}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold uppercase transition-colors hover:text-white"
+                    style={{
+                      background: 'oklch(1 0 0 / 0.07)',
+                      color: 'oklch(0.55 0.025 192)',
+                    }}
                   >
-                    {icon}
+                    {label}
                   </a>
                 ))}
               </div>
@@ -174,12 +209,19 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-stone-800 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+        {/* Bottom */}
+        <div
+          className="mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs"
+          style={{
+            borderTop: '1px solid oklch(1 0 0 / 0.08)',
+            color: 'oklch(0.42 0.018 192)',
+          }}
+        >
           <p>© 2026 TapHoa. Tất cả quyền được bảo lưu.</p>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-stone-300 transition-colors">Chính sách bảo mật</a>
-            <a href="#" className="hover:text-stone-300 transition-colors">Điều khoản sử dụng</a>
-            <a href="#" className="hover:text-stone-300 transition-colors">Hỗ trợ</a>
+          <div className="flex gap-5">
+            {['Chính sách bảo mật', 'Điều khoản', 'Hỗ trợ'].map(t => (
+              <a key={t} href="#" className="hover:text-white transition-colors">{t}</a>
+            ))}
           </div>
         </div>
       </div>

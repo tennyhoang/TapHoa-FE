@@ -10,6 +10,8 @@ const CONTACT_INFO = [
     label: 'Địa chỉ',
     value: '123 Nguyễn Văn Cừ, Quận 1, TP. Hồ Chí Minh',
     href: undefined,
+    color: 'oklch(0.54 0.158 145)',
+    bg: 'oklch(0.94 0.055 145)',
   },
   {
     icon: Phone,
@@ -17,6 +19,8 @@ const CONTACT_INFO = [
     value: '1800 6868',
     sub: 'Miễn phí · 8:00–21:00 hàng ngày',
     href: 'tel:18006868',
+    color: 'oklch(0.57 0.135 196)',
+    bg: 'oklch(0.94 0.055 196)',
   },
   {
     icon: Mail,
@@ -24,6 +28,8 @@ const CONTACT_INFO = [
     value: 'support@taphoa.vn',
     sub: 'Phản hồi trong 24 giờ',
     href: 'mailto:support@taphoa.vn',
+    color: 'oklch(0.75 0.155 55)',
+    bg: 'oklch(0.96 0.055 85)',
   },
   {
     icon: Clock,
@@ -31,6 +37,8 @@ const CONTACT_INFO = [
     value: '8:00 – 21:00',
     sub: 'Thứ 2 – Chủ Nhật',
     href: undefined,
+    color: 'oklch(0.55 0.15 280)',
+    bg: 'oklch(0.94 0.045 280)',
   },
 ];
 
@@ -60,6 +68,7 @@ const FAQ = [
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,61 +81,74 @@ export default function ContactPage() {
     setForm({ name: '', email: '', phone: '', message: '' });
   };
 
+  const inputClass = "w-full border border-border rounded-xl px-4 py-2.5 text-sm bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 focus:bg-card transition-all text-foreground placeholder-muted-foreground";
+
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-4">
+    <div className="max-w-4xl mx-auto py-4 space-y-12">
 
       {/* Hero */}
       <section className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 text-sm font-semibold px-4 py-1.5 rounded-full border border-orange-100">
+        <span
+          className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-full border"
+          style={{ background: 'oklch(0.94 0.055 196)', color: 'oklch(0.40 0.12 196)', borderColor: 'oklch(0.85 0.08 196)' }}
+        >
           Liên hệ
-        </div>
-        <h1 className="text-3xl md:text-4xl font-black text-gray-900">
-          Chúng tôi luôn <span className="text-orange-600">sẵn sàng hỗ trợ</span>
+        </span>
+        <h1 className="font-editorial font-black text-foreground leading-tight"
+          style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}
+        >
+          Chúng tôi luôn sẵn sàng hỗ trợ
         </h1>
-        <p className="text-gray-500 text-sm max-w-lg mx-auto">
-          Có câu hỏi hay cần hỗ trợ? Hãy liên hệ với đội ngũ TapHoa — chúng tôi phản hồi nhanh nhất có thể.
+        <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+          Có câu hỏi hay cần hỗ trợ? Đội ngũ TapHoa luôn ở đây và sẽ phản hồi nhanh nhất có thể.
         </p>
       </section>
 
-      {/* Contact info cards */}
+      {/* Contact info */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {CONTACT_INFO.map(item => (
-          <div key={item.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
-              <item.icon className="h-5 w-5 text-orange-600" />
+          <div
+            key={item.label}
+            className="bg-card rounded-2xl border border-border/60 p-5 space-y-3 hover:border-border hover:shadow-sm transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: item.bg }}>
+              <item.icon className="h-5 w-5" style={{ color: item.color }} />
             </div>
             <div>
-              <p className="text-xs text-gray-400 font-medium">{item.label}</p>
+              <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">{item.label}</p>
               {item.href ? (
-                <a href={item.href} className="text-sm font-bold text-orange-600 hover:underline mt-0.5 block">
+                <a href={item.href} className="text-sm font-bold text-primary hover:underline mt-0.5 block">
                   {item.value}
                 </a>
               ) : (
-                <p className="text-sm font-bold text-gray-800 mt-0.5">{item.value}</p>
+                <p className="text-sm font-bold text-foreground mt-0.5">{item.value}</p>
               )}
-              {item.sub && <p className="text-xs text-gray-400 mt-0.5">{item.sub}</p>}
+              {item.sub && <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Contact form + FAQ */}
+      {/* Form + FAQ */}
       <div className="grid md:grid-cols-2 gap-8">
 
         {/* Form */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
-          <h2 className="text-lg font-black text-gray-800">Gửi tin nhắn cho chúng tôi</h2>
+        <div className="bg-card rounded-2xl border border-border/60 p-7">
+          <h2 className="font-editorial font-bold text-xl text-foreground mb-6">Gửi tin nhắn</h2>
 
           {sent ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
-                <CheckCircle2 className="h-7 w-7 text-green-500" />
+            <div className="flex flex-col items-center gap-4 py-10 text-center">
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center"
+                style={{ background: 'oklch(0.94 0.055 145)' }}
+              >
+                <CheckCircle2 className="h-7 w-7" style={{ color: 'oklch(0.54 0.158 145)' }} />
               </div>
-              <p className="font-semibold text-gray-800">Tin nhắn đã được gửi!</p>
-              <p className="text-sm text-gray-500">Chúng tôi sẽ liên hệ lại trong vòng 24 giờ.</p>
+              <p className="font-semibold text-foreground">Tin nhắn đã được gửi!</p>
+              <p className="text-sm text-muted-foreground">Chúng tôi sẽ liên hệ lại trong vòng 24 giờ.</p>
               <button
                 onClick={() => setSent(false)}
-                className="text-sm text-orange-600 hover:underline font-medium"
+                className="text-sm text-primary hover:underline font-medium"
               >
                 Gửi tin nhắn khác
               </button>
@@ -135,47 +157,48 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-600">Họ tên *</label>
+                  <label className="text-xs font-semibold text-foreground/70">Họ tên *</label>
                   <input
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Nguyễn Văn A"
-                    className="w-full h-9 border border-gray-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-colors"
+                    className={inputClass}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-600">Số điện thoại</label>
+                  <label className="text-xs font-semibold text-foreground/70">Số điện thoại</label>
                   <input
                     value={form.phone}
                     onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    placeholder="0912..."
-                    className="w-full h-9 border border-gray-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-colors"
+                    placeholder="0912 345 678"
+                    className={inputClass}
                   />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-gray-600">Email *</label>
+                <label className="text-xs font-semibold text-foreground/70">Email *</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="email@example.com"
-                  className="w-full h-9 border border-gray-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-colors"
+                  className={inputClass}
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-gray-600">Nội dung *</label>
+                <label className="text-xs font-semibold text-foreground/70">Nội dung *</label>
                 <textarea
                   value={form.message}
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   rows={4}
                   placeholder="Hãy mô tả vấn đề hoặc câu hỏi của bạn..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-colors"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
               <button
                 type="submit"
-                className="w-full h-10 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+                className="w-full h-11 font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors"
+                style={{ background: 'oklch(0.57 0.135 196)', color: 'white' }}
               >
                 <Send className="h-4 w-4" />
                 Gửi tin nhắn
@@ -185,17 +208,33 @@ export default function ContactPage() {
         </div>
 
         {/* FAQ */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-black text-gray-800">Câu hỏi thường gặp</h2>
-          <div className="space-y-3">
-            {FAQ.map(item => (
-              <details key={item.q} className="bg-white rounded-xl border border-gray-100 shadow-sm group">
-                <summary className="flex items-center justify-between px-5 py-4 cursor-pointer font-semibold text-sm text-gray-800 hover:text-orange-600 transition-colors list-none">
-                  {item.q}
-                  <span className="text-gray-400 group-open:rotate-180 transition-transform text-lg leading-none shrink-0">+</span>
-                </summary>
-                <p className="px-5 pb-4 text-sm text-gray-500 leading-relaxed">{item.a}</p>
-              </details>
+        <div>
+          <h2 className="font-editorial font-bold text-xl text-foreground mb-5">Câu hỏi thường gặp</h2>
+          <div className="space-y-2">
+            {FAQ.map((item, i) => (
+              <div
+                key={item.q}
+                className="bg-card rounded-2xl border border-border/60 overflow-hidden transition-all"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left font-semibold text-sm text-foreground hover:text-primary transition-colors"
+                >
+                  <span>{item.q}</span>
+                  <span
+                    className="text-muted-foreground transition-transform duration-200 shrink-0 ml-3"
+                    style={{ transform: openFaq === i ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                  >
+                    +
+                  </span>
+                </button>
+                {openFaq === i && (
+                  <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">
+                    {item.a}
+                  </p>
+                )}
+              </div>
             ))}
           </div>
         </div>
