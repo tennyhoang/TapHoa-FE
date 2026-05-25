@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Sparkles, Copy, BookOpen, Trash2, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Sparkles, BookOpen, Trash2, ChevronDown, ChevronUp, RefreshCw, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,74 +15,49 @@ const CATEGORIES = [
   { value: 'san-pham-noi-bat',    label: 'Sản phẩm nổi bật',     color: 'oklch(0.75 0.155 55)'  },
 ];
 
-interface Draft {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  topic: string;
-  createdAt: string;
-}
-
-const STORAGE_KEY = 'cam-nang-drafts';
-
-function getDrafts(): Draft[] {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  catch { return []; }
-}
-
 export default function AdminCamNangPage() {
-  const [topic, setTopic]           = useState('');
-  const [category, setCategory]     = useState(CATEGORIES[0].value);
-  const [preview, setPreview]       = useState<GeneratedArticle | null>(null);
-  const [drafts, setDrafts]         = useState<Draft[]>(() => getDrafts());
-  const [expanded, setExpanded]     = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [topic, setTopic]       = useState('');
+  const [category, setCategory] = useState(CATEGORIES[0].value);
+  const [preview, setPreview]   = useState<GeneratedArticle | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const { data: publishedArticles = [] } = useQuery({
+    queryKey: ['admin-articles'],
+    queryFn: articleService.getAll,
+  });
 
   const generateMutation = useMutation({
     mutationFn: () => articleService.generate(topic, category),
-    onSuccess:  (data) => setPreview(data),
-    onError:    () => toast.error('Tạo bài thất bại — kiểm tra backend endpoint + GEMINI_API_KEY'),
+    onSuccess: (data) => setPreview(data),
+    onError: () => toast.error('Tạo bài thất bại — kiểm tra GROQ_API_KEY trên Render'),
   });
 
-  function saveDraft() {
-    if (!preview) return;
-    const draft: Draft = {
-      id: crypto.randomUUID(),
-      ...preview,
+  const publishMutation = useMutation({
+    mutationFn: () => articleService.publish({
+      title: preview!.title,
+      excerpt: preview!.excerpt,
+      content: preview!.content,
       category,
-      topic,
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [draft, ...getDrafts()];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    setDrafts(updated);
-    setPreview(null);
-    setTopic('');
-    toast.success('Đã lưu nháp');
-  }
+      readTimeMinutes: Math.ceil(preview!.content.split(' ').length / 200),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      setPreview(null);
+      setTopic('');
+      toast.success('Đã đăng bài lên Cẩm nang!');
+    },
+    onError: () => toast.error('Đăng bài thất bại'),
+  });
 
-  function deleteDraft(id: string) {
-    const updated = getDrafts().filter(d => d.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    setDrafts(updated);
-    if (expanded === id) setExpanded(null);
-    toast.success('Đã xóa');
-  }
-
-  function copyCode(draft: Draft) {
-    const cat = CATEGORIES.find(c => c.value === draft.category);
-    const code = `  {
-    image: 'https://images.unsplash.com/photo-TODO?w=600&q=85&auto=format&fit=crop',
-    category: '${cat?.label ?? draft.category}',
-    categoryColor: '${cat?.color ?? '#888'}',
-    title: '${draft.title.replace(/'/g, "\\'")}',
-    desc: '${draft.excerpt.replace(/'/g, "\\'")}',
-    readTime: '5 phút',
-  },`;
-    navigator.clipboard.writeText(code);
-    toast.success('Đã copy — dán vào mảng ARTICLES trong cam-nang/page.tsx');
-  }
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => articleService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      toast.success('Đã xóa bài viết');
+    },
+    onError: () => toast.error('Xóa thất bại'),
+  });
 
   const activeCat = CATEGORIES.find(c => c.value === category)!;
 
@@ -90,7 +65,7 @@ export default function AdminCamNangPage() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Cẩm nang</h1>
-        <p className="text-sm text-gray-500 mt-1">Tạo bài viết tự động bằng AI — Gemini API (miễn phí)</p>
+        <p className="text-sm text-gray-500 mt-1">Tạo và đăng bài viết tự động bằng AI</p>
       </div>
 
       {/* Generator */}
@@ -143,50 +118,54 @@ export default function AdminCamNangPage() {
               <h2 className="mt-2.5 text-base font-bold text-gray-900 leading-snug">{preview.title}</h2>
               <p className="text-sm text-gray-500 mt-1">{preview.excerpt}</p>
             </div>
-
             <div className="bg-white rounded-lg border border-purple-100 p-4 max-h-64 overflow-y-auto">
               <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
             </div>
-
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setPreview(null)}>Bỏ</Button>
               <Button
-                variant="outline" size="sm" gap-1
+                variant="outline" size="sm"
                 onClick={() => generateMutation.mutate()}
                 disabled={generateMutation.isPending}
                 className="gap-1.5"
               >
                 <RefreshCw className="h-3.5 w-3.5" /> Tạo lại
               </Button>
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={saveDraft}>
-                Lưu nháp
+              <Button
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 gap-1.5"
+                onClick={() => publishMutation.mutate()}
+                disabled={publishMutation.isPending}
+              >
+                <Send className="h-3.5 w-3.5" />
+                {publishMutation.isPending ? 'Đang đăng...' : 'Đăng bài'}
               </Button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Drafts */}
+      {/* Published articles */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-gray-400" />
-          <span className="text-sm font-semibold text-gray-700">Bản nháp đã lưu</span>
-          {drafts.length > 0 && (
-            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{drafts.length}</span>
+          <span className="text-sm font-semibold text-gray-700">Bài đã đăng</span>
+          {publishedArticles.length > 0 && (
+            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{publishedArticles.length}</span>
           )}
         </div>
 
-        {drafts.length === 0 ? (
+        {publishedArticles.length === 0 ? (
           <div className="py-12 text-center text-sm text-gray-400">
-            Chưa có bản nháp nào
+            Chưa có bài nào — tạo và đăng bài đầu tiên ở trên
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {drafts.map(draft => {
-              const cat = CATEGORIES.find(c => c.value === draft.category);
-              const isOpen = expanded === draft.id;
+            {publishedArticles.map(article => {
+              const cat   = CATEGORIES.find(c => c.value === article.category);
+              const isOpen = expanded === article.id;
               return (
-                <div key={draft.id} className="px-6 py-4">
+                <div key={article.id} className="px-6 py-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -194,31 +173,26 @@ export default function AdminCamNangPage() {
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0"
                           style={{ background: cat?.color ?? '#888' }}
                         >
-                          {cat?.label ?? draft.category}
+                          {cat?.label ?? article.category}
                         </span>
                         <span className="text-[11px] text-gray-400">
-                          {new Date(draft.createdAt).toLocaleDateString('vi-VN')}
+                          {new Date(article.createdAt).toLocaleDateString('vi-VN')}
                         </span>
                       </div>
-                      <p className="font-semibold text-sm text-gray-800 line-clamp-1">{draft.title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{draft.excerpt}</p>
+                      <p className="font-semibold text-sm text-gray-800 line-clamp-1">{article.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{article.excerpt}</p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
-                        onClick={() => copyCode(draft)}
-                        className="text-xs flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 transition-colors"
-                      >
-                        <Copy className="h-3 w-3" /> Copy code
-                      </button>
-                      <button
-                        onClick={() => setExpanded(isOpen ? null : draft.id)}
+                        onClick={() => setExpanded(isOpen ? null : article.id)}
                         className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
                       >
                         {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </button>
                       <button
-                        onClick={() => deleteDraft(draft.id)}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors"
+                        onClick={() => { if (confirm('Xóa bài viết này?')) deleteMutation.mutate(article.id); }}
+                        disabled={deleteMutation.isPending && deleteMutation.variables === article.id}
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors disabled:opacity-40"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -226,7 +200,7 @@ export default function AdminCamNangPage() {
                   </div>
                   {isOpen && (
                     <div className="mt-3 bg-gray-50 rounded-lg border border-gray-100 p-4 max-h-56 overflow-y-auto">
-                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{draft.content}</pre>
+                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
                     </div>
                   )}
                 </div>
@@ -234,21 +208,6 @@ export default function AdminCamNangPage() {
             })}
           </div>
         )}
-      </div>
-
-      {/* How-to */}
-      <div className="bg-amber-50 border border-amber-100 rounded-xl p-5">
-        <p className="text-xs font-semibold text-amber-700 mb-2">Cách dùng</p>
-        <ol className="text-xs text-amber-600 space-y-1 list-decimal list-inside leading-relaxed">
-          <li>Điền chủ đề → chọn danh mục → nhấn &ldquo;Tạo bài&rdquo;</li>
-          <li>Xem preview → &ldquo;Tạo lại&rdquo; nếu chưa ưng → &ldquo;Lưu nháp&rdquo;</li>
-          <li>Nhấn &ldquo;Copy code&rdquo; trên bản nháp</li>
-          <li>Mở <code className="bg-amber-100 px-1 rounded font-mono">src/app/cam-nang/page.tsx</code> → dán vào mảng <code className="bg-amber-100 px-1 rounded font-mono">ARTICLES</code></li>
-          <li>Thay <code className="bg-amber-100 px-1 rounded font-mono">photo-TODO</code> bằng ID ảnh từ Unsplash</li>
-        </ol>
-        <p className="text-[11px] text-amber-400 mt-3">
-          Backend cần: <code className="bg-amber-100 px-1 rounded font-mono">POST /admin/articles/generate</code> + biến môi trường <code className="bg-amber-100 px-1 rounded font-mono">GEMINI_API_KEY</code>
-        </p>
       </div>
     </div>
   );
