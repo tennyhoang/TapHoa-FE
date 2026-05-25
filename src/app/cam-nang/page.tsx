@@ -5,9 +5,8 @@ import { ArticleGrid } from '@/components/cam-nang/ArticleGrid';
 
 async function getArticles(): Promise<Article[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles`, {
-      next: { revalidate: 60 },
-    });
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5084/api/v1';
+    const res = await fetch(`${apiBase}/articles`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch {

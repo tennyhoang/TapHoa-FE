@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
-  Banknote, CreditCard, Minus, Plus, Trash2, ChevronRight,
+  Banknote, CreditCard, Wallet, Minus, Plus, Trash2, ChevronRight,
   BookUser, ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,12 +21,13 @@ import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 import { cartService } from '@/services/cart.service';
 import { orderService, CreateOrderRequest } from '@/services/order.service';
 import { addressService } from '@/services/address.service';
+import { walletService } from '@/services/wallet.service';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
 import { Cart } from '@/types';
 import { formatPrice } from '@/lib/format';
 
-type PaymentMethod = 'COD' | 'BankTransfer';
+type PaymentMethod = 'COD' | 'BankTransfer' | 'Wallet';
 
 type CheckoutForm = {
   receiverName: string;
@@ -37,6 +38,7 @@ type CheckoutForm = {
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
   { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
   { value: 'BankTransfer', label: 'Chuyển khoản ngân hàng',   sub: 'VNPAY / Ngân hàng',           Icon: CreditCard },
+  { value: 'Wallet',       label: 'Thanh toán bằng ví',       sub: 'Trừ trực tiếp từ ví TapHoa', Icon: Wallet     },
 ];
 
 export default function CheckoutPage() {
@@ -65,6 +67,12 @@ export default function CheckoutPage() {
   const { data: cart, isLoading: cartLoading } = useQuery({
     queryKey: ['cart'],
     queryFn: cartService.get,
+    enabled: mounted && isAuthenticated(),
+  });
+
+  const { data: walletData } = useQuery({
+    queryKey: ['wallet'],
+    queryFn: walletService.getWallet,
     enabled: mounted && isAuthenticated(),
   });
 
@@ -425,37 +433,50 @@ export default function CheckoutPage() {
                 <h3 className="font-semibold text-gray-800 text-sm">Phương thức thanh toán</h3>
               </div>
               <div className="space-y-2">
-                {PAYMENT_OPTIONS.map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setPaymentMethod(opt.value)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-colors ${
-                      paymentMethod === opt.value
-                        ? 'border-emerald-500 bg-emerald-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      paymentMethod === opt.value ? 'bg-emerald-100' : 'bg-gray-50'
-                    }`}>
-                      <opt.Icon className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-teal-600' : 'text-gray-400'}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}>
-                        {opt.label}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5">{opt.sub}</p>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
-                      paymentMethod === opt.value ? 'border-emerald-500' : 'border-gray-300'
-                    }`}>
-                      {paymentMethod === opt.value && (
-                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      )}
-                    </div>
-                  </button>
-                ))}
+                {PAYMENT_OPTIONS.map(opt => {
+                  const walletBalance = walletData?.balance ?? 0;
+                  const isWalletOpt = opt.value === 'Wallet';
+                  const walletInsufficient = isWalletOpt && cart && walletBalance < cart.totalAmount;
+                  const isDisabled = walletInsufficient;
+                  const subLabel = isWalletOpt
+                    ? `Số dư: ${formatPrice(walletBalance)}${walletInsufficient ? ' — Không đủ' : ''}`
+                    : opt.sub;
+
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() => !isDisabled && setPaymentMethod(opt.value)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        paymentMethod === opt.value
+                          ? 'border-emerald-500 bg-emerald-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        paymentMethod === opt.value ? 'bg-emerald-100' : 'bg-gray-50'
+                      }`}>
+                        <opt.Icon className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-teal-600' : 'text-gray-400'}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}>
+                          {opt.label}
+                        </p>
+                        <p className={`text-xs mt-0.5 ${walletInsufficient ? 'text-red-400' : 'text-gray-400'}`}>
+                          {subLabel}
+                        </p>
+                      </div>
+                      <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                        paymentMethod === opt.value ? 'border-emerald-500' : 'border-gray-300'
+                      }`}>
+                        {paymentMethod === opt.value && (
+                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -508,7 +529,9 @@ export default function CheckoutPage() {
                   ? 'Đang xử lý...'
                   : paymentMethod === 'BankTransfer'
                     ? 'Tiếp tục thanh toán'
-                    : 'Xác nhận đặt hàng'}
+                    : paymentMethod === 'Wallet'
+                      ? `Thanh toán ${cart ? formatPrice(cart.totalAmount) : ''} từ ví`
+                      : 'Xác nhận đặt hàng'}
               </Button>
 
               <p className="text-xs text-center text-gray-400">

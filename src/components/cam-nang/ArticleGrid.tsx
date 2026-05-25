@@ -8,9 +8,15 @@ import { Article } from '@/services/article.service';
 
 const CATEGORY_META: Record<string, { label: string; color: string }> = {
   'dinh-duong':         { label: 'Dinh dưỡng',         color: 'oklch(0.54 0.158 145)' },
+  'Dinh dưỡng':         { label: 'Dinh dưỡng',         color: 'oklch(0.54 0.158 145)' },
   'mua-sam-thong-minh': { label: 'Mua sắm thông minh', color: 'oklch(0.57 0.135 196)' },
+  'Mua sắm thông minh': { label: 'Mua sắm thông minh', color: 'oklch(0.57 0.135 196)' },
   'he-thong-hub':       { label: 'Hệ thống Hub',       color: 'oklch(0.55 0.15 280)'  },
+  'Hệ thống Hub':       { label: 'Hệ thống Hub',       color: 'oklch(0.55 0.15 280)'  },
   'san-pham-noi-bat':   { label: 'Sản phẩm nổi bật',   color: 'oklch(0.75 0.155 55)'  },
+  'Sản phẩm nổi bật':   { label: 'Sản phẩm nổi bật',   color: 'oklch(0.75 0.155 55)'  },
+  'Mẹo nấu ăn':         { label: 'Mẹo nấu ăn',         color: 'oklch(0.60 0.15 35)'   },
+  'Công thức':          { label: 'Công thức',           color: 'oklch(0.58 0.14 310)'  },
 };
 
 const DEFAULT_IMAGES: Record<string, string> = {
@@ -20,16 +26,10 @@ const DEFAULT_IMAGES: Record<string, string> = {
   'san-pham-noi-bat':   'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=85&auto=format&fit=crop',
 };
 
-const FILTERS = [
-  { key: '',                    label: 'Tất cả' },
-  { key: 'dinh-duong',         label: 'Dinh dưỡng' },
-  { key: 'mua-sam-thong-minh', label: 'Mua sắm thông minh' },
-  { key: 'he-thong-hub',       label: 'Hệ thống Hub' },
-  { key: 'san-pham-noi-bat',   label: 'Sản phẩm nổi bật' },
-];
-
 export function ArticleGrid({ articles }: { articles: Article[] }) {
   const [active, setActive] = useState('');
+
+  const categories = Array.from(new Set(articles.map(a => a.category)));
 
   const filtered = active
     ? articles.filter(a => a.category === active)
@@ -38,29 +38,32 @@ export function ArticleGrid({ articles }: { articles: Article[] }) {
   return (
     <div className="space-y-8">
       {/* Filter */}
-      <div className="flex gap-2 flex-wrap justify-center">
-        {FILTERS.map(f => {
-          const isActive = active === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setActive(f.key)}
-              className="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
-              style={isActive ? {
-                background: 'oklch(0.57 0.135 196)',
-                color: 'white',
-                borderColor: 'oklch(0.57 0.135 196)',
-              } : {
-                background: 'transparent',
-                color: 'oklch(0.52 0.022 192)',
-                borderColor: 'oklch(0.88 0.008 90)',
-              }}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
+      {categories.length > 1 && (
+        <div className="flex gap-2 flex-wrap justify-center">
+          {['', ...categories].map(key => {
+            const isActive = active === key;
+            const label = key ? (CATEGORY_META[key]?.label ?? key) : 'Tất cả';
+            return (
+              <button
+                key={key}
+                onClick={() => setActive(key)}
+                className="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
+                style={isActive ? {
+                  background: 'oklch(0.57 0.135 196)',
+                  color: 'white',
+                  borderColor: 'oklch(0.57 0.135 196)',
+                } : {
+                  background: 'transparent',
+                  color: 'oklch(0.52 0.022 192)',
+                  borderColor: 'oklch(0.88 0.008 90)',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Grid */}
       {filtered.length === 0 ? (

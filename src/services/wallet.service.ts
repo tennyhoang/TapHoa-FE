@@ -23,6 +23,11 @@ export interface PagedWalletTransactions {
   totalPages: number;
 }
 
+export interface WalletAmountResult {
+  newBalance: number;
+  amount: number;
+}
+
 export const walletService = {
   getWallet: () =>
     api.get<WalletResponse>('/wallet/me').then(r => r.data),
@@ -31,4 +36,10 @@ export const walletService = {
     api
       .get<PagedWalletTransactions>('/wallet/me/transactions', { params: { page, pageSize } })
       .then(r => r.data),
+
+  topup: (amount: number) =>
+    api.post<WalletAmountResult>('/wallet/me/topup', { amount }).then(r => r.data),
+
+  withdraw: (amount: number) =>
+    api.post<WalletAmountResult>('/wallet/me/withdraw', { amount }).then(r => r.data),
 };
