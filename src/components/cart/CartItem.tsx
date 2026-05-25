@@ -26,7 +26,9 @@ export function CartItem({ item, onUpdate, onRemove, updating, removing }: Props
         {item.thumbnailUrl ? (
           <Image src={item.thumbnailUrl} alt={item.productName} fill className="object-cover" sizes="80px" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+          <div className="w-full h-full flex items-center justify-center bg-gray-50">
+            <span className="text-[10px] text-gray-400">N/A</span>
+          </div>
         )}
       </Link>
 

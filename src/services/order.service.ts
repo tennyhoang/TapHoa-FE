@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { Order, OrderFilterParams, OrderStatus, PagedResult, UpdateOrderStatusRequest } from '@/types';
+import { DriverHubBatch, Order, OrderFilterParams, OrderStatus, PagedResult, UpdateOrderStatusRequest } from '@/types';
 
 export interface CreateOrderRequest {
   hubId: string;
@@ -44,7 +44,7 @@ export const orderService = {
   getAgentOrders: (params: { status?: OrderStatus; page?: number; pageSize?: number } = {}) =>
     api.get<PagedResult<Order>>('/agent/orders', { params: { page: 1, pageSize: 20, ...params } }).then(r => r.data),
 
-  // Driver: get Confirmed orders to pick up
-  getDriverOrders: (params: { page?: number; pageSize?: number } = {}) =>
-    api.get<PagedResult<Order>>('/driver/orders', { params: { page: 1, pageSize: 20, ...params } }).then(r => r.data),
+  // Driver: get Paid_WaitingForBatch orders grouped by hub
+  getDriverOrders: () =>
+    api.get<DriverHubBatch[]>('/driver/orders').then(r => r.data),
 };
