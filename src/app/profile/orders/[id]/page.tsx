@@ -147,7 +147,7 @@ export default function OrderDetailPage() {
     mutationFn: () => orderService.cancelOrder(id),
     onSuccess:  () => {
       queryClient.invalidateQueries({ queryKey: ['order', id] });
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       toast.success('Đã hủy đơn hàng');
     },
     onError: () => toast.error('Không thể hủy đơn hàng này'),
@@ -194,9 +194,19 @@ export default function OrderDetailPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-stone-900">
-            Đơn #{order.id.slice(0, 8).toUpperCase()}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black tracking-tight text-stone-900">
+              Đơn #{order.id.slice(0, 8).toUpperCase()}
+            </h1>
+            <button
+              type="button"
+              onClick={() => { navigator.clipboard.writeText(order.id); toast.success('Đã sao chép mã đơn'); }}
+              className="text-stone-300 hover:text-teal-500 transition-colors p-1.5 rounded-lg hover:bg-teal-50"
+              title="Sao chép mã đơn"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+          </div>
           <p className="text-sm text-stone-400 mt-0.5">{formatDate(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 pt-0.5">
