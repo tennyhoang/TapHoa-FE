@@ -227,7 +227,9 @@ export default function CheckoutPage() {
                             className="object-cover w-full h-full"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xl">🥬</div>
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <ShoppingBag className="h-5 w-5" />
+                          </div>
                         )}
                       </div>
 

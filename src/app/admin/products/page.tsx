@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -128,7 +128,9 @@ export default function AdminProductsPage() {
                         {p.thumbnailUrl ? (
                           <Image src={p.thumbnailUrl} alt={p.name} fill className="object-cover" sizes="40px" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-lg">📦</div>
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <Package className="h-5 w-5" />
+                            </div>
                         )}
                       </div>
                       <div className="min-w-0">

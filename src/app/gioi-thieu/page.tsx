@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Clock, ShieldCheck, Truck, Star, Users } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Truck, Star, Users, ShoppingCart } from 'lucide-react';
 
 const STATS = [
-  { value: '10.000+', label: 'Khách hàng tin dùng', icon: '👥' },
-  { value: '5.000+', label: 'Sản phẩm đa dạng', icon: '🛒' },
-  { value: '50+', label: 'Điểm Hub nhận hàng', icon: '📍' },
-  { value: '99%', label: 'Hài lòng sau mua', icon: '⭐' },
+  { value: '10.000+', label: 'Khách hàng tin dùng', icon: Users },
+  { value: '5.000+', label: 'Sản phẩm đa dạng', icon: ShoppingCart },
+  { value: '50+', label: 'Điểm Hub nhận hàng', icon: MapPin },
+  { value: '99%', label: 'Hài lòng sau mua', icon: Star },
 ];
 
 const VALUES = [
@@ -98,7 +98,7 @@ export default function AboutPage() {
             key={s.label}
             className="bg-card rounded-2xl border border-border/60 p-6 text-center hover:border-primary/30 hover:shadow-sm transition-all"
           >
-            <span className="text-2xl block mb-2">{s.icon}</span>
+            <s.icon className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="font-editorial font-black text-3xl text-primary mb-1">{s.value}</p>
             <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
           </div>

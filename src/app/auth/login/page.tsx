@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Leaf, Zap, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,9 @@ import { authService } from '@/services/auth.service';
 type FormData = { email: string; password: string };
 
 const TRUST_POINTS = [
-  { icon: '🥬', text: 'Rau củ VietGAP — kiểm định từng lô hàng' },
-  { icon: '🚀', text: 'Đặt sáng — nhận chiều tại Hub gần nhà' },
-  { icon: '🔒', text: 'Thanh toán bảo mật qua VietQR' },
+  { icon: Leaf, text: 'Rau củ VietGAP — kiểm định từng lô hàng' },
+  { icon: Zap, text: 'Đặt sáng — nhận chiều tại Hub gần nhà' },
+  { icon: ShieldCheck, text: 'Thanh toán bảo mật qua VietQR' },
 ];
 
 export default function LoginPage() {
@@ -88,7 +88,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               {TRUST_POINTS.map((point, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xl">{point.icon}</span>
+                  <point.icon className="h-4 w-4 text-white/60 shrink-0" />
                   <span className="text-sm text-white/75">{point.text}</span>
                 </div>
               ))}
