@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 import { cartService } from '@/services/cart.service';
 import { orderService, CreateOrderRequest } from '@/services/order.service';
@@ -34,7 +33,6 @@ type CheckoutForm = {
   phoneNumber: string;
 };
 
-const BANK = { id: 'mbbank', account: '0785680242', name: 'CONG TY TNHH TAPHOA SACH' };
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
   { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
@@ -202,10 +200,10 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className="h-4 w-4 text-emerald-600" />
+                  <ShoppingBag className="h-4 w-4 text-teal-600" />
                   <h2 className="font-semibold text-sm text-gray-800">Sản phẩm ({itemCount})</h2>
                 </div>
-                <Link href="/" className="text-xs text-emerald-600 hover:underline flex items-center gap-0.5">
+                <Link href="/" className="text-xs text-teal-600 hover:underline flex items-center gap-0.5">
                   Thêm sản phẩm <ChevronRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -246,7 +244,7 @@ export default function CheckoutPage() {
                           type="button"
                           disabled={item.quantity <= 1 || isUpdating}
                           onClick={() => updateMutation.mutate({ productId: item.productId, quantity: item.quantity - 1 })}
-                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
@@ -264,7 +262,7 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="text-right shrink-0 space-y-1.5 min-w-[70px]">
-                        <p className="font-bold text-emerald-600 text-sm">{formatPrice(item.subtotal)}</p>
+                        <p className="font-bold text-teal-600 text-sm">{formatPrice(item.subtotal)}</p>
                         <button
                           type="button"
                           disabled={isRemoving}
@@ -304,7 +302,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setAddrOpen(v => !v)}
-                      className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="flex items-center gap-1 text-xs text-teal-600 hover:text-emerald-700 font-medium"
                     >
                       <BookUser className="h-3.5 w-3.5" />
                       Địa chỉ đã lưu
@@ -327,7 +325,7 @@ export default function CheckoutPage() {
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-sm font-semibold text-gray-800">{addr.receiverName}</p>
                               {addr.isDefault && (
-                                <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Mặc định</span>
+                                <span className="text-xs text-teal-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Mặc định</span>
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-0.5">{addr.phoneNumber}</p>
@@ -374,11 +372,11 @@ export default function CheckoutPage() {
 
             {/* 2. Hub picker */}
             <div className={`rounded-xl border-2 p-4 transition-colors ${
-              currentHub ? 'border-emerald-500 bg-emerald-50' : 'border-amber-300 bg-amber-50'
+              currentHub ? 'border-teal-500 bg-teal-50' : 'border-teal-200 bg-teal-50/50'
             }`}>
               <div className="flex items-center gap-2 mb-3">
                 <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
-                  currentHub ? 'bg-emerald-600 text-white' : 'bg-amber-400 text-white'
+                  currentHub ? 'bg-teal-600 text-white' : 'bg-teal-400 text-white'
                 }`}>2</span>
                 <h3 className="font-semibold text-gray-800 text-sm">Điểm nhận hàng</h3>
               </div>
@@ -386,8 +384,8 @@ export default function CheckoutPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5 flex-1 min-w-0">
                   {currentHub
-                    ? <MapPin className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    : <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                    ? <MapPin className="h-4 w-4 text-teal-600 shrink-0 mt-0.5" />
+                    : <AlertTriangle className="h-4 w-4 text-teal-500 shrink-0 mt-0.5" />
                   }
                   <div className="min-w-0">
                     {currentHub ? (
@@ -397,8 +395,8 @@ export default function CheckoutPage() {
                       </>
                     ) : (
                       <>
-                        <p className="font-semibold text-sm text-amber-700">Chưa chọn trạm</p>
-                        <p className="text-xs text-amber-600 mt-0.5">Vui lòng chọn hub gần bạn</p>
+                        <p className="font-semibold text-sm text-teal-700">Chưa chọn trạm</p>
+                        <p className="text-xs text-teal-500 mt-0.5">Vui lòng chọn hub gần bạn</p>
                       </>
                     )}
                   </div>
@@ -408,7 +406,7 @@ export default function CheckoutPage() {
                   onClick={() => setHubDialogOpen(true)}
                   className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex items-center gap-1 ${
                     currentHub
-                      ? 'bg-white border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
+                      ? 'bg-white border-emerald-200 text-teal-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
                       : 'bg-amber-400 border-amber-400 text-white hover:bg-amber-500'
                   }`}
                 >
@@ -439,7 +437,7 @@ export default function CheckoutPage() {
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       paymentMethod === opt.value ? 'bg-emerald-100' : 'bg-gray-50'
                     }`}>
-                      <opt.Icon className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-emerald-600' : 'text-gray-400'}`} />
+                      <opt.Icon className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-teal-600' : 'text-gray-400'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}>
@@ -483,13 +481,13 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-gray-500">
                   <span>Phí vận chuyển</span>
-                  <span className="text-emerald-600 font-medium">Miễn phí</span>
+                  <span className="text-teal-600 font-medium">Miễn phí</span>
                 </div>
               </div>
               <Separator />
               <div className="flex justify-between items-baseline">
                 <span className="font-bold text-gray-800">Tổng thanh toán</span>
-                <span className="text-2xl font-black text-emerald-600">{formatPrice(cart.totalAmount)}</span>
+                <span className="text-2xl font-black text-teal-600">{formatPrice(cart.totalAmount)}</span>
               </div>
 
               {!currentHub && (

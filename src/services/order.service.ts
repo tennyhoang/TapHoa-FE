@@ -47,4 +47,12 @@ export const orderService = {
   // Driver: get Paid_WaitingForBatch orders grouped by hub
   getDriverOrders: () =>
     api.get<DriverHubBatch[]>('/driver/orders').then(r => r.data),
+
+  // Driver: orders already picked up (ShippingToHub)
+  getDriverShippingOrders: () =>
+    api.get<PagedResult<Order>>('/driver/orders/shipping', { params: { pageSize: 50 } }).then(r => r.data),
+
+  // Driver: completed deliveries today
+  getDriverCompletedOrders: () =>
+    api.get<PagedResult<Order>>('/driver/orders/delivered', { params: { pageSize: 30 } }).then(r => r.data),
 };
