@@ -1,473 +1,75 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronRight, TrendingUp, MapPin, LayoutGrid, X } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ProductCard } from '@/components/products/ProductCard';
-import { productService } from '@/services/product.service';
-import { categoryService } from '@/services/category.service';
-import { useHubStore } from '@/store/hub.store';
-import { Category } from '@/types';
-
-const SORT_OPTIONS = [
-  { value: 'newest',     label: 'Mới nhất'       },
-  { value: 'price_asc',  label: 'Giá thấp → cao' },
-  { value: 'price_desc', label: 'Giá cao → thấp' },
-  { value: 'name',       label: 'Tên A → Z'      },
-];
-
-const CAT_FALLBACKS = ['🥬', '🐟', '🥩', '🍎', '🥚', '🧀', '🌽', '🍄'];
-
-function CategoryCircle({ cat, selected, onClick, index }: { cat: Category; selected: boolean; onClick: () => void; index: number }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
-    >
-      <div
-        className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-150
-          ${selected
-            ? 'border-emerald-500 ring-2 ring-emerald-200'
-            : 'border-gray-200 group-hover:border-emerald-300'
-          }`}
-      >
-        {cat.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gray-50 flex items-center justify-center text-xl select-none">
-            {CAT_FALLBACKS[index % CAT_FALLBACKS.length]}
-          </div>
-        )}
-      </div>
-      <span className={`text-xs font-medium text-center leading-tight max-w-[56px] truncate transition-colors ${selected ? 'text-emerald-600' : 'text-gray-600 group-hover:text-emerald-600'}`}>
-        {cat.name}
-      </span>
-    </button>
-  );
-}
-
-function AllCategoriesModal({
-  open, onOpenChange, categories, selectedId, onSelect,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  categories: Category[];
-  selectedId?: string;
-  onSelect: (id: string) => void;
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <LayoutGrid className="h-5 w-5 text-emerald-600" />
-            Tất cả danh mục
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-1 mt-2 max-h-[60vh] overflow-y-auto pr-1">
-          {categories.map((parent, i) => {
-            const parentActive =
-              selectedId === parent.id ||
-              parent.children.some(c => c.id === selectedId);
-
-            return (
-              <div key={parent.id}>
-                {/* Parent row */}
-                <button
-                  type="button"
-                  onClick={() => { onSelect(parent.id); onOpenChange(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
-                    ${parentActive
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : 'hover:bg-gray-50 text-gray-800'
-                    }`}
-                >
-                  <span className="text-xl w-7 text-center select-none shrink-0">
-                    {CAT_FALLBACKS[i % CAT_FALLBACKS.length]}
-                  </span>
-                  {parent.name}
-                  <ChevronRight className="h-4 w-4 ml-auto opacity-30" />
-                </button>
-
-                {/* Children pills */}
-                {parent.children.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pl-13 px-4 pb-2">
-                    {parent.children.map(child => (
-                      <button
-                        key={child.id}
-                        type="button"
-                        onClick={() => { onSelect(child.id); onOpenChange(false); }}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
-                          ${selectedId === child.id
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-emerald-400 hover:text-emerald-600'
-                          }`}
-                      >
-                        {child.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function HomeContent() {
-  const searchParams  = useSearchParams();
-  const urlSearch     = searchParams.get('search') ?? '';
-  const urlSort       = searchParams.get('sortBy') ?? '';
-  const urlIsNew      = searchParams.get('isNew') === 'true';
-  const urlIsDiscount = searchParams.get('isDiscount') === 'true';
-
-  const { currentHub } = useHubStore();
-
-  const [mounted, setMounted]             = useState(false);
-  const [search, setSearch]               = useState('');
-  const [searchInput, setSearchInput]     = useState('');
-  const [categoryId, setCategoryId]       = useState<string | undefined>();
-  const [showAllCategories, setShowAllCategories] = useState(false);
-  const [sortBy, setSortBy]               = useState('newest');
-  const [page, setPage]                   = useState(1);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-      if (urlSearch) { setSearch(urlSearch); setSearchInput(urlSearch); }
-      if (urlSort)   setSortBy(urlSort);
-    }, 0);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (urlSearch !== undefined) { setSearch(urlSearch); setSearchInput(urlSearch); }
-    if (urlSort) setSortBy(urlSort);
-  }, [urlSearch, urlSort]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: categoryService.getAll,
-    enabled: mounted,
-  });
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['products', search, categoryId, sortBy, page, urlIsNew, urlIsDiscount],
-    queryFn: () => productService.getAll({
-      search, categoryId, sortBy, page, pageSize: 20,
-      isNew:      urlIsNew      || undefined,
-      isDiscount: urlIsDiscount || undefined,
-    }),
-    enabled: mounted,
-  });
-
-  // Resolve selected category name for display (searches parent + children)
-  const activeCategoryName = useMemo(() => {
-    if (!categoryId || !categories) return undefined;
-    for (const cat of categories) {
-      if (cat.id === categoryId) return cat.name;
-      const child = cat.children.find(c => c.id === categoryId);
-      if (child) return child.name;
-    }
-    return undefined;
-  }, [categoryId, categories]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchInput);
-    setPage(1);
-  };
-
-  const handleSelectCategory = (id: string) => {
-    setCategoryId(id);
-    setPage(1);
-  };
-
-  const totalPages = data ? Math.ceil(data.totalCount / data.pageSize) : 0;
-
-  return (
-    <div className="space-y-0">
-      {/* ── Hero ── */}
-      <div className="bg-emerald-600 -mx-4 px-4 py-10 mb-8">
-        <div className="max-w-7xl mx-auto text-center space-y-3">
-          <h1 className="text-3xl md:text-4xl font-black text-white">
-            Nông sản tươi sạch
-          </h1>
-          <p className="text-emerald-100 text-sm md:text-base">
-            Hàng nghìn sản phẩm sạch — chọn điểm nhận hàng gần nhất để mua ngay
-          </p>
-
-          {mounted && currentHub && (
-            <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs px-3 py-1 rounded-full">
-              <MapPin className="h-3 w-3" />
-              Đang xem tại: <span className="font-bold">{currentHub.name}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSearch} className="max-w-lg mx-auto flex gap-2 pt-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Tìm sản phẩm bạn cần..."
-                value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
-                className="pl-10 bg-white border-0 h-11 rounded-lg"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="bg-white text-emerald-700 hover:bg-emerald-50 h-11 px-6 rounded-lg font-bold border-0"
-            >
-              Tìm
-            </Button>
-          </form>
-        </div>
-      </div>
-
-      {/* ── Categories ── */}
-      {categories && categories.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-800 text-sm">Danh mục sản phẩm</h2>
-            <button
-              type="button"
-              onClick={() => setShowAllCategories(true)}
-              className="text-xs text-emerald-600 flex items-center gap-0.5 hover:underline"
-            >
-              Xem tất cả <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
-
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {/* Tất cả */}
-            <button
-              type="button"
-              onClick={() => { setCategoryId(undefined); setPage(1); }}
-              className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
-            >
-              <div
-                className={`w-14 h-14 rounded-full border-2 transition-all duration-150 flex items-center justify-center
-                  ${!categoryId
-                    ? 'border-emerald-500 bg-emerald-600 ring-2 ring-emerald-200'
-                    : 'border-gray-200 bg-gray-50 group-hover:border-emerald-300'
-                  }`}
-              >
-                <span className="text-xl select-none">🛒</span>
-              </div>
-              <span className={`text-xs font-medium transition-colors ${!categoryId ? 'text-emerald-600' : 'text-gray-600 group-hover:text-emerald-600'}`}>
-                Tất cả
-              </span>
-            </button>
-
-            {categories.map((cat, i) => (
-              <CategoryCircle
-                key={cat.id}
-                cat={cat}
-                index={i}
-                selected={
-                  categoryId === cat.id ||
-                  cat.children.some(c => c.id === categoryId)
-                }
-                onClick={() => handleSelectCategory(cat.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="flex gap-6">
-        {/* ── Sidebar Sort ── */}
-        <aside className="hidden lg:block w-48 shrink-0">
-          <div className="border border-gray-200 rounded-xl overflow-hidden sticky top-28 bg-white">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <p className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-emerald-600" /> Sắp xếp
-              </p>
-            </div>
-            <div className="p-2">
-              {SORT_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => { setSortBy(opt.value); setPage(1); }}
-                  className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors
-                    ${sortBy === opt.value
-                      ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                      : 'hover:bg-gray-50 text-gray-600'
-                    }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* ── Products ── */}
-        <div className="flex-1 min-w-0">
-          {/* Mobile sort */}
-          <div className="lg:hidden flex gap-2 mb-4 overflow-x-auto pb-1">
-            {SORT_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => { setSortBy(opt.value); setPage(1); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border shrink-0 transition-colors
-                  ${sortBy === opt.value
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-emerald-300'
-                  }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Active filters row */}
-          {(search || activeCategoryName) && (
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {activeCategoryName && (
-                <span className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                  <LayoutGrid className="h-3 w-3" />
-                  {activeCategoryName}
-                  <button
-                    type="button"
-                    onClick={() => { setCategoryId(undefined); setPage(1); }}
-                    className="ml-0.5 hover:opacity-75"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
-              {search && (
-                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
-                  <Search className="h-3 w-3" />
-                  {search}
-                  <button
-                    type="button"
-                    onClick={() => { setSearch(''); setSearchInput(''); }}
-                    className="ml-0.5 hover:opacity-75"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Skeleton */}
-          {!mounted || isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl overflow-hidden border border-gray-200">
-                  <Skeleton className="aspect-square" />
-                  <div className="p-3 space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-5 w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : data?.items.length === 0 ? (
-            <div className="text-center py-24 space-y-3">
-              <div className="text-5xl">🔍</div>
-              <p className="text-gray-500">Khu vực này chưa có sản phẩm hỗ trợ.</p>
-              <button
-                type="button"
-                className="text-sm text-emerald-600 hover:underline"
-                onClick={() => { setSearch(''); setSearchInput(''); setCategoryId(undefined); }}
-              >
-                Bấm vào đây để xem tất cả sản phẩm của kho tổng
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm text-gray-500">
-                  <span className="font-semibold text-gray-800">{data?.totalCount}</span> sản phẩm
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {data?.items.map(p => <ProductCard key={p.id} product={p} />)}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-10">
-                  <Button
-                    variant="outline"
-                    disabled={page === 1}
-                    onClick={() => setPage(p => p - 1)}
-                    className="rounded-lg px-5 border-gray-200 text-gray-600 hover:border-emerald-300 hover:text-emerald-600"
-                  >
-                    ← Trước
-                  </Button>
-                  <div className="flex gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const p = page <= 3 ? i + 1 : page - 2 + i;
-                      if (p < 1 || p > totalPages) return null;
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setPage(p)}
-                          className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors
-                            ${p === page
-                              ? 'bg-emerald-600 text-white'
-                              : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <Button
-                    variant="outline"
-                    disabled={page === totalPages}
-                    onClick={() => setPage(p => p + 1)}
-                    className="rounded-lg px-5 border-gray-200 text-gray-600 hover:border-emerald-300 hover:text-emerald-600"
-                  >
-                    Sau →
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── All Categories Modal ── */}
-      <AllCategoriesModal
-        open={showAllCategories}
-        onOpenChange={setShowAllCategories}
-        categories={categories ?? []}
-        selectedId={categoryId}
-        onSelect={handleSelectCategory}
-      />
-    </div>
-  );
-}
+import { Suspense } from 'react';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { SubBanners } from '@/components/landing/SubBanners';
+import { FlashSale } from '@/components/landing/FlashSale';
+import { CategoryCirclesSection } from '@/components/landing/CategoryCirclesSection';
+import { ProductSection } from '@/components/landing/ProductSection';
+import { InterBanner } from '@/components/landing/InterBanner';
+import { BlogSection } from '@/components/landing/BlogSection';
+import { Partners } from '@/components/landing/Partners';
 
 export default function HomePage() {
   return (
     <Suspense>
-      <HomeContent />
+      <div className="-mx-4 -mt-6">
+        <HeroSection />
+      </div>
+
+      <SubBanners />
+
+      <FlashSale />
+
+      <div className="bg-card rounded-3xl border border-border/60 mt-6 px-4">
+        <CategoryCirclesSection />
+      </div>
+
+      <ProductSection
+        title="Hàng mới về"
+        subtitle="Thu hoạch sáng — có mặt tại Hub trong ngày"
+        queryKey="products-new"
+        params={{ isNew: true, sortBy: 'newest' }}
+        viewAllHref="/products?isNew=true"
+      />
+
+      <InterBanner
+        badge="Chứng nhận VietGAP"
+        title="Rau củ quả tươi sạch từ nông trại"
+        sub="Kiểm định chất lượng từng lô hàng trước khi đến tay bạn — minh bạch nguồn gốc."
+        cta="Đặt mua ngay"
+        href="/products?isNew=true"
+        imageKey="farm"
+      />
+
+      <ProductSection
+        title="Trái cây tươi"
+        subtitle="Nhập khẩu và nội địa, nguồn gốc rõ ràng"
+        queryKey="products-fruits"
+        params={{ search: 'trái cây', sortBy: 'newest' }}
+        viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
+      />
+
+      <InterBanner
+        badge="Tiết kiệm mỗi ngày"
+        title="Thực phẩm tươi sống chất lượng"
+        sub="Thịt, cá, trứng, sữa — tươi ngon, nhận nhanh tại Hub gần nhà bạn."
+        cta="Xem giá tốt"
+        href="/products?isDiscount=true"
+        imageKey="fresh"
+      />
+
+      <ProductSection
+        title="Giá tốt mỗi ngày"
+        subtitle="Ưu đãi cập nhật liên tục, không cần chờ flash sale"
+        queryKey="products-discount"
+        params={{ isDiscount: true, sortBy: 'price_asc' }}
+        viewAllHref="/products?isDiscount=true"
+      />
+
+      <BlogSection />
+
+      <Partners />
     </Suspense>
   );
 }

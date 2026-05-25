@@ -34,7 +34,7 @@ export function OrderCard({ order, onCancel, cancelling }: Props) {
         </div>
       </Link>
 
-      {order.status === OrderStatus.Pending && (
+      {(order.status === OrderStatus.PendingPayment || order.status === OrderStatus.Paid_WaitingForBatch) && (
         <Button
           variant="destructive"
           size="sm"

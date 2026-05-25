@@ -25,14 +25,17 @@ export default function DriverPage() {
   }, []);
   useEffect(() => {
     if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
-  }, [mounted]);
+  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: orders, isLoading } = useQuery({
+  const { data: batches, isLoading } = useQuery({
     queryKey: ['driver-orders'],
     queryFn: () => orderService.getDriverOrders(),
     enabled: mounted && isDriver(),
     refetchInterval: 30_000,
   });
+
+  // Flatten all orders from all hub batches
+  const allOrders = batches?.flatMap(b => b.orders) ?? [];
 
   const pickupMutation = useMutation({
     mutationFn: (ids: string[]) => orderService.driverPickup(ids),
@@ -57,13 +60,17 @@ export default function DriverPage() {
   };
 
   const selectAll = () => {
-    if (!orders?.items.length) return;
-    if (selected.size === orders.items.length) {
+    if (!allOrders.length) return;
+    if (selected.size === allOrders.length) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(orders.items.map(o => o.id)));
+      setSelected(new Set(allOrders.map(o => o.id)));
     }
   };
+
+  const filtered = allOrders.filter(o =>
+    !search || o.id.toLowerCase().includes(search.toLowerCase())
+  );
 
   if (!mounted) return null;
 
@@ -90,15 +97,28 @@ export default function DriverPage() {
         )}
       </div>
 
+      {/* Hub summary */}
+      {!isLoading && batches && batches.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {batches.map(batch => (
+            <div key={batch.hubId} className="bg-purple-50 border border-purple-100 rounded-xl p-3">
+              <p className="text-xs font-bold text-purple-700 truncate">{batch.hubName}</p>
+              <p className="text-sm font-black text-purple-900 mt-0.5">{batch.orderCount} đơn</p>
+              <p className="text-xs text-purple-600">{formatPrice(batch.totalAmount)}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {isLoading ? (
         <div className="space-y-2">
           {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
         </div>
-      ) : !orders?.items.length ? (
+      ) : !allOrders.length ? (
         <div className="bg-gray-50 rounded-2xl p-12 text-center text-gray-400 space-y-3">
           <Package className="h-12 w-12 mx-auto text-gray-200" />
           <p className="text-base font-medium">Không có đơn nào cần lấy</p>
-          <p className="text-sm">Các đơn đã xác nhận (Confirmed) sẽ xuất hiện ở đây</p>
+          <p className="text-sm">Các đơn đã thanh toán sẽ xuất hiện ở đây</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -120,16 +140,14 @@ export default function DriverPage() {
               onClick={selectAll}
               className="text-xs text-emerald-600 hover:underline font-medium"
             >
-              {selected.size === orders.items.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+              {selected.size === allOrders.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
             </button>
             <span className="text-xs text-gray-400">
-              {orders.items.length} đơn chờ lấy · {selected.size} đã chọn
+              {allOrders.length} đơn chờ lấy · {selected.size} đã chọn
             </span>
           </div>
 
-          {orders.items.filter(o =>
-            !search || o.id.toLowerCase().includes(search.toLowerCase())
-          ).map(order => (
+          {filtered.map(order => (
             <div
               key={order.id}
               onClick={() => toggleSelect(order.id)}

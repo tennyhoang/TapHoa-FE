@@ -65,6 +65,7 @@ export default function AddressesPage() {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       toast.success('Đã đặt làm mặc định');
     },
+    onError: () => toast.error('Cập nhật địa chỉ mặc định thất bại'),
   });
 
   const removeMutation = useMutation({
@@ -73,6 +74,7 @@ export default function AddressesPage() {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       toast.success('Đã xóa địa chỉ');
     },
+    onError: () => toast.error('Xóa địa chỉ thất bại'),
   });
 
   if (!mounted) return null;

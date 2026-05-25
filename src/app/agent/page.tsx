@@ -30,14 +30,14 @@ export default function AgentPage() {
 
   const { data: shippingOrders, isLoading: loadingShipping } = useQuery({
     queryKey: ['agent-orders', 'shipping'],
-    queryFn: () => orderService.getAgentOrders({ status: OrderStatus.Shipping }),
+    queryFn: () => orderService.getAgentOrders({ status: OrderStatus.ShippingToHub }),
     enabled: mounted && isAgent(),
     refetchInterval: 30_000,
   });
 
   const { data: arrivedOrders, isLoading: loadingArrived } = useQuery({
     queryKey: ['agent-orders', 'arrived'],
-    queryFn: () => orderService.getAgentOrders({ status: OrderStatus.ArrivedAtHub }),
+    queryFn: () => orderService.getAgentOrders({ status: OrderStatus.InHub_ReadyForPickup }),
     enabled: mounted && isAgent(),
     refetchInterval: 30_000,
   });

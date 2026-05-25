@@ -3,7 +3,22 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Upload, X, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
+const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
+async function uploadToCloudinary(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('upload_preset', UPLOAD_PRESET);
+
+  const res = await fetch(UPLOAD_URL, { method: 'POST', body: form });
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error?.message ?? 'Upload thất bại');
+  return data.secure_url as string;
+}
 
 interface ImageUploadProps {
   value?: string;
@@ -20,15 +35,11 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
     setError('');
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await api.post<{ url: string }>('/upload/image', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      onChange(res.data.url);
+      const url = await uploadToCloudinary(file);
+      onChange(url);
     } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } }; message?: string };
-      setError(err?.response?.data?.message ?? 'Upload thất bại');
+      const err = e as Error;
+      setError(err?.message ?? 'Upload thất bại');
     } finally {
       setUploading(false);
     }
@@ -80,12 +91,12 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
           onClick={() => inputRef.current?.click()}
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
-          className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 hover:border-[#0a6c5f]/60 bg-gray-50 hover:bg-[#0a6c5f]/5 transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer"
+          className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-blue-50/30 transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer"
         >
           {uploading ? (
             <>
-              <Loader2 className="h-8 w-8 text-[#0a6c5f]/60 animate-spin" />
-              <p className="text-xs text-gray-500">Đang tải lên...</p>
+              <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+              <p className="text-xs text-gray-500">Đang tải lên Cloudinary...</p>
             </>
           ) : (
             <>
@@ -97,8 +108,24 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
         </div>
       )}
 
+      {/* Manual URL input — nhập đường dẫn trực tiếp, ví dụ: /products/rau-muong.jpg */}
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          value={value ?? ''}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Hoặc nhập URL trực tiếp: /products/ten-anh.jpg"
+          className="flex-1 h-8 px-3 text-xs rounded-md border border-gray-200 bg-white text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+        />
+        {value && (
+          <button type="button" onClick={() => onChange('')} className="text-gray-400 hover:text-red-500 shrink-0">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       {uploading && value && (
-        <div className="flex items-center gap-2 text-xs text-[#0a6c5f]">
+        <div className="flex items-center gap-2 text-xs text-blue-600">
           <Loader2 className="h-3 w-3 animate-spin" /> Đang tải lên...
         </div>
       )}
