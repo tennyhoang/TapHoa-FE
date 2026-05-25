@@ -114,11 +114,12 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const urlSearch     = searchParams.get('search') ?? '';
-  const urlCategoryId = searchParams.get('categoryId') ?? '';
-  const urlSort       = searchParams.get('sortBy') ?? '';
-  const urlIsNew      = searchParams.get('isNew') === 'true';
-  const urlIsDiscount = searchParams.get('isDiscount') === 'true';
+  const urlSearch       = searchParams.get('search') ?? '';
+  const urlCategoryId   = searchParams.get('categoryId') ?? '';
+  const urlCategoryName = searchParams.get('categoryName') ?? '';
+  const urlSort         = searchParams.get('sortBy') ?? '';
+  const urlIsNew        = searchParams.get('isNew') === 'true';
+  const urlIsDiscount   = searchParams.get('isDiscount') === 'true';
 
   const [mounted, setMounted]                     = useState(false);
   const [searchInput, setSearchInput]             = useState('');
@@ -145,6 +146,17 @@ function ProductsContent() {
     enabled: mounted,
   });
 
+  useEffect(() => {
+    if (!urlCategoryName || !categories || categoryId) return;
+    const lower = urlCategoryName.toLowerCase();
+    for (const cat of categories) {
+      if (cat.name.toLowerCase().includes(lower) || lower.includes(cat.name.toLowerCase())) {
+        setCategoryId(cat.id);
+        return;
+      }
+    }
+  }, [categories, urlCategoryName, categoryId]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['products-listing', search, categoryId, sortBy, page, urlIsNew, urlIsDiscount],
     queryFn: () => productService.getAll({
@@ -156,7 +168,7 @@ function ProductsContent() {
       isNew:      urlIsNew      || undefined,
       isDiscount: urlIsDiscount || undefined,
     }),
-    enabled: mounted,
+    enabled: mounted && (!urlCategoryName || !!categoryId),
   });
 
   const activeCategoryName = useMemo(() => {
@@ -193,7 +205,7 @@ function ProductsContent() {
       ? 'Giá tốt mỗi ngày'
       : urlSearch
         ? `Kết quả: "${urlSearch}"`
-        : activeCategoryName ?? 'Tất cả sản phẩm';
+        : activeCategoryName ?? (urlCategoryName || 'Tất cả sản phẩm');
 
   return (
     <div className="space-y-0">
