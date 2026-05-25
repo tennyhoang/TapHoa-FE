@@ -295,7 +295,7 @@ export default function OrderDetailPage() {
         {/* Total */}
         <div className="px-5 py-4">
           {order.note && (
-            <p className="text-sm text-stone-500 mb-3 italic">"{order.note}"</p>
+            <p className="text-sm text-stone-500 mb-3 italic">&ldquo;{order.note}&rdquo;</p>
           )}
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-stone-500">Tổng cộng</span>

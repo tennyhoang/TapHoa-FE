@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
 import { cartService } from '@/services/cart.service';
 import { orderService, CreateOrderRequest } from '@/services/order.service';
@@ -34,7 +33,6 @@ type CheckoutForm = {
   phoneNumber: string;
 };
 
-const BANK = { id: 'mbbank', account: '0785680242', name: 'CONG TY TNHH TAPHOA SACH' };
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
   { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },

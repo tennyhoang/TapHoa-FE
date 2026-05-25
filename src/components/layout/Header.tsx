@@ -49,8 +49,6 @@ export function Header() {
   }, []);
   useInactivityLogout();
 
-  // Close mobile menu on route change
-  useEffect(() => { setMobileMenuOpen(false); }, []);
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
