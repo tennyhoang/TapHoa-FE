@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
+import { WalletSection } from '@/components/profile/WalletSection';
 
 type ProfileForm  = { fullName: string; phoneNumber: string; avatarUrl: string };
 type PasswordForm = { currentPassword: string; newPassword: string; confirmPassword: string };
@@ -185,7 +186,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Tài khoản của tôi</h1>
+      <h1 className="font-editorial font-black text-2xl text-foreground">Tài khoản của tôi</h1>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -301,6 +302,8 @@ export default function ProfilePage() {
       </Card>
 
       <ChangePasswordDialog open={pwDialogOpen} onOpenChange={setPwDialogOpen} />
+
+      <WalletSection />
     </div>
   );
 }

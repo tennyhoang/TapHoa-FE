@@ -3,31 +3,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
+import { LucideIcon, Leaf, Apple, Beef, Fish, Egg, Milk, Wheat, GlassWater, Snowflake, Package, Flame, ShoppingBasket } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 
-const CATEGORY_EMOJIS: Record<string, string> = {
-  'rau': '🥬',
-  'trái': '🍊',
-  'thịt': '🥩',
-  'cá': '🐟',
-  'trứng': '🥚',
-  'sữa': '🥛',
-  'gạo': '🌾',
-  'ngũ': '🌾',
-  'đồ uống': '🧃',
-  'uống': '🧃',
-  'đông': '❄️',
-  'hàng khô': '🫙',
-  'khô': '🫙',
-  'gia vị': '🌶️',
-};
+const CATEGORY_ICONS: Array<{ key: string; icon: LucideIcon }> = [
+  { key: 'rau',      icon: Leaf },
+  { key: 'trái',     icon: Apple },
+  { key: 'thịt',     icon: Beef },
+  { key: 'cá',       icon: Fish },
+  { key: 'trứng',    icon: Egg },
+  { key: 'sữa',      icon: Milk },
+  { key: 'gạo',      icon: Wheat },
+  { key: 'ngũ',      icon: Wheat },
+  { key: 'uống',     icon: GlassWater },
+  { key: 'đông',     icon: Snowflake },
+  { key: 'khô',      icon: Package },
+  { key: 'gia vị',   icon: Flame },
+];
 
-function getCategoryEmoji(name: string): string {
+function getCategoryIcon(name: string): LucideIcon {
   const lower = name.toLowerCase();
-  for (const [key, emoji] of Object.entries(CATEGORY_EMOJIS)) {
-    if (lower.includes(key)) return emoji;
+  for (const { key, icon } of CATEGORY_ICONS) {
+    if (lower.includes(key)) return icon;
   }
-  return '🛒';
+  return ShoppingBasket;
 }
 
 export function CategoryCirclesSection() {
@@ -65,7 +64,7 @@ export function CategoryCirclesSection() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-secondary">
-                  <span className="text-2xl select-none">{getCategoryEmoji(cat.name)}</span>
+                  {(() => { const Icon = getCategoryIcon(cat.name); return <Icon className="h-7 w-7 text-muted-foreground/60" />; })()}
                 </div>
               )}
               {/* Hover tint */}
