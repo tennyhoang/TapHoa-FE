@@ -37,7 +37,7 @@ export function SubBanners() {
             <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.12_0.025_195/0.80)] to-[oklch(0.12_0.025_195/0.20)]" />
 
             {/* Content */}
-            <div className="absolute inset-0 flex items-center px-6 gap-4">
+            <div className="absolute inset-0 flex items-center px-4 sm:px-6 gap-4">
               <div className="text-white">
                 <p className="text-[11px] font-semibold text-white/70 uppercase tracking-widest mb-1">
                   {b.eyebrow}
