@@ -1,18 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, BookOpen, Trash2, ChevronDown, ChevronUp, RefreshCw, Send } from 'lucide-react';
+import { Sparkles, BookOpen, Trash2, ChevronDown, ChevronUp, RefreshCw, Send, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { articleService, GeneratedArticle } from '@/services/article.service';
 
 const CATEGORIES = [
-  { value: 'dinh-duong',          label: 'Dinh dưỡng',           color: 'oklch(0.54 0.158 145)' },
-  { value: 'mua-sam-thong-minh',  label: 'Mua sắm thông minh',   color: 'oklch(0.57 0.135 196)' },
-  { value: 'he-thong-hub',        label: 'Hệ thống Hub',         color: 'oklch(0.55 0.15 280)'  },
-  { value: 'san-pham-noi-bat',    label: 'Sản phẩm nổi bật',     color: 'oklch(0.75 0.155 55)'  },
+  { value: 'dinh-duong',         label: 'Dinh dưỡng',         color: 'oklch(0.54 0.158 145)' },
+  { value: 'mua-sam-thong-minh', label: 'Mua sắm thông minh', color: 'oklch(0.57 0.135 196)' },
+  { value: 'he-thong-hub',       label: 'Hệ thống Hub',        color: 'oklch(0.55 0.15 280)'  },
+  { value: 'san-pham-noi-bat',   label: 'Sản phẩm nổi bật',   color: 'oklch(0.75 0.155 55)'  },
 ];
 
 export default function AdminCamNangPage() {
@@ -29,16 +30,17 @@ export default function AdminCamNangPage() {
 
   const generateMutation = useMutation({
     mutationFn: () => articleService.generate(topic, category),
-    onSuccess: (data) => setPreview(data),
-    onError: () => toast.error('Tạo bài thất bại — kiểm tra GROQ_API_KEY trên Render'),
+    onSuccess: data => setPreview(data),
+    onError: () => toast.error('Tạo bài thất bại — kiểm tra GROQ_API_KEY'),
   });
 
   const publishMutation = useMutation({
     mutationFn: () => articleService.publish({
-      title: preview!.title,
-      excerpt: preview!.excerpt,
-      content: preview!.content,
+      title:           preview!.title,
+      excerpt:         preview!.excerpt,
+      content:         preview!.content,
       category,
+      imageUrl:        preview!.imageUrl,
       readTimeMinutes: Math.ceil(preview!.content.split(' ').length / 200),
     }),
     onSuccess: () => {
@@ -65,7 +67,7 @@ export default function AdminCamNangPage() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Cẩm nang</h1>
-        <p className="text-sm text-muted-foreground mt-1">Tạo và đăng bài viết tự động bằng AI</p>
+        <p className="text-sm text-muted-foreground mt-1">Tạo và đăng bài viết tự động bằng AI — ảnh minh họa được tạo tự động</p>
       </div>
 
       {/* Generator */}
@@ -105,41 +107,76 @@ export default function AdminCamNangPage() {
           </Button>
         </div>
 
+        {generateMutation.isPending && (
+          <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/60 rounded-lg px-4 py-3">
+            <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin shrink-0" />
+            <span>AI đang viết bài và tạo ảnh minh họa — thường mất 15–30 giây...</span>
+          </div>
+        )}
+
         {/* Preview */}
         {preview && (
-          <div className="border border-primary/20 rounded-xl bg-primary/5 p-5 space-y-4">
-            <div>
-              <span
-                className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white"
-                style={{ background: activeCat.color }}
-              >
-                {activeCat.label}
-              </span>
-              <h2 className="mt-2.5 text-base font-bold text-foreground leading-snug">{preview.title}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{preview.excerpt}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-4 max-h-64 overflow-y-auto">
-              <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setPreview(null)}>Bỏ</Button>
-              <Button
-                variant="outline" size="sm"
-                onClick={() => generateMutation.mutate()}
-                disabled={generateMutation.isPending}
-                className="gap-1.5"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Tạo lại
-              </Button>
-              <Button
-                size="sm"
-                className="gap-1.5"
-                onClick={() => publishMutation.mutate()}
-                disabled={publishMutation.isPending}
-              >
-                <Send className="h-3.5 w-3.5" />
-                {publishMutation.isPending ? 'Đang đăng...' : 'Đăng bài'}
-              </Button>
+          <div className="border border-primary/20 rounded-xl bg-primary/5 overflow-hidden">
+            {/* Generated image */}
+            {preview.imageUrl ? (
+              <div className="relative w-full aspect-[1200/630] bg-muted">
+                <Image
+                  src={preview.imageUrl}
+                  alt={preview.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 672px"
+                />
+                <div className="absolute top-2.5 right-2.5 bg-black/50 text-white text-[10px] font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+                  <ImageIcon className="h-3 w-3" />
+                  AI Generated
+                </div>
+              </div>
+            ) : (
+              <div className="w-full aspect-[1200/630] bg-muted flex items-center justify-center">
+                <div className="text-center space-y-1">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground/40 mx-auto" />
+                  <p className="text-xs text-muted-foreground/60">Không tạo được ảnh</p>
+                </div>
+              </div>
+            )}
+
+            <div className="p-5 space-y-4">
+              <div>
+                <span
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white"
+                  style={{ background: activeCat.color }}
+                >
+                  {activeCat.label}
+                </span>
+                <h2 className="mt-2.5 text-base font-bold text-foreground leading-snug">{preview.title}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{preview.excerpt}</p>
+              </div>
+
+              <div className="bg-card rounded-lg border border-border p-4 max-h-56 overflow-y-auto">
+                <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setPreview(null)}>Bỏ</Button>
+                <Button
+                  variant="outline" size="sm"
+                  onClick={() => generateMutation.mutate()}
+                  disabled={generateMutation.isPending}
+                  className="gap-1.5"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Tạo lại
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => publishMutation.mutate()}
+                  disabled={publishMutation.isPending}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  {publishMutation.isPending ? 'Đang đăng...' : 'Đăng bài'}
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -151,7 +188,9 @@ export default function AdminCamNangPage() {
           <BookOpen className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-semibold text-foreground">Bài đã đăng</span>
           {publishedArticles.length > 0 && (
-            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{publishedArticles.length}</span>
+            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+              {publishedArticles.length}
+            </span>
           )}
         </div>
 
@@ -162,11 +201,28 @@ export default function AdminCamNangPage() {
         ) : (
           <div className="divide-y divide-border/40">
             {publishedArticles.map(article => {
-              const cat   = CATEGORIES.find(c => c.value === article.category);
+              const cat    = CATEGORIES.find(c => c.value === article.category);
               const isOpen = expanded === article.id;
               return (
                 <div key={article.id} className="px-6 py-4">
                   <div className="flex items-start gap-3">
+                    {/* Thumbnail */}
+                    {article.imageUrl ? (
+                      <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                        <Image
+                          src={article.imageUrl}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                      </div>
+                    )}
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span
@@ -182,6 +238,7 @@ export default function AdminCamNangPage() {
                       <p className="font-semibold text-sm text-foreground line-clamp-1">{article.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{article.excerpt}</p>
                     </div>
+
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => setExpanded(isOpen ? null : article.id)}
@@ -198,9 +255,23 @@ export default function AdminCamNangPage() {
                       </button>
                     </div>
                   </div>
+
                   {isOpen && (
-                    <div className="mt-3 bg-muted rounded-lg border border-border/60 p-4 max-h-56 overflow-y-auto">
-                      <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
+                    <div className="mt-3 space-y-3">
+                      {article.imageUrl && (
+                        <div className="relative w-full aspect-[1200/630] rounded-lg overflow-hidden bg-muted">
+                          <Image
+                            src={article.imageUrl}
+                            alt={article.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 672px"
+                          />
+                        </div>
+                      )}
+                      <div className="bg-muted rounded-lg border border-border/60 p-4 max-h-56 overflow-y-auto">
+                        <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
+                      </div>
                     </div>
                   )}
                 </div>
