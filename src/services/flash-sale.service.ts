@@ -33,6 +33,12 @@ export interface AddItemPayload {
   flashSaleStock: number;
 }
 
+export interface BulkAddItemPayload {
+  productId: string;
+  flashSalePrice: number;
+  flashSaleStock: number;
+}
+
 export interface AdminSession {
   id: string;
   name: string;
@@ -79,5 +85,8 @@ export const flashSaleService = {
 
     removeItem: (sessionId: string, itemId: string): Promise<void> =>
       api.delete(`/admin/flash-sale/${sessionId}/items/${itemId}`).then(() => undefined),
+
+    addItemsBulk: (sessionId: string, items: BulkAddItemPayload[]): Promise<{ added: number; skipped: number }> =>
+      api.post<{ added: number; skipped: number }>(`/admin/flash-sale/${sessionId}/items/bulk`, { items }).then(r => r.data),
   },
 };

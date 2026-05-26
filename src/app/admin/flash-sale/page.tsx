@@ -7,43 +7,16 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { flashSaleService, AdminSession, AdminSessionItem } from '@/services/flash-sale.service';
-import { productService } from '@/services/product.service';
 import { formatPrice } from '@/lib/format';
+import { SessionProductPicker } from '@/components/admin/flash-sale/SessionProductPicker';
 
 function SessionItems({ sessionId }: { sessionId: string }) {
   const queryClient = useQueryClient();
-  const [productSearch, setProductSearch] = useState('');
-  const [selectedProductId, setSelectedProductId] = useState('');
-  const [flashPrice, setFlashPrice]   = useState('');
-  const [flashStock, setFlashStock]   = useState('');
+  const [showPicker, setShowPicker] = useState(false);
 
   const { data: items = [] } = useQuery({
     queryKey: ['admin-flash-sale-items', sessionId],
     queryFn: () => flashSaleService.admin.getItems(sessionId),
-  });
-
-  const { data: products } = useQuery({
-    queryKey: ['admin-products-search', productSearch],
-    queryFn: () => productService.getAll({ search: productSearch, pageSize: 10 }),
-    enabled: productSearch.length >= 2,
-  });
-
-  const addItemMutation = useMutation({
-    mutationFn: () => flashSaleService.admin.addItem(sessionId, {
-      productId:      selectedProductId,
-      flashSalePrice: Number(flashPrice),
-      flashSaleStock: Number(flashStock),
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-flash-sale-items', sessionId] });
-      queryClient.invalidateQueries({ queryKey: ['admin-flash-sale-sessions'] });
-      setSelectedProductId('');
-      setProductSearch('');
-      setFlashPrice('');
-      setFlashStock('');
-      toast.success('Đã thêm sản phẩm vào phiên');
-    },
-    onError: (e: Error) => toast.error(e.message ?? 'Thêm thất bại'),
   });
 
   const removeItemMutation = useMutation({
@@ -56,68 +29,31 @@ function SessionItems({ sessionId }: { sessionId: string }) {
     onError: () => toast.error('Xóa thất bại'),
   });
 
-  const canAdd = selectedProductId && Number(flashPrice) > 0 && Number(flashStock) > 0;
+  const existingProductIds = new Set(items.map(i => i.productId));
 
   return (
     <div className="mt-4 border-t border-border/40 pt-4 space-y-4">
-      {/* Add product form */}
-      <div className="space-y-3">
+      {/* Picker toggle */}
+      <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Thêm sản phẩm</p>
-        <div className="space-y-2">
-          <Input
-            placeholder="Tìm tên sản phẩm (gõ ≥ 2 ký tự)..."
-            value={productSearch}
-            onChange={e => { setProductSearch(e.target.value); setSelectedProductId(''); }}
-            className="h-8 text-sm"
-          />
-          {products && products.items.length > 0 && !selectedProductId && (
-            <div className="border border-border rounded-lg overflow-hidden bg-card shadow-sm max-h-44 overflow-y-auto">
-              {products.items.map(p => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => { setSelectedProductId(p.id); setProductSearch(p.name); }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between gap-2 border-b border-border/40 last:border-0"
-                >
-                  <span className="text-foreground truncate">{p.name}</span>
-                  <span className="text-muted-foreground text-xs shrink-0">{formatPrice(p.price)}</span>
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Giá Flash Sale (VND)</label>
-              <Input
-                type="number"
-                placeholder="VD: 25000"
-                value={flashPrice}
-                onChange={e => setFlashPrice(e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Số lượng Flash Sale</label>
-              <Input
-                type="number"
-                placeholder="VD: 100"
-                value={flashStock}
-                onChange={e => setFlashStock(e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => addItemMutation.mutate()}
-            disabled={!canAdd || addItemMutation.isPending}
-            className="gap-1.5 h-8 text-xs"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {addItemMutation.isPending ? 'Đang thêm...' : 'Thêm sản phẩm'}
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 h-7 text-xs"
+          onClick={() => setShowPicker(v => !v)}
+        >
+          <Plus className="h-3 w-3" />
+          {showPicker ? 'Ẩn bảng chọn' : 'Chọn sản phẩm'}
+        </Button>
       </div>
+
+      {showPicker && (
+        <SessionProductPicker
+          sessionId={sessionId}
+          existingProductIds={existingProductIds}
+          onSaved={() => setShowPicker(false)}
+        />
+      )}
 
       {/* Items list */}
       {items.length === 0 ? (
@@ -268,7 +204,7 @@ export default function AdminFlashSalePage() {
   const canCreate = name.trim() && startTime && endTime && new Date(startTime) < new Date(endTime);
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Flash Sale</h1>
         <p className="text-sm text-muted-foreground mt-1">Tạo phiên giảm giá có giới hạn thời gian và số lượng</p>
