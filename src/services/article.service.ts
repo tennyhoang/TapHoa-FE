@@ -4,6 +4,7 @@ export interface GeneratedArticle {
   title: string;
   excerpt: string;
   content: string;
+  imageUrl?: string;
 }
 
 export interface Article {

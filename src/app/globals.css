@@ -97,15 +97,15 @@ html, body {
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
 
-  /* Sidebar */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Sidebar — dark teal to match brand */
+  --sidebar: oklch(0.13 0.015 195);
+  --sidebar-foreground: oklch(0.85 0.010 196);
+  --sidebar-primary: oklch(0.57 0.135 196);
+  --sidebar-primary-foreground: oklch(0.985 0.004 196);
+  --sidebar-accent: oklch(0.22 0.018 195);
+  --sidebar-accent-foreground: oklch(0.88 0.008 196);
+  --sidebar-border: oklch(0.25 0.016 195);
+  --sidebar-ring: oklch(0.57 0.135 196);
 }
 
 .dark {

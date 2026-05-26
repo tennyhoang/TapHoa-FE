@@ -24,32 +24,23 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 const ROLE_COLOR: Record<string, string> = {
-  Admin:    'bg-purple-100 text-purple-800',
-  Customer: 'bg-blue-100 text-blue-800',
-  Agent:    'bg-amber-100 text-amber-800',
-  Driver:   'bg-green-100 text-green-800',
+  Admin:    'bg-primary/15 text-primary',
+  Customer: 'bg-secondary text-secondary-foreground',
+  Agent:    'bg-[oklch(0.95_0.05_55)] text-[var(--amber-dark)]',
+  Driver:   'bg-[var(--fresh-light)] text-[var(--fresh)]',
 };
 
 const ROLES = ['Customer', 'Admin', 'Agent', 'Driver'];
 
 // ── Edit Dialog ──────────────────────────────────────────────────────────────
 
-function EditUserDialog({
-  user,
-  open,
-  onClose,
-}: {
-  user: AdminUser | null;
-  open: boolean;
-  onClose: () => void;
-}) {
+function EditUserDialog({ user, open, onClose }: { user: AdminUser | null; open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
-  const [fullName, setFullName]   = useState(user?.fullName ?? '');
-  const [phone, setPhone]         = useState(user?.phoneNumber ?? '');
-  const [role, setRole]           = useState(user?.role ?? 'Customer');
-  const [isActive, setIsActive]   = useState(user?.isActive ?? true);
+  const [fullName, setFullName] = useState(user?.fullName ?? '');
+  const [phone, setPhone]       = useState(user?.phoneNumber ?? '');
+  const [role, setRole]         = useState(user?.role ?? 'Customer');
+  const [isActive, setIsActive] = useState(user?.isActive ?? true);
 
-  // sync when user changes
   if (user && fullName !== user.fullName && phone !== (user.phoneNumber ?? '') && role !== user.role) {
     setFullName(user.fullName);
     setPhone(user.phoneNumber ?? '');
@@ -88,7 +79,7 @@ function EditUserDialog({
             <select
               value={role}
               onChange={e => setRole(e.target.value)}
-              className="w-full h-9 border border-gray-200 rounded-md px-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+              className="w-full h-9 border border-input rounded-md px-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring/20"
             >
               {ROLES.map(r => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
             </select>
@@ -98,18 +89,17 @@ function EditUserDialog({
             <button
               type="button"
               onClick={() => setIsActive(v => !v)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isActive ? 'bg-emerald-500' : 'bg-gray-300'}`}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isActive ? 'bg-primary' : 'bg-muted-foreground/30'}`}
             >
               <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${isActive ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
             </button>
-            <span className="text-xs text-gray-500">{isActive ? 'Hoạt động' : 'Bị khóa'}</span>
+            <span className="text-xs text-muted-foreground">{isActive ? 'Hoạt động' : 'Bị khóa'}</span>
           </div>
         </div>
 
         <div className="flex gap-2 justify-end pt-3">
           <Button variant="outline" size="sm" onClick={onClose} disabled={mutation.isPending}>Hủy</Button>
-          <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button size="sm" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
             {mutation.isPending ? 'Đang lưu...' : 'Lưu'}
           </Button>
         </div>
@@ -120,15 +110,7 @@ function EditUserDialog({
 
 // ── Delete Dialog ────────────────────────────────────────────────────────────
 
-function DeleteUserDialog({
-  user,
-  open,
-  onClose,
-}: {
-  user: AdminUser | null;
-  open: boolean;
-  onClose: () => void;
-}) {
+function DeleteUserDialog({ user, open, onClose }: { user: AdminUser | null; open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: () => userService.delete(user!.id),
@@ -145,20 +127,19 @@ function DeleteUserDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <DialogTitle>Xác nhận xóa tài khoản</DialogTitle>
           </div>
         </DialogHeader>
-        <p className="text-sm text-gray-500 leading-relaxed mt-1">
-          Bạn có chắc muốn xóa tài khoản <span className="font-semibold text-gray-700">{user?.fullName}</span>?
+        <p className="text-sm text-muted-foreground leading-relaxed mt-1">
+          Bạn có chắc muốn xóa tài khoản <span className="font-semibold text-foreground">{user?.fullName}</span>?
           Hành động này không thể hoàn tác.
         </p>
         <div className="flex gap-2 justify-end pt-3">
           <Button variant="outline" size="sm" onClick={onClose} disabled={mutation.isPending}>Hủy</Button>
-          <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white"
-            onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button size="sm" variant="destructive" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
             {mutation.isPending ? 'Đang xóa...' : 'Xóa'}
           </Button>
         </div>
@@ -170,16 +151,13 @@ function DeleteUserDialog({
 // ── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminUsersPage() {
-  const [page, setPage]           = useState(1);
-  const [search, setSearch]       = useState('');
+  const [page, setPage]             = useState(1);
+  const [search, setSearch]         = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [editUser, setEditUser]   = useState<AdminUser | null>(null);
+  const [editUser, setEditUser]     = useState<AdminUser | null>(null);
   const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
 
-  function handleSearchChange(value: string) {
-    setSearch(value);
-    setPage(1);
-  }
+  function handleSearchChange(value: string) { setSearch(value); setPage(1); }
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin-users', page, search, roleFilter],
@@ -196,20 +174,20 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Users className="h-5 w-5 text-emerald-600" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
             Quản lý người dùng
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             {totalCount > 0 ? `${totalCount} người dùng` : 'Đang tải...'}
           </p>
         </div>
       </div>
 
       {/* Search + Role filter */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+      <div className="bg-card rounded-xl border border-border shadow-sm p-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm theo tên hoặc email..."
             value={search}
@@ -224,8 +202,8 @@ export default function AdminUsersPage() {
               onClick={() => { setRoleFilter(r); setPage(1); }}
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 roleFilter === r
-                  ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-white border-gray-200 text-gray-600 hover:border-emerald-300 hover:text-emerald-600'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-primary'
               }`}
             >
               {r ? ROLE_LABEL[r] : 'Tất cả'}
@@ -235,24 +213,24 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className={`bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-opacity ${isFetching ? 'opacity-70' : ''}`}>
+      <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden transition-opacity ${isFetching ? 'opacity-70' : ''}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/60">
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tên</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">SĐT</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Vai trò</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Trạng thái</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Ngày tạo</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Thao tác</th>
+              <tr className="border-b border-border/60 bg-muted/40">
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tên</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden md:table-cell">SĐT</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vai trò</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Trạng thái</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden md:table-cell">Ngày tạo</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {isLoading
                 ? Array.from({ length: 8 }).map((_, i) => (
-                    <tr key={i} className="border-b border-gray-50">
+                    <tr key={i} className="border-b border-border/40">
                       {Array.from({ length: 7 }).map((__, j) => (
                         <td key={j} className="px-4 py-3"><Skeleton className="h-4 w-full rounded" /></td>
                       ))}
@@ -261,26 +239,26 @@ export default function AdminUsersPage() {
                 : users.length === 0
                   ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-16 text-gray-400">
-                        <Users className="h-10 w-10 mx-auto mb-2 text-gray-200" />
+                      <td colSpan={7} className="text-center py-16 text-muted-foreground">
+                        <Users className="h-10 w-10 mx-auto mb-2 opacity-20" />
                         Không tìm thấy người dùng
                       </td>
                     </tr>
                   )
                   : users.map(user => (
-                    <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
+                    <tr key={user.id} className="border-b border-border/40 hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-sm shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-primary font-bold text-sm shrink-0">
                             {user.fullName?.[0]?.toUpperCase() ?? 'U'}
                           </div>
-                          <span className="font-medium text-sm text-gray-800">{user.fullName}</span>
+                          <span className="font-medium text-sm text-foreground">{user.fullName}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{user.email}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">{user.phoneNumber ?? '—'}</td>
+                      <td className="px-4 py-3 text-sm text-foreground/80">{user.email}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">{user.phoneNumber ?? '—'}</td>
                       <td className="px-4 py-3">
-                        <Badge className={`text-xs font-medium border-0 ${ROLE_COLOR[user.role] ?? 'bg-gray-100 text-gray-700'}`}>
+                        <Badge className={`text-xs font-medium border-0 ${ROLE_COLOR[user.role] ?? 'bg-muted text-muted-foreground'}`}>
                           {ROLE_LABEL[user.role] ?? user.role}
                         </Badge>
                       </td>
@@ -288,30 +266,30 @@ export default function AdminUsersPage() {
                         <div className="flex items-center gap-1.5">
                           {user.isActive ? (
                             <>
-                              <CheckCircle2 className="h-4 w-4 text-green-500" />
-                              <span className="text-sm text-green-700 font-medium">Hoạt động</span>
+                              <CheckCircle2 className="h-4 w-4 text-[var(--fresh)]" />
+                              <span className="text-sm text-[var(--fresh)] font-medium">Hoạt động</span>
                             </>
                           ) : (
                             <>
-                              <XCircle className="h-4 w-4 text-red-400" />
-                              <span className="text-sm text-red-600 font-medium">Bị khóa</span>
+                              <XCircle className="h-4 w-4 text-destructive" />
+                              <span className="text-sm text-destructive font-medium">Bị khóa</span>
                             </>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-400 hidden md:table-cell">{formatDate(user.createdAt)}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">{formatDate(user.createdAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5 justify-end">
                           <button
                             onClick={() => setEditUser(user)}
-                            className="p-1.5 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                             title="Chỉnh sửa"
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setDeleteUser(user)}
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-destructive/8 text-muted-foreground hover:text-destructive transition-colors"
                             title="Xóa"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -325,10 +303,9 @@ export default function AdminUsersPage() {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-between items-center px-4 py-3 border-t border-gray-100 bg-gray-50/40">
-            <span className="text-xs text-gray-500">
+          <div className="flex justify-between items-center px-4 py-3 border-t border-border/40 bg-muted/20">
+            <span className="text-xs text-muted-foreground">
               Trang {page} / {totalPages} — {totalCount} kết quả
             </span>
             <div className="flex gap-2">

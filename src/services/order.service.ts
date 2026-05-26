@@ -7,6 +7,7 @@ export interface CreateOrderRequest {
   phoneNumber: string;
   note?: string;
   paymentMethod: 'COD' | 'BankTransfer' | 'Wallet';
+  useWallet?: boolean;
 }
 
 export const orderService = {
