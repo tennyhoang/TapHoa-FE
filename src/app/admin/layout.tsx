@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, Tag, ShoppingBag, Users, BookOpen, Wallet, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingBag, Users, BookOpen, Wallet, Zap, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Danh mục',     icon: Tag             },
   { href: '/admin/orders',     label: 'Đơn hàng',     icon: ShoppingBag     },
   { href: '/admin/users',      label: 'Người dùng',   icon: Users           },
+  { href: '/admin/flash-sale', label: 'Flash Sale',    icon: Zap             },
   { href: '/admin/cam-nang',   label: 'Cẩm nang',     icon: BookOpen        },
   { href: '/admin/wallet',     label: 'Rút tiền',     icon: Wallet          },
 ];
