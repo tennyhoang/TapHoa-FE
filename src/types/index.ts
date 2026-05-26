@@ -111,6 +111,7 @@ export interface Order {
   customerEmail?: string;
   status: OrderStatus;
   totalAmount: number;
+  walletAmountUsed?: number;
   note?: string;
   paymentRef?: string;
   paidAt?: string;
@@ -166,4 +167,5 @@ export interface Review {
   rating: number;
   comment?: string;
   createdAt: string;
+  sentiment: string;
 }

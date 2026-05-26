@@ -212,10 +212,10 @@ export function Header() {
                     <DropdownMenuItem onClick={() => router.push('/profile/orders')} className="rounded-xl"><Package className="mr-2 h-4 w-4" /> Đơn hàng</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => router.push('/profile/addresses')} className="rounded-xl"><MapPin className="mr-2 h-4 w-4" /> Địa chỉ</DropdownMenuItem>
                     {isAdmin() && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => router.push('/admin')} className="rounded-xl"><LayoutDashboard className="mr-2 h-4 w-4 text-primary" /><span className="text-primary font-medium">Quản trị</span></DropdownMenuItem></>)}
-                    {isAgent() && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => router.push('/agent')} className="rounded-xl"><UserCog className="mr-2 h-4 w-4 text-amber-600" /><span className="text-amber-600 font-medium">Cổng Agent</span></DropdownMenuItem></>)}
-                    {isDriver() && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => router.push('/driver')} className="rounded-xl"><Truck className="mr-2 h-4 w-4 text-green-600" /><span className="text-green-600 font-medium">Cổng Tài xế</span></DropdownMenuItem></>)}
+                    {isAgent() && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => router.push('/agent')} className="rounded-xl"><UserCog className="mr-2 h-4 w-4 text-[var(--amber)]" /><span className="text-[var(--amber-dark)] font-medium">Cổng Agent</span></DropdownMenuItem></>)}
+                    {isDriver() && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => router.push('/driver')} className="rounded-xl"><Truck className="mr-2 h-4 w-4 text-[var(--fresh)]" /><span className="text-[var(--fresh)] font-medium">Cổng Tài xế</span></DropdownMenuItem></>)}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:text-red-600 rounded-xl"><LogOut className="mr-2 h-4 w-4" /> Đăng xuất</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive rounded-xl"><LogOut className="mr-2 h-4 w-4" /> Đăng xuất</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -267,7 +267,7 @@ export function Header() {
             </button>
 
             {mounted && currentHub && (
-              <button type="button" onClick={clearHub} className="ml-1 text-muted-foreground hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50" title="Hủy Hub">
+              <button type="button" onClick={clearHub} className="ml-1 text-muted-foreground hover:text-destructive transition-colors p-1 rounded-full hover:bg-destructive/8" title="Hủy Hub">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -330,7 +330,7 @@ export function Header() {
                     </button>
                   ))}
                   <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-500 hover:bg-red-50 transition-colors">
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-destructive hover:bg-destructive/8 transition-colors">
                     <LogOut className="h-4 w-4" /> Đăng xuất
                   </button>
                 </div>

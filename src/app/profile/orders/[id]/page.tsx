@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Copy, RefreshCw, MapPin, Package } from 'lucide-react';
+import { ArrowLeft, Copy, RefreshCw, MapPin, Package, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
@@ -231,9 +231,23 @@ export default function OrderDetailPage() {
         </div>
       )}
 
-      {/* QR payment */}
+      {/* QR payment — amount is remaining after any wallet deduction */}
       {order.status === OrderStatus.PendingPayment && order.paymentRef && (
-        <PaymentQR amount={order.totalAmount} paymentRef={order.paymentRef} />
+        <>
+          {(order.walletAmountUsed ?? 0) > 0 && (
+            <div className="bg-violet-50 border border-violet-200 rounded-2xl px-5 py-3 flex items-center gap-3">
+              <Wallet className="h-4 w-4 text-violet-500 shrink-0" />
+              <p className="text-sm text-violet-700">
+                <span className="font-semibold">{formatPrice(order.walletAmountUsed!)}</span>
+                {' '}đã được trừ từ ví — quét mã QR để thanh toán phần còn lại.
+              </p>
+            </div>
+          )}
+          <PaymentQR
+            amount={order.totalAmount - (order.walletAmountUsed ?? 0)}
+            paymentRef={order.paymentRef}
+          />
+        </>
       )}
 
       {/* Hub + Products + Total */}
@@ -297,9 +311,20 @@ export default function OrderDetailPage() {
           {order.note && (
             <p className="text-sm text-stone-500 mb-3 italic">&ldquo;{order.note}&rdquo;</p>
           )}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-stone-500">Tổng cộng</span>
-            <span className="text-xl font-black text-teal-600">{formatPrice(order.totalAmount)}</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-stone-500">Tổng cộng</span>
+              <span className="text-xl font-black text-teal-600">{formatPrice(order.totalAmount)}</span>
+            </div>
+            {(order.walletAmountUsed ?? 0) > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-violet-500 flex items-center gap-1.5">
+                  <Wallet className="h-3.5 w-3.5" />
+                  Đã thanh toán qua ví
+                </span>
+                <span className="font-semibold text-violet-600">-{formatPrice(order.walletAmountUsed!)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

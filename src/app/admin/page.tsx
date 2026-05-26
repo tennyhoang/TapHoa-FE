@@ -11,12 +11,12 @@ import { formatPrice, formatDate } from '@/lib/format';
 
 function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string; color: string }) {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm flex items-center gap-4">
+    <div className="bg-card rounded-xl p-5 shadow-sm flex items-center gap-4">
       <div className={`p-3 rounded-lg ${color}`}>
         <Icon className="h-6 w-6 text-white" />
       </div>
       <div>
-        <p className="text-sm text-gray-500">{label}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
         <p className="text-2xl font-bold">{value}</p>
       </div>
     </div>
@@ -42,14 +42,14 @@ export default function AdminDashboard() {
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Doanh thu" value={formatPrice(revenue)} color="bg-green-500" />
-        <StatCard icon={ShoppingBag} label="Đơn hàng" value={String(orders?.totalCount ?? 0)} color="bg-blue-500" />
-        <StatCard icon={Package} label="Sản phẩm" value={String(products?.totalCount ?? 0)} color="bg-emerald-600" />
-        <StatCard icon={Tag} label="Danh mục" value={String(categories?.length ?? 0)} color="bg-purple-500" />
+        <StatCard icon={DollarSign} label="Doanh thu"  value={formatPrice(revenue)}                       color="bg-[var(--amber)]" />
+        <StatCard icon={ShoppingBag} label="Đơn hàng" value={String(orders?.totalCount ?? 0)}             color="bg-primary" />
+        <StatCard icon={Package}     label="Sản phẩm" value={String(products?.totalCount ?? 0)}           color="bg-[var(--fresh)]" />
+        <StatCard icon={Tag}         label="Danh mục" value={String(categories?.length ?? 0)}             color="bg-primary/70" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-5 shadow-sm">
+        <div className="bg-card rounded-xl p-5 shadow-sm">
           <h2 className="font-semibold mb-4">Trạng thái đơn hàng</h2>
           <div className="space-y-2">
             {Object.entries(statusCount).map(([status, count]) => (
@@ -58,26 +58,26 @@ export default function AdminDashboard() {
                 <span className="font-medium">{count}</span>
               </div>
             ))}
-            {!orderList.length && <p className="text-sm text-gray-400">Chưa có đơn hàng</p>}
+            {!orderList.length && <p className="text-sm text-muted-foreground">Chưa có đơn hàng</p>}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm">
+        <div className="bg-card rounded-xl p-5 shadow-sm">
           <h2 className="font-semibold mb-4">Đơn hàng gần đây</h2>
           <div className="space-y-2">
             {recentOrders.map(order => (
               <div key={order.id} className="flex items-center justify-between text-sm">
                 <div>
-                  <span className="font-mono text-gray-500">#{order.id.slice(0, 8).toUpperCase()}</span>
-                  <span className="text-gray-400 ml-2 text-xs">{formatDate(order.createdAt)}</span>
+                  <span className="font-mono text-muted-foreground">#{order.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="text-muted-foreground ml-2 text-xs">{formatDate(order.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <OrderStatusBadge status={order.status} />
-                  <span className="font-medium text-emerald-600">{formatPrice(order.totalAmount)}</span>
+                  <span className="font-medium text-[var(--fresh)]">{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             ))}
-            {!recentOrders.length && <p className="text-sm text-gray-400">Chưa có đơn hàng</p>}
+            {!recentOrders.length && <p className="text-sm text-muted-foreground">Chưa có đơn hàng</p>}
           </div>
         </div>
       </div>

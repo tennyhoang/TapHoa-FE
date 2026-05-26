@@ -57,7 +57,6 @@ function CategoryFormDialog({
     onError: (err: any) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Thao tác thất bại'),
   });
 
-  // Exclude the category being edited from parent options (can't be its own parent)
   const parentOptions = parentCategories.filter(c => c.id !== category?.id);
 
   return (
@@ -65,7 +64,7 @@ function CategoryFormDialog({
       <div className="space-y-1">
         <Label>Tên danh mục *</Label>
         <Input {...register('name', { required: true })} placeholder="Tên danh mục" />
-        {errors.name && <p className="text-xs text-red-500">Vui lòng nhập tên</p>}
+        {errors.name && <p className="text-xs text-destructive">Vui lòng nhập tên</p>}
       </div>
 
       <div className="space-y-1">
@@ -97,11 +96,7 @@ function CategoryFormDialog({
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-emerald-600 hover:bg-emerald-700"
-        disabled={mutation.isPending}
-      >
+      <Button type="submit" className="w-full" disabled={mutation.isPending}>
         {mutation.isPending ? 'Đang lưu...' : category ? 'Cập nhật' : 'Thêm danh mục'}
       </Button>
     </form>
@@ -112,12 +107,12 @@ function CategoryFormDialog({
 
 function LevelBadge({ isChild }: { isChild: boolean }) {
   return isChild ? (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
+    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
       <ChevronRight className="h-3 w-3" />
       Danh mục con
     </span>
   ) : (
-    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-medium">
+    <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--fresh-light)] text-[var(--fresh)] font-medium">
       Danh mục cha
     </span>
   );
@@ -146,25 +141,17 @@ export default function AdminCategoriesPage() {
     onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Xóa thất bại'),
   });
 
-  // Build tree: parents first, then attach children beneath each parent.
-  // Works whether the API returns nested children[] or a flat list.
   const treeRows = useMemo<{ cat: Category; isChild: boolean }[]>(() => {
     if (!categories) return [];
-
-    // Build lookup by id
     const byId = new Map(categories.map(c => [c.id, c]));
-
-    // Separate parents (no parentId) from children (has parentId pointing to an existing parent)
     const parents  = categories.filter(c => !c.parentId || !byId.has(c.parentId));
     const children = categories.filter(c =>  c.parentId &&  byId.has(c.parentId));
-
     const childrenByParent = new Map<string, Category[]>();
     for (const child of children) {
       const list = childrenByParent.get(child.parentId!) ?? [];
       list.push(child);
       childrenByParent.set(child.parentId!, list);
     }
-
     const rows: { cat: Category; isChild: boolean }[] = [];
     for (const parent of parents) {
       rows.push({ cat: parent, isChild: false });
@@ -175,7 +162,6 @@ export default function AdminCategoriesPage() {
     return rows;
   }, [categories]);
 
-  // Only top-level categories can be selected as parent
   const parentCategories = useMemo(
     () => (categories ?? []).filter(c => !c.parentId),
     [categories],
@@ -187,23 +173,20 @@ export default function AdminCategoriesPage() {
         <h1 className="text-2xl font-bold">Danh mục</h1>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button>
               <Plus className="h-4 w-4 mr-1" />Thêm danh mục
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Thêm danh mục mới</DialogTitle></DialogHeader>
-            <CategoryFormDialog
-              parentCategories={parentCategories}
-              onClose={() => setCreateOpen(false)}
-            />
+            <CategoryFormDialog parentCategories={parentCategories} onClose={() => setCreateOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-muted text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3">Ảnh</th>
               <th className="text-left px-4 py-3">Tên danh mục</th>
@@ -214,54 +197,50 @@ export default function AdminCategoriesPage() {
           </thead>
           <tbody className="divide-y">
             {isLoading && (
-              <tr><td colSpan={5} className="text-center py-8 text-gray-400">Đang tải...</td></tr>
+              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Đang tải...</td></tr>
             )}
             {!isLoading && !treeRows.length && (
-              <tr><td colSpan={5} className="text-center py-8 text-gray-400">Chưa có danh mục</td></tr>
+              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Chưa có danh mục</td></tr>
             )}
             {treeRows.map(({ cat, isChild }) => (
               <tr
                 key={cat.id}
-                className={`hover:bg-gray-50 ${isChild ? 'bg-gray-50/50' : ''}`}
+                className={`hover:bg-muted/50 ${isChild ? 'bg-muted/30' : ''}`}
               >
                 <td className="px-4 py-3">
                   {cat.imageUrl ? (
                     <img src={cat.imageUrl} alt={cat.name} className="w-10 h-10 object-cover rounded" />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+                    <div className="w-10 h-10 bg-muted rounded flex items-center justify-center text-muted-foreground">
                       <Tag className="h-4 w-4" />
                     </div>
                   )}
                 </td>
                 <td className="px-4 py-3 font-medium">
                   {isChild ? (
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <span className="text-gray-300 pl-2">└─</span>
+                    <span className="flex items-center gap-1.5 text-foreground/80">
+                      <span className="text-muted-foreground pl-2">└─</span>
                       {cat.name}
                     </span>
                   ) : (
-                    <span className="text-gray-900">{cat.name}</span>
+                    <span className="text-foreground">{cat.name}</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <LevelBadge isChild={isChild} />
                 </td>
-                <td className="px-4 py-3 text-gray-500">{cat.description ?? '—'}</td>
+                <td className="px-4 py-3 text-muted-foreground">{cat.description ?? '—'}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1 justify-end">
                     <button
                       onClick={() => { setEditCategory(cat); setEditOpen(true); }}
-                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-blue-500"
+                      className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-primary transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`Xóa danh mục "${cat.name}"?`)) {
-                          deleteMutation.mutate(cat.id);
-                        }
-                      }}
-                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-red-500"
+                      onClick={() => { if (confirm(`Xóa danh mục "${cat.name}"?`)) deleteMutation.mutate(cat.id); }}
+                      className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-destructive transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
