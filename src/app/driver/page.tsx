@@ -10,8 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
 import { driverService, type OptimizeRouteResponse } from '@/services/driver.service';
-import { hubService } from '@/services/hub.service';
-import type { Hub } from '@/store/hub.store';
+import { warehouseService, type Warehouse } from '@/services/warehouse.service';
 import { useAuthStore } from '@/store/auth.store';
 import { formatPrice, formatDate } from '@/lib/format';
 import { Order } from '@/types';
@@ -114,9 +113,9 @@ export default function DriverPage() {
     if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
   }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: hubs = [] } = useQuery({
-    queryKey: ['hubs-active'],
-    queryFn: hubService.getActive,
+  const { data: warehouses = [] } = useQuery({
+    queryKey: ['warehouses-active'],
+    queryFn: warehouseService.getActive,
     enabled: mounted && isDriver(),
     staleTime: 5 * 60_000,
   });
@@ -190,14 +189,14 @@ export default function DriverPage() {
 
   const selectedBatches = routeBatches.filter(b => selectedHubIds.has(b.hubId));
 
-  const hubFullAddr = (h: Hub) =>
-    [h.address, h.ward, h.district, h.province].filter(Boolean).join(', ');
+  const warehouseFullAddr = (w: Warehouse) =>
+    [w.address, w.ward, w.district, w.province].filter(Boolean).join(', ');
 
   const warehouseAddr =
     selectedWarehouseId === 'custom'
       ? customAddr
-      : hubs.find(h => h.id === selectedWarehouseId)
-          ? hubFullAddr(hubs.find(h => h.id === selectedWarehouseId)!)
+      : warehouses.find(w => w.id === selectedWarehouseId)
+          ? warehouseFullAddr(warehouses.find(w => w.id === selectedWarehouseId)!)
           : '';
 
   const pickupMutation = useMutation({
@@ -462,8 +461,8 @@ export default function DriverPage() {
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
               >
                 <option value="">— Chọn kho —</option>
-                {hubs.map(h => (
-                  <option key={h.id} value={h.id}>{h.name}</option>
+                {warehouses.map(w => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
                 <option value="custom">Nhập địa chỉ khác...</option>
               </select>
@@ -476,7 +475,7 @@ export default function DriverPage() {
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
                 />
               )}
-              {selectedWarehouseId && selectedWarehouseId !== 'custom' && (
+              {selectedWarehouseId && selectedWarehouseId !== 'custom' && warehouseAddr && (
                 <p className="text-xs text-gray-400">{warehouseAddr}</p>
               )}
               <button
