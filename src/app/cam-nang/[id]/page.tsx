@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, BookOpen } from 'lucide-react';
 import { Article } from '@/services/article.service';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 const CATEGORY_META: Record<string, { label: string; color: string }> = {
   'dinh-duong':         { label: 'Dinh dưỡng',         color: 'oklch(0.54 0.158 145)' },
@@ -31,26 +32,6 @@ async function getArticle(id: string): Promise<Article | null> {
   }
 }
 
-function renderMarkdown(content: string) {
-  return content.split('\n').map((line, i) => {
-    if (line.startsWith('## ')) {
-      return <h2 key={i} className="text-xl font-bold text-foreground mt-8 mb-3">{line.slice(3)}</h2>;
-    }
-    if (line.startsWith('### ')) {
-      return <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-2">{line.slice(4)}</h3>;
-    }
-    if (line.startsWith('- ') || line.startsWith('* ')) {
-      return <li key={i} className="text-muted-foreground leading-relaxed ml-4 list-disc">{line.slice(2)}</li>;
-    }
-    if (line.match(/^\d+\. /)) {
-      return <li key={i} className="text-muted-foreground leading-relaxed ml-4 list-decimal">{line.replace(/^\d+\. /, '')}</li>;
-    }
-    if (line.trim() === '') {
-      return <div key={i} className="h-2" />;
-    }
-    return <p key={i} className="text-muted-foreground leading-relaxed">{line}</p>;
-  });
-}
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -114,8 +95,8 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
       <div className="h-px bg-border" />
 
       {/* Content */}
-      <div className="space-y-1">
-        {renderMarkdown(article.content)}
+      <div>
+        <MarkdownContent content={article.content} size="lg" />
       </div>
 
       {/* Footer CTA */}
