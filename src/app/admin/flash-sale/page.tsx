@@ -10,12 +10,6 @@ import { flashSaleService, AdminSession, AdminSessionItem } from '@/services/fla
 import { productService } from '@/services/product.service';
 import { formatPrice } from '@/lib/format';
 
-function toLocalDatetimeValue(isoString: string) {
-  const date = new Date(isoString);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
 function SessionItems({ sessionId }: { sessionId: string }) {
   const queryClient = useQueryClient();
   const [productSearch, setProductSearch] = useState('');

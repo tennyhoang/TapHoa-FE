@@ -134,8 +134,6 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
 }
 
 export function FlashSale() {
-  const queryClient = useQueryClient();
-
   const { data: session, refetch } = useQuery({
     queryKey: ['flash-sale-current'],
     queryFn: flashSaleService.getCurrent,

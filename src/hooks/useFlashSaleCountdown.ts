@@ -13,13 +13,14 @@ export function useFlashSaleCountdown(
 ): CountdownResult {
   const [remainingMs, setRemainingMs] = useState<number>(0);
   const onExpireRef = useRef(onExpire);
-  onExpireRef.current = onExpire;
+
+  // Update the ref after each render instead of during render
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  });
 
   useEffect(() => {
-    if (!endTimeIso) {
-      setRemainingMs(0);
-      return;
-    }
+    if (!endTimeIso) return;
 
     const endMs = new Date(endTimeIso).getTime();
 
@@ -44,6 +45,6 @@ export function useFlashSaleCountdown(
     hours:     String(Math.floor(totalSeconds / 3600)).padStart(2, '0'),
     minutes:   String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0'),
     seconds:   String(totalSeconds % 60).padStart(2, '0'),
-    isExpired: remainingMs <= 0,
+    isExpired: !endTimeIso || remainingMs <= 0,
   };
 }
