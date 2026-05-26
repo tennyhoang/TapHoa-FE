@@ -225,7 +225,14 @@ export default function DriverPage() {
         toast.warning('Không tối ưu được lộ trình, hiển thị thứ tự gốc');
       }
     },
-    onError: () => toast.error('Tối ưu lộ trình thất bại'),
+    onError: (error: unknown) => {
+      const errorCode = (error as { response?: { data?: { errorCode?: string } } })?.response?.data?.errorCode;
+      if (errorCode === 'DRIVER_NO_WAREHOUSE') {
+        toast.error('Lỗi: Kho xuất phát của bạn đã bị vô hiệu hóa hoặc chưa được gán. Vui lòng liên hệ Admin!');
+      } else {
+        toast.error('Tối ưu lộ trình thất bại');
+      }
+    },
   });
 
   const toggleSelect = (id: string) => {

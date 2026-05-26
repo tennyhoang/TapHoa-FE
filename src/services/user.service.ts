@@ -25,4 +25,7 @@ export const userService = {
 
   delete: (id: string) =>
     api.delete(`/users/${id}`).then(r => r.data),
+
+  assignWarehouse: (userId: string, warehouseId: string | null, targetType: 'Driver' | 'Manager') =>
+    api.patch(`/admin/users/${userId}/assign-warehouse`, { warehouseId, targetType }).then(r => r.data),
 };

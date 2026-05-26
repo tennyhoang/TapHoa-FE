@@ -158,6 +158,10 @@ export interface AdminUser {
   isActive: boolean;
   agentHubId?: string;
   createdAt: string;
+  warehouseId?: string;
+  warehouseName?: string;
+  managedWarehouseId?: string;
+  managedWarehouseName?: string;
 }
 
 export interface Review {

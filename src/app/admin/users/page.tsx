@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Users, CheckCircle2, XCircle, Pencil, Trash2, AlertTriangle } from 'lucide-react';
+import { Search, Users, CheckCircle2, XCircle, Pencil, Trash2, AlertTriangle, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,26 +11,95 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { userService } from '@/services/user.service';
+import { warehouseService, type Warehouse } from '@/services/warehouse.service';
 import { AdminUser } from '@/types';
 import { formatDate } from '@/lib/format';
 
 const PAGE_SIZE = 20;
 
 const ROLE_LABEL: Record<string, string> = {
-  Admin:    'Admin',
-  Customer: 'Khách hàng',
-  Agent:    'Agent',
-  Driver:   'Tài xế',
+  Admin:            'Admin',
+  Customer:         'Khách hàng',
+  Agent:            'Agent',
+  Driver:           'Tài xế',
+  WarehouseManager: 'Quản Lý Kho',
 };
 
 const ROLE_COLOR: Record<string, string> = {
-  Admin:    'bg-primary/15 text-primary',
-  Customer: 'bg-secondary text-secondary-foreground',
-  Agent:    'bg-[oklch(0.95_0.05_55)] text-[var(--amber-dark)]',
-  Driver:   'bg-[var(--fresh-light)] text-[var(--fresh)]',
+  Admin:            'bg-primary/15 text-primary',
+  Customer:         'bg-secondary text-secondary-foreground',
+  Agent:            'bg-[oklch(0.95_0.05_55)] text-[var(--amber-dark)]',
+  Driver:           'bg-[var(--fresh-light)] text-[var(--fresh)]',
+  WarehouseManager: 'bg-violet-100 text-violet-700',
 };
 
-const ROLES = ['Customer', 'Admin', 'Agent', 'Driver'];
+const ROLES = ['Customer', 'Admin', 'Agent', 'Driver', 'WarehouseManager'];
+
+// ── Assign Warehouse Dialog ───────────────────────────────────────────────────
+
+function AssignWarehouseDialog({ user, open, onClose }: { user: AdminUser | null; open: boolean; onClose: () => void }) {
+  const queryClient = useQueryClient();
+
+  const targetType = user?.role === 'Driver' ? 'Driver' : 'Manager';
+  const initialWarehouseId = (user?.role === 'Driver' ? user?.warehouseId : user?.managedWarehouseId) ?? null;
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(initialWarehouseId);
+
+  const { data: warehouses = [] } = useQuery<Warehouse[]>({
+    queryKey: ['admin-warehouses'],
+    queryFn: warehouseService.admin.getAll,
+    enabled: open,
+  });
+
+  const mutation = useMutation({
+    mutationFn: () => userService.assignWarehouse(user!.id, selectedWarehouseId, targetType),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Đã cập nhật kho');
+      onClose();
+    },
+    onError: () => toast.error('Gán kho thất bại'),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-violet-600" />
+            </div>
+            <DialogTitle>Gán kho — {user?.fullName}</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4 pt-1">
+          <div className="space-y-1.5">
+            <Label className="text-xs">
+              {targetType === 'Driver' ? 'Kho xuất phát (Driver)' : 'Kho quản lý (WarehouseManager)'}
+            </Label>
+            <select
+              value={selectedWarehouseId ?? ''}
+              onChange={e => setSelectedWarehouseId(e.target.value || null)}
+              className="w-full h-9 border border-input rounded-md px-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring/20"
+            >
+              <option value="">— Gỡ gán kho —</option>
+              {warehouses.filter(w => w.isActive !== false).map(w => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="flex gap-2 justify-end pt-3">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={mutation.isPending}>Hủy</Button>
+          <Button size="sm" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+            {mutation.isPending ? 'Đang lưu...' : 'Lưu'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 // ── Edit Dialog ──────────────────────────────────────────────────────────────
 
@@ -154,8 +223,9 @@ export default function AdminUsersPage() {
   const [page, setPage]             = useState(1);
   const [search, setSearch]         = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [editUser, setEditUser]     = useState<AdminUser | null>(null);
-  const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+  const [editUser, setEditUser]               = useState<AdminUser | null>(null);
+  const [deleteUser, setDeleteUser]           = useState<AdminUser | null>(null);
+  const [assignWarehouseUser, setAssignWarehouseUser] = useState<AdminUser | null>(null);
 
   function handleSearchChange(value: string) { setSearch(value); setPage(1); }
 
@@ -222,6 +292,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden md:table-cell">SĐT</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vai trò</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden lg:table-cell">Kho trực thuộc</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Trạng thái</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden md:table-cell">Ngày tạo</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide text-right">Thao tác</th>
@@ -231,7 +302,7 @@ export default function AdminUsersPage() {
               {isLoading
                 ? Array.from({ length: 8 }).map((_, i) => (
                     <tr key={i} className="border-b border-border/40">
-                      {Array.from({ length: 7 }).map((__, j) => (
+                      {Array.from({ length: 8 }).map((__, j) => (
                         <td key={j} className="px-4 py-3"><Skeleton className="h-4 w-full rounded" /></td>
                       ))}
                     </tr>
@@ -239,7 +310,7 @@ export default function AdminUsersPage() {
                 : users.length === 0
                   ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-16 text-muted-foreground">
+                      <td colSpan={8} className="text-center py-16 text-muted-foreground">
                         <Users className="h-10 w-10 mx-auto mb-2 opacity-20" />
                         Không tìm thấy người dùng
                       </td>
@@ -262,6 +333,13 @@ export default function AdminUsersPage() {
                           {ROLE_LABEL[user.role] ?? user.role}
                         </Badge>
                       </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">
+                        {user.role === 'Driver'
+                          ? (user.warehouseName ?? <span className="text-xs text-muted-foreground/50">Chưa gán</span>)
+                          : user.role === 'WarehouseManager'
+                            ? (user.managedWarehouseName ?? <span className="text-xs text-muted-foreground/50">Chưa gán</span>)
+                            : '—'}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
                           {user.isActive ? (
@@ -280,6 +358,15 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">{formatDate(user.createdAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5 justify-end">
+                          {(user.role === 'Driver' || user.role === 'WarehouseManager') && (
+                            <button
+                              onClick={() => setAssignWarehouseUser(user)}
+                              className="p-1.5 rounded-lg hover:bg-violet-100 text-muted-foreground hover:text-violet-700 transition-colors"
+                              title="Gán kho"
+                            >
+                              <Building2 className="h-4 w-4" />
+                            </button>
+                          )}
                           <button
                             onClick={() => setEditUser(user)}
                             className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
@@ -316,6 +403,12 @@ export default function AdminUsersPage() {
         )}
       </div>
 
+      <AssignWarehouseDialog
+        key={assignWarehouseUser?.id}
+        user={assignWarehouseUser}
+        open={!!assignWarehouseUser}
+        onClose={() => setAssignWarehouseUser(null)}
+      />
       <EditUserDialog user={editUser} open={!!editUser} onClose={() => setEditUser(null)} />
       <DeleteUserDialog user={deleteUser} open={!!deleteUser} onClose={() => setDeleteUser(null)} />
     </div>
