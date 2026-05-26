@@ -15,10 +15,17 @@ export interface OptimizeRouteResponse {
   hubLat: number | null;
 }
 
+export interface AssignedWarehouseDto {
+  id: string;
+  name: string;
+  fullAddress: string;
+  phoneNumber: string | null;
+}
+
 export const driverService = {
-  optimizeRoute: (hubAddress: string, orderAddresses: string[]) =>
-    api.post<OptimizeRouteResponse>('/driver/optimize-route', {
-      hubAddress,
-      orderAddresses,
-    }).then(r => r.data),
+  getMyWarehouse: (): Promise<AssignedWarehouseDto> =>
+    api.get<AssignedWarehouseDto>('/driver/me/warehouse').then(r => r.data),
+
+  optimizeRoute: (orderAddresses: string[]): Promise<OptimizeRouteResponse> =>
+    api.post<OptimizeRouteResponse>('/driver/optimize-route', { orderAddresses }).then(r => r.data),
 };

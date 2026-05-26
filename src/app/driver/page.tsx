@@ -8,8 +8,7 @@ import { Package, Truck, CheckCircle2, MapPin, Search, Clock, Map as MapIcon, Na
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
-import { driverService, type OptimizeRouteResponse } from '@/services/driver.service';
-import { warehouseService, type Warehouse } from '@/services/warehouse.service';
+import { driverService, type OptimizeRouteResponse, type AssignedWarehouseDto } from '@/services/driver.service';
 import { useAuthStore } from '@/store/auth.store';
 import { formatPrice, formatDate } from '@/lib/format';
 import { Order } from '@/types';
@@ -109,8 +108,6 @@ export default function DriverPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<Tab>('pickup');
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
-  const [customAddr, setCustomAddr] = useState('');
   const [selectedHubIds, setSelectedHubIds] = useState<Set<string> | null>(null); // null = all selected
   const [routeResult, setRouteResult] = useState<OptimizeRouteResponse | null>(null);
 
@@ -122,11 +119,16 @@ export default function DriverPage() {
     if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
   }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses-active'],
-    queryFn: warehouseService.getActive,
+  const {
+    data: warehouseData,
+    isLoading: loadingWarehouse,
+    isError: isWarehouseError,
+  } = useQuery<AssignedWarehouseDto>({
+    queryKey: ['driver-my-warehouse'],
+    queryFn: driverService.getMyWarehouse,
     enabled: mounted && isDriver(),
     staleTime: 5 * 60_000,
+    retry: false,
   });
 
   const { data: batches, isLoading: loadingPickup } = useQuery({
@@ -197,16 +199,6 @@ export default function DriverPage() {
 
   const selectedBatches = routeBatches.filter(b => effectiveSelectedHubIds.has(b.hubId));
 
-  const warehouseFullAddr = (w: Warehouse) =>
-    [w.address, w.ward, w.district, w.province].filter(Boolean).join(', ');
-
-  const warehouseAddr =
-    selectedWarehouseId === 'custom'
-      ? customAddr
-      : warehouses.find(w => w.id === selectedWarehouseId)
-          ? warehouseFullAddr(warehouses.find(w => w.id === selectedWarehouseId)!)
-          : '';
-
   const pickupMutation = useMutation({
     mutationFn: (ids: string[]) => orderService.driverPickup(ids),
     onSuccess: (result: { shipped: number; errors: string[] }) => {
@@ -225,7 +217,7 @@ export default function DriverPage() {
   const optimizeMutation = useMutation({
     mutationFn: () => {
       const addresses = selectedBatches.map(b => b.hubFullAddress);
-      return driverService.optimizeRoute(warehouseAddr, addresses);
+      return driverService.optimizeRoute(addresses);
     },
     onSuccess: (data) => {
       setRouteResult(data);
@@ -233,7 +225,14 @@ export default function DriverPage() {
         toast.warning('Không tối ưu được lộ trình, hiển thị thứ tự gốc');
       }
     },
-    onError: () => toast.error('Tối ưu lộ trình thất bại'),
+    onError: (error: unknown) => {
+      const errorCode = (error as { response?: { data?: { errorCode?: string } } })?.response?.data?.errorCode;
+      if (errorCode === 'DRIVER_NO_WAREHOUSE') {
+        toast.error('Lỗi: Kho xuất phát của bạn đã bị vô hiệu hóa hoặc chưa được gán. Vui lòng liên hệ Admin!');
+      } else {
+        toast.error('Tối ưu lộ trình thất bại');
+      }
+    },
   });
 
   const toggleSelect = (id: string) => {
@@ -459,45 +458,55 @@ export default function DriverPage() {
             </div>
           )}
 
-          {/* Chọn kho + nút tối ưu */}
+          {/* Kho xuất phát + nút tối ưu */}
           {routeBatches.length > 0 && (
             <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-gray-700">Kho xuất phát</p>
-              <select
-                value={selectedWarehouseId}
-                onChange={e => { setSelectedWarehouseId(e.target.value); setRouteResult(null); }}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
-              >
-                <option value="">— Chọn kho —</option>
-                {warehouses.map(w => (
-                  <option key={w.id} value={w.id}>{w.name}</option>
-                ))}
-                <option value="custom">Nhập địa chỉ khác...</option>
-              </select>
-              {selectedWarehouseId === 'custom' && (
-                <input
-                  type="text"
-                  value={customAddr}
-                  onChange={e => { setCustomAddr(e.target.value); setRouteResult(null); }}
-                  placeholder="VD: 227 Nguyễn Văn Cừ, Quận 5, TP.HCM"
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
-                />
+
+              {/* Trạng thái đang tải */}
+              {loadingWarehouse && (
+                <Skeleton className="h-14 w-full rounded-lg" />
               )}
-              {selectedWarehouseId && selectedWarehouseId !== 'custom' && warehouseAddr && (
-                <p className="text-xs text-gray-400">{warehouseAddr}</p>
+
+              {/* Lỗi: chưa được gán kho */}
+              {!loadingWarehouse && isWarehouseError && (
+                <div className="flex gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+                  <span className="text-amber-500 mt-0.5 shrink-0">⚠️</span>
+                  <p className="text-sm text-amber-800 leading-snug">
+                    Tài khoản của bạn chưa được gán cho kho cố định nào.
+                    Vui lòng liên hệ Admin để được phân bổ trước khi tối ưu lộ trình.
+                  </p>
+                </div>
               )}
-              <button
-                onClick={() => optimizeMutation.mutate()}
-                disabled={!warehouseAddr.trim() || selectedBatches.length === 0 || optimizeMutation.isPending}
-                className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
-              >
-                <MapIcon className="h-4 w-4" />
-                {optimizeMutation.isPending
-                  ? 'Đang tối ưu...'
-                  : `Xem lộ trình${selectedBatches.length > 0 ? ` (${selectedBatches.length} hub)` : ''}`}
-              </button>
-              {selectedBatches.length === 0 && (
-                <p className="text-xs text-amber-600">Chọn ít nhất 1 hub để tính lộ trình.</p>
+
+              {/* Thông tin kho (read-only) */}
+              {!loadingWarehouse && warehouseData && (
+                <div className="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-purple-50 border border-purple-100">
+                  <MapPin className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-purple-900 truncate">{warehouseData.name}</p>
+                    <p className="text-xs text-purple-600 mt-0.5 truncate">{warehouseData.fullAddress}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Nút tối ưu — chỉ hiển thị khi có kho hợp lệ */}
+              {!loadingWarehouse && warehouseData && (
+                <>
+                  <button
+                    onClick={() => optimizeMutation.mutate()}
+                    disabled={selectedBatches.length === 0 || optimizeMutation.isPending}
+                    className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                  >
+                    <MapIcon className="h-4 w-4" />
+                    {optimizeMutation.isPending
+                      ? 'Đang tối ưu...'
+                      : `Xem lộ trình${selectedBatches.length > 0 ? ` (${selectedBatches.length} hub)` : ''}`}
+                  </button>
+                  {selectedBatches.length === 0 && (
+                    <p className="text-xs text-amber-600">Chọn ít nhất 1 hub để tính lộ trình.</p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -507,7 +516,7 @@ export default function DriverPage() {
             <div className="space-y-3">
               {/* Nút mở Google Maps toàn tuyến */}
               <a
-                href={buildGoogleMapsUrl(warehouseAddr, routeResult.stops)}
+                href={buildGoogleMapsUrl(warehouseData?.fullAddress ?? '', routeResult.stops)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-colors"
