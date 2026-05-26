@@ -30,9 +30,9 @@ const STATUS_TABS: { value: WithdrawStatus; label: string }[] = [
 ];
 
 const statusIcon = (s: WithdrawStatus) => {
-  if (s === 'Completed') return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-  if (s === 'Rejected')  return <XCircle className="h-4 w-4 text-red-400" />;
-  return <Clock className="h-4 w-4 text-amber-500" />;
+  if (s === 'Completed') return <CheckCircle2 className="h-4 w-4 text-[var(--fresh)]" />;
+  if (s === 'Rejected')  return <XCircle className="h-4 w-4 text-destructive" />;
+  return <Clock className="h-4 w-4 text-[var(--amber)]" />;
 };
 
 export default function AdminWalletPage() {
@@ -62,20 +62,20 @@ export default function AdminWalletPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Quản lý rút tiền</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Xử lý yêu cầu rút tiền từ ví người dùng</p>
+        <h1 className="text-xl font-bold text-foreground">Quản lý rút tiền</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Xử lý yêu cầu rút tiền từ ví người dùng</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-border">
         {STATUS_TABS.map(t => (
           <button
             key={t.value}
             onClick={() => setTab(t.value)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               tab === t.value
-                ? 'border-emerald-500 text-emerald-700'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             {t.label}
@@ -84,38 +84,38 @@ export default function AdminWalletPage() {
       </div>
 
       {isLoading && (
-        <div className="text-sm text-gray-400 py-10 text-center">Đang tải...</div>
+        <div className="text-sm text-muted-foreground py-10 text-center">Đang tải...</div>
       )}
 
       {!isLoading && requests.length === 0 && (
-        <div className="text-sm text-gray-400 py-16 text-center">Không có yêu cầu nào</div>
+        <div className="text-sm text-muted-foreground py-16 text-center">Không có yêu cầu nào</div>
       )}
 
       <div className="space-y-4">
         {requests.map(req => (
-          <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <div key={req.id} className="bg-card rounded-xl border border-border p-5 space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   {statusIcon(req.status)}
-                  <span className="font-bold text-gray-900">{formatPrice(req.amount)}</span>
-                  <span className="text-xs text-gray-400 font-mono">{req.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="font-bold text-foreground">{formatPrice(req.amount)}</span>
+                  <span className="text-xs text-muted-foreground font-mono">{req.id.slice(0, 8).toUpperCase()}</span>
                 </div>
-                <p className="text-sm text-gray-600">
-                  {req.userName} · <span className="text-gray-400">{req.userEmail}</span>
+                <p className="text-sm text-foreground/80">
+                  {req.userName} · <span className="text-muted-foreground">{req.userEmail}</span>
                 </p>
-                <p className="text-xs text-gray-400">{formatDate(req.createdAt)}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(req.createdAt)}</p>
               </div>
 
               <div className="text-right space-y-1">
-                <p className="text-sm font-bold text-gray-800">{req.bankName}</p>
-                <p className="text-sm font-mono text-gray-600">{req.accountNumber}</p>
-                <p className="text-xs text-gray-500">{req.holderName}</p>
+                <p className="text-sm font-bold text-foreground">{req.bankName}</p>
+                <p className="text-sm font-mono text-foreground/80">{req.accountNumber}</p>
+                <p className="text-xs text-muted-foreground">{req.holderName}</p>
               </div>
             </div>
 
             {req.adminNote && (
-              <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 italic">
+              <p className="text-xs text-muted-foreground bg-muted rounded-lg px-3 py-2 italic">
                 Ghi chú: {req.adminNote}
               </p>
             )}
@@ -127,20 +127,20 @@ export default function AdminWalletPage() {
                   placeholder="Ghi chú (tuỳ chọn)..."
                   value={note}
                   onChange={e => setNote(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full border border-input rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={() => process.mutate({ id: req.id, action: 'complete' })}
                     disabled={process.isPending}
-                    className="flex-1 h-9 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                    className="flex-1 h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
                   >
                     Xác nhận đã chuyển
                   </button>
                   <button
                     onClick={() => process.mutate({ id: req.id, action: 'reject' })}
                     disabled={process.isPending}
-                    className="flex-1 h-9 border-2 border-red-200 text-red-500 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="flex-1 h-9 border-2 border-destructive/30 text-destructive text-sm font-semibold rounded-lg hover:bg-destructive/8 transition-colors disabled:opacity-50"
                   >
                     Từ chối (hoàn tiền)
                   </button>
@@ -149,7 +149,7 @@ export default function AdminWalletPage() {
             )}
 
             {req.processedAt && (
-              <p className="text-xs text-gray-400">Xử lý lúc: {formatDate(req.processedAt)}</p>
+              <p className="text-xs text-muted-foreground">Xử lý lúc: {formatDate(req.processedAt)}</p>
             )}
           </div>
         ))}

@@ -64,20 +64,20 @@ export default function AdminCamNangPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Cẩm nang</h1>
-        <p className="text-sm text-gray-500 mt-1">Tạo và đăng bài viết tự động bằng AI</p>
+        <h1 className="text-2xl font-bold text-foreground">Cẩm nang</h1>
+        <p className="text-sm text-muted-foreground mt-1">Tạo và đăng bài viết tự động bằng AI</p>
       </div>
 
       {/* Generator */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-        <p className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-          <Sparkles className="h-4 w-4 text-purple-500" />
+      <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Sparkles className="h-4 w-4 text-primary" />
           Tạo bài mới
         </p>
 
         <div className="grid sm:grid-cols-[1fr_180px_auto] gap-3 items-end">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500">Chủ đề</label>
+            <label className="text-xs font-medium text-muted-foreground">Chủ đề</label>
             <Input
               value={topic}
               onChange={e => setTopic(e.target.value)}
@@ -86,11 +86,11 @@ export default function AdminCamNangPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500">Danh mục</label>
+            <label className="text-xs font-medium text-muted-foreground">Danh mục</label>
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+              className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20"
             >
               {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
@@ -98,7 +98,7 @@ export default function AdminCamNangPage() {
           <Button
             onClick={() => generateMutation.mutate()}
             disabled={!topic.trim() || generateMutation.isPending}
-            className="bg-purple-600 hover:bg-purple-700 h-9 gap-1.5 whitespace-nowrap"
+            className="h-9 gap-1.5 whitespace-nowrap"
           >
             <Sparkles className="h-3.5 w-3.5" />
             {generateMutation.isPending ? 'Đang tạo...' : 'Tạo bài'}
@@ -107,7 +107,7 @@ export default function AdminCamNangPage() {
 
         {/* Preview */}
         {preview && (
-          <div className="border border-purple-100 rounded-xl bg-purple-50/30 p-5 space-y-4">
+          <div className="border border-primary/20 rounded-xl bg-primary/5 p-5 space-y-4">
             <div>
               <span
                 className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white"
@@ -115,11 +115,11 @@ export default function AdminCamNangPage() {
               >
                 {activeCat.label}
               </span>
-              <h2 className="mt-2.5 text-base font-bold text-gray-900 leading-snug">{preview.title}</h2>
-              <p className="text-sm text-gray-500 mt-1">{preview.excerpt}</p>
+              <h2 className="mt-2.5 text-base font-bold text-foreground leading-snug">{preview.title}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{preview.excerpt}</p>
             </div>
-            <div className="bg-white rounded-lg border border-purple-100 p-4 max-h-64 overflow-y-auto">
-              <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
+            <div className="bg-card rounded-lg border border-border p-4 max-h-64 overflow-y-auto">
+              <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setPreview(null)}>Bỏ</Button>
@@ -133,7 +133,7 @@ export default function AdminCamNangPage() {
               </Button>
               <Button
                 size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700 gap-1.5"
+                className="gap-1.5"
                 onClick={() => publishMutation.mutate()}
                 disabled={publishMutation.isPending}
               >
@@ -146,21 +146,21 @@ export default function AdminCamNangPage() {
       </div>
 
       {/* Published articles */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-gray-400" />
-          <span className="text-sm font-semibold text-gray-700">Bài đã đăng</span>
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="px-6 py-4 border-b border-border/60 flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold text-foreground">Bài đã đăng</span>
           {publishedArticles.length > 0 && (
-            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{publishedArticles.length}</span>
+            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{publishedArticles.length}</span>
           )}
         </div>
 
         {publishedArticles.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">
+          <div className="py-12 text-center text-sm text-muted-foreground">
             Chưa có bài nào — tạo và đăng bài đầu tiên ở trên
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-border/40">
             {publishedArticles.map(article => {
               const cat   = CATEGORIES.find(c => c.value === article.category);
               const isOpen = expanded === article.id;
@@ -175,32 +175,32 @@ export default function AdminCamNangPage() {
                         >
                           {cat?.label ?? article.category}
                         </span>
-                        <span className="text-[11px] text-gray-400">
+                        <span className="text-[11px] text-muted-foreground">
                           {new Date(article.createdAt).toLocaleDateString('vi-VN')}
                         </span>
                       </div>
-                      <p className="font-semibold text-sm text-gray-800 line-clamp-1">{article.title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{article.excerpt}</p>
+                      <p className="font-semibold text-sm text-foreground line-clamp-1">{article.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{article.excerpt}</p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => setExpanded(isOpen ? null : article.id)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
                       >
                         {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Xóa bài viết này?')) deleteMutation.mutate(article.id); }}
                         disabled={deleteMutation.isPending && deleteMutation.variables === article.id}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors disabled:opacity-40"
+                        className="p-1.5 rounded-lg hover:bg-destructive/8 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-40"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
                   {isOpen && (
-                    <div className="mt-3 bg-gray-50 rounded-lg border border-gray-100 p-4 max-h-56 overflow-y-auto">
-                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
+                    <div className="mt-3 bg-muted rounded-lg border border-border/60 p-4 max-h-56 overflow-y-auto">
+                      <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
                     </div>
                   )}
                 </div>

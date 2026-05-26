@@ -38,10 +38,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!isAuthenticated() || !isAdmin()) return null;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <aside className="w-56 bg-gray-900 text-white flex flex-col">
-        <div className="h-16 flex items-center px-4 border-b border-gray-700">
-          <span className="font-bold text-white text-lg">TapHoa Admin</span>
+    <div className="flex min-h-screen bg-muted">
+      <aside className="w-56 bg-sidebar flex flex-col shrink-0">
+        <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
+          <span className="font-editorial font-bold text-sidebar-foreground text-lg">TapHoa Admin</span>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map(item => (
@@ -51,8 +51,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 pathname === item.href
-                  ? 'bg-emerald-600 text-white'
-                  : 'text-gray-300 hover:bg-gray-800'
+                  ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -60,10 +60,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           ))}
         </nav>
-        <div className="p-3 border-t border-gray-700">
+        <div className="p-3 border-t border-sidebar-border">
           <button
             onClick={() => { logout(); router.push('/'); }}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 w-full"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full transition-colors"
           >
             <LogOut className="h-4 w-4" /> Đăng xuất
           </button>

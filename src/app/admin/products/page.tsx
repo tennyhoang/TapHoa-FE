@@ -45,20 +45,9 @@ export default function AdminProductsPage() {
     onError: () => toast.error('Xóa thất bại'),
   });
 
-  function handleSearch() {
-    setSearch(searchInput);
-    setPage(1);
-  }
-
-  function handleEditOpen(product: Product) {
-    setEditProduct(product);
-    setEditOpen(true);
-  }
-
-  function handleEditClose() {
-    setEditOpen(false);
-    setEditProduct(undefined);
-  }
+  function handleSearch() { setSearch(searchInput); setPage(1); }
+  function handleEditOpen(product: Product) { setEditProduct(product); setEditOpen(true); }
+  function handleEditClose() { setEditOpen(false); setEditProduct(undefined); }
 
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
   const cats = categories ?? [];
@@ -68,11 +57,11 @@ export default function AdminProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Sản phẩm</h1>
-          {data && <p className="text-sm text-gray-500 mt-0.5">Tổng: {data.totalCount} sản phẩm</p>}
+          {data && <p className="text-sm text-muted-foreground mt-0.5">Tổng: {data.totalCount} sản phẩm</p>}
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button>
               <Plus className="h-4 w-4 mr-1" />Thêm sản phẩm
             </Button>
           </DialogTrigger>
@@ -99,9 +88,9 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-muted text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3">Sản phẩm</th>
               <th className="text-left px-4 py-3">Danh mục</th>
@@ -113,42 +102,44 @@ export default function AdminProductsPage() {
           </thead>
           <tbody className="divide-y">
             {isLoading && (
-              <tr><td colSpan={6} className="text-center py-10 text-gray-400">Đang tải...</td></tr>
+              <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">Đang tải...</td></tr>
             )}
             {!isLoading && !data?.items.length && (
-              <tr><td colSpan={6} className="text-center py-10 text-gray-400">Không có sản phẩm</td></tr>
+              <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">Không có sản phẩm</td></tr>
             )}
             {data?.items.map(p => {
               const isDeleting = deleteMutation.isPending && deleteMutation.variables === p.id;
               return (
-                <tr key={p.id} className={`hover:bg-gray-50 transition-opacity ${isDeleting ? 'opacity-50' : ''}`}>
+                <tr key={p.id} className={`hover:bg-muted/40 transition-opacity ${isDeleting ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100 shrink-0">
+                      <div className="relative w-10 h-10 rounded overflow-hidden bg-muted shrink-0">
                         {p.thumbnailUrl ? (
                           <Image src={p.thumbnailUrl} alt={p.name} fill className="object-cover" sizes="40px" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
-                              <Package className="h-5 w-5" />
-                            </div>
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Package className="h-5 w-5" />
+                          </div>
                         )}
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium line-clamp-1">{p.name}</p>
-                        {p.discountPrice && <p className="text-xs text-red-500">Giảm giá</p>}
+                        {p.discountPrice && <p className="text-xs text-destructive">Giảm giá</p>}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{p.categoryName}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.categoryName}</td>
                   <td className="px-4 py-3 text-right">
                     <p className="font-medium">{formatPrice(p.discountPrice ?? p.price)}</p>
                     {p.discountPrice && (
-                      <p className="text-xs text-gray-400 line-through">{formatPrice(p.price)}</p>
+                      <p className="text-xs text-muted-foreground line-through">{formatPrice(p.price)}</p>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right font-medium">{p.stock}</td>
                   <td className="px-4 py-3 text-center">
-                    <Badge className={p.stock === 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}>
+                    <Badge className={p.stock === 0
+                      ? 'bg-destructive/10 text-destructive border-0'
+                      : 'bg-[var(--fresh-light)] text-[var(--fresh)] border-0'}>
                       {p.stock === 0 ? 'Hết hàng' : 'Còn hàng'}
                     </Badge>
                   </td>
@@ -157,14 +148,14 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => handleEditOpen(p)}
                         disabled={isDeleting}
-                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-blue-500 disabled:opacity-40 transition-colors"
+                        className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-primary disabled:opacity-40 transition-colors"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => { if (confirm(`Xóa "${p.name}"?`)) deleteMutation.mutate(p.id); }}
                         disabled={isDeleting}
-                        className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-red-500 disabled:opacity-40 transition-colors"
+                        className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-destructive disabled:opacity-40 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -180,24 +171,16 @@ export default function AdminProductsPage() {
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-3">
           <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Trước</Button>
-          <span className="text-sm text-gray-500">{page} / {totalPages}</span>
+          <span className="text-sm text-muted-foreground">{page} / {totalPages}</span>
           <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Sau</Button>
         </div>
       )}
 
-      <Dialog
-        open={editOpen}
-        onOpenChange={(open) => { if (!open) handleEditClose(); else setEditOpen(true); }}
-      >
+      <Dialog open={editOpen} onOpenChange={(open) => { if (!open) handleEditClose(); else setEditOpen(true); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Chỉnh sửa sản phẩm</DialogTitle></DialogHeader>
           {editProduct && (
-            <ProductFormDialog
-              key={editProduct.id}
-              product={editProduct}
-              categories={cats}
-              onClose={handleEditClose}
-            />
+            <ProductFormDialog key={editProduct.id} product={editProduct} categories={cats} onClose={handleEditClose} />
           )}
         </DialogContent>
       </Dialog>
