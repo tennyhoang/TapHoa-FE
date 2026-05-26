@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Truck, CheckCircle2, MapPin, Search, Clock, Map as MapIcon } from 'lucide-react';
+import { Package, Truck, CheckCircle2, MapPin, Search, Clock, Map as MapIcon, Navigation } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
@@ -15,10 +14,20 @@ import { useAuthStore } from '@/store/auth.store';
 import { formatPrice, formatDate } from '@/lib/format';
 import { Order } from '@/types';
 
-const RouteMap = dynamic(
-  () => import('@/components/driver/RouteMap').then(m => m.RouteMap),
-  { ssr: false, loading: () => <div className="h-[360px] bg-gray-100 rounded-xl animate-pulse" /> },
-);
+function buildGoogleMapsUrl(origin: string, stops: OptimizeRouteResponse['stops']): string {
+  const enc = encodeURIComponent;
+  const base = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+  if (stops.length === 0) return base;
+  if (stops.length === 1)
+    return `${base}&origin=${enc(origin)}&destination=${enc(stops[0].address)}`;
+  const waypoints = stops.slice(0, -1).map(s => enc(s.address)).join('|');
+  const destination = enc(stops[stops.length - 1].address);
+  return `${base}&origin=${enc(origin)}&destination=${destination}&waypoints=${waypoints}`;
+}
+
+function buildSingleStopUrl(address: string): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=driving`;
+}
 
 type Tab = 'pickup' | 'transit' | 'history' | 'route';
 
@@ -494,14 +503,21 @@ export default function DriverPage() {
             </div>
           )}
 
-          {/* Bản đồ */}
-          {routeResult && (routeResult.hubLat != null || routeResult.stops.some(s => s.lat != null)) && (
-            <RouteMap result={routeResult} warehouseLabel={warehouseAddr || 'Kho xuất phát'} />
-          )}
-
-          {/* Danh sách điểm ghé theo thứ tự tối ưu */}
+          {/* Kết quả lộ trình */}
           {routeResult && (
-            <div className="space-y-2">
+            <div className="space-y-3">
+              {/* Nút mở Google Maps toàn tuyến */}
+              <a
+                href={buildGoogleMapsUrl(warehouseAddr, routeResult.stops)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-colors"
+              >
+                <Navigation className="h-4 w-4" />
+                Mở Google Maps — Toàn tuyến ({routeResult.stops.length} điểm)
+              </a>
+
+              {/* Danh sách điểm theo thứ tự */}
               <div className="flex items-center gap-2 px-1">
                 <p className="text-sm font-semibold text-gray-700">Thứ tự giao hàng</p>
                 {routeResult.isOptimized ? (
@@ -510,6 +526,7 @@ export default function DriverPage() {
                   <span className="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full">Thứ tự gốc</span>
                 )}
               </div>
+
               {routeResult.stops.map(stop => {
                 const batch = selectedBatches[stop.originalIndex];
                 return (
@@ -517,7 +534,7 @@ export default function DriverPage() {
                     key={stop.originalIndex}
                     className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3"
                   >
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-black flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-black flex items-center justify-center shrink-0">
                       {stop.stopNumber}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -528,13 +545,22 @@ export default function DriverPage() {
                         <MapPin className="h-3 w-3 shrink-0" />
                         {stop.address}
                       </p>
+                      {batch && (
+                        <p className="text-xs text-purple-600 font-semibold mt-0.5">
+                          {batch.orderCount} đơn · {formatPrice(batch.totalAmount)}
+                        </p>
+                      )}
                     </div>
-                    {batch && (
-                      <div className="shrink-0 text-right">
-                        <p className="text-sm font-bold text-purple-700">{batch.orderCount} đơn</p>
-                        <p className="text-xs text-gray-400">{formatPrice(batch.totalAmount)}</p>
-                      </div>
-                    )}
+                    <a
+                      href={buildSingleStopUrl(stop.address)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="shrink-0 p-2 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition-colors"
+                      title="Chỉ đường tới điểm này"
+                    >
+                      <Navigation className="h-4 w-4" />
+                    </a>
                   </div>
                 );
               })}
