@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, ImageIcon, Save } from 'lucide-react';
 import { toast } from 'sonner';
@@ -146,9 +147,13 @@ export function SessionProductPicker({ sessionId, existingProductIds, onSaved }:
               return (
                 <TableRow
                   key={p.id}
-                  className={alreadyAdded ? 'opacity-40' : isChecked ? 'bg-primary/5' : ''}
+                  onClick={() => !alreadyAdded && toggleProduct(p.id, p.name, p.price)}
+                  className={cn(
+                    alreadyAdded ? 'opacity-40' : isChecked ? 'bg-primary/5' : 'hover:bg-muted/40',
+                    !alreadyAdded && 'cursor-pointer',
+                  )}
                 >
-                  <TableCell>
+                  <TableCell onClick={e => e.stopPropagation()}>
                     <Checkbox
                       checked={isChecked}
                       disabled={alreadyAdded}
@@ -174,7 +179,7 @@ export function SessionProductPicker({ sessionId, existingProductIds, onSaved }:
                   <TableCell className="text-right text-sm text-muted-foreground">
                     {formatPrice(p.price)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                     {isChecked ? (
                       <Input
                         type="number"
@@ -187,7 +192,7 @@ export function SessionProductPicker({ sessionId, existingProductIds, onSaved }:
                       <span className="text-sm text-muted-foreground/40">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                     {isChecked ? (
                       <Input
                         type="number"
