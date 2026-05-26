@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Package, Truck, CheckCircle2, MapPin, Search, Clock, Map } from 'lucide-react';
+import { Package, Truck, CheckCircle2, MapPin, Search, Clock, Map as MapIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
@@ -100,6 +100,7 @@ export default function DriverPage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<Tab>('pickup');
   const [warehouseAddr, setWarehouseAddr] = useState('');
+  const [selectedHubIds, setSelectedHubIds] = useState<Set<string>>(new Set());
   const [routeResult, setRouteResult] = useState<OptimizeRouteResponse | null>(null);
 
   useEffect(() => {
@@ -137,8 +138,9 @@ export default function DriverPage() {
   const historyOrders = historyData?.items ?? [];
 
   // Nhóm transit orders theo hub để dùng cho lộ trình
+  type HubEntry = { hubId: string; hubName: string; hubFullAddress: string; orderCount: number; totalAmount: number };
   const transitHubs = useMemo(() => {
-    const map = new Map<string, { hubId: string; hubName: string; hubFullAddress: string; orderCount: number; totalAmount: number }>();
+    const map = new Map() as Map<string, HubEntry>;
     for (const order of transitOrders) {
       if (!order.hub) continue;
       if (!map.has(order.hub.id)) {
@@ -160,6 +162,24 @@ export default function DriverPage() {
   // Ưu tiên đơn đang giao, fallback sang đơn cần lấy
   const routeBatches = transitHubs.length > 0 ? transitHubs : (batches ?? []);
 
+  // Auto-select tất cả hub khi data load lần đầu
+  useEffect(() => {
+    if (routeBatches.length > 0 && selectedHubIds.size === 0) {
+      setSelectedHubIds(new Set(routeBatches.map(b => b.hubId)));
+    }
+  }, [routeBatches.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggleHub = (hubId: string) => {
+    setSelectedHubIds(prev => {
+      const next = new Set(prev);
+      if (next.has(hubId)) next.delete(hubId); else next.add(hubId);
+      return next;
+    });
+    setRouteResult(null);
+  };
+
+  const selectedBatches = routeBatches.filter(b => selectedHubIds.has(b.hubId));
+
   const pickupMutation = useMutation({
     mutationFn: (ids: string[]) => orderService.driverPickup(ids),
     onSuccess: (result: { shipped: number; errors: string[] }) => {
@@ -177,7 +197,7 @@ export default function DriverPage() {
 
   const optimizeMutation = useMutation({
     mutationFn: () => {
-      const addresses = routeBatches.map(b => b.hubFullAddress);
+      const addresses = selectedBatches.map(b => b.hubFullAddress);
       return driverService.optimizeRoute(warehouseAddr, addresses);
     },
     onSuccess: (data) => {
@@ -213,7 +233,7 @@ export default function DriverPage() {
     { key: 'pickup'  as Tab, label: 'Cần lấy',   count: allPickupOrders.length, icon: Package, activeColor: 'text-amber-600',  bg: 'bg-amber-100 text-amber-700' },
     { key: 'transit' as Tab, label: 'Đang giao',  count: transitOrders.length,  icon: Truck,   activeColor: 'text-blue-600',   bg: 'bg-blue-100 text-blue-700' },
     { key: 'history' as Tab, label: 'Hôm nay',    count: historyOrders.length,  icon: Clock,   activeColor: 'text-green-600',  bg: 'bg-green-100 text-green-700' },
-    { key: 'route'   as Tab, label: 'Lộ trình',   count: 0,                     icon: Map,     activeColor: 'text-purple-600', bg: 'bg-purple-100 text-purple-700' },
+    { key: 'route'   as Tab, label: 'Lộ trình',   count: 0,                     icon: MapIcon, activeColor: 'text-purple-600', bg: 'bg-purple-100 text-purple-700' },
   ];
 
   return (
@@ -352,35 +372,94 @@ export default function DriverPage() {
       {/* Tab: Lộ trình */}
       {tab === 'route' && (
         <div className="space-y-4">
-          {/* Input kho + nút tối ưu */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-3">
-            <p className="text-sm font-semibold text-gray-700">Địa chỉ kho xuất phát</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={warehouseAddr}
-                onChange={e => setWarehouseAddr(e.target.value)}
-                placeholder="VD: 227 Nguyễn Văn Cừ, Quận 5, TP.HCM"
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
-              />
-              <button
-                onClick={() => optimizeMutation.mutate()}
-                disabled={!warehouseAddr.trim() || !routeBatches.length || optimizeMutation.isPending}
-                className="shrink-0 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center gap-2"
-              >
-                <Map className="h-4 w-4" />
-                {optimizeMutation.isPending ? 'Đang tối ưu...' : 'Xem lộ trình'}
-              </button>
+
+          {/* Chọn hub */}
+          {(loadingPickup || loadingTransit) ? (
+            <div className="space-y-2">{[1,2].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}</div>
+          ) : routeBatches.length === 0 ? (
+            <EmptyState icon={MapIcon} title="Không có đơn nào" sub="Cần có đơn đang giao hoặc chờ lấy để tính lộ trình" />
+          ) : (
+            <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+                <p className="text-sm font-semibold text-gray-700">Chọn hub cần giao</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedHubIds.size === routeBatches.length) {
+                      setSelectedHubIds(new Set());
+                    } else {
+                      setSelectedHubIds(new Set(routeBatches.map(b => b.hubId)));
+                    }
+                    setRouteResult(null);
+                  }}
+                  className="text-xs text-purple-600 hover:underline font-medium"
+                >
+                  {selectedHubIds.size === routeBatches.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                </button>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {routeBatches.map(batch => {
+                  const isChecked = selectedHubIds.has(batch.hubId);
+                  return (
+                    <div
+                      key={batch.hubId}
+                      onClick={() => toggleHub(batch.hubId)}
+                      className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
+                        isChecked ? 'bg-purple-50' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        isChecked ? 'border-purple-600 bg-purple-600' : 'border-gray-300'
+                      }`}>
+                        {isChecked && (
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{batch.hubName}</p>
+                        <p className="text-xs text-gray-400 truncate">{batch.hubFullAddress}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-sm font-bold text-purple-700">{batch.orderCount} đơn</p>
+                        <p className="text-xs text-gray-400">{formatPrice(batch.totalAmount)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            {!routeBatches.length && !loadingPickup && !loadingTransit && (
-              <p className="text-xs text-amber-600">Không có đơn nào để tính lộ trình.</p>
-            )}
-            {routeBatches.length > 0 && (
-              <p className="text-xs text-gray-400">
-                {transitHubs.length > 0 ? 'Đang giao' : 'Cần lấy'} · {routeBatches.length} hub · {transitHubs.length > 0 ? transitOrders.length : allPickupOrders.length} đơn tổng
-              </p>
-            )}
-          </div>
+          )}
+
+          {/* Input kho + nút tối ưu */}
+          {routeBatches.length > 0 && (
+            <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-gray-700">Địa chỉ kho xuất phát</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={warehouseAddr}
+                  onChange={e => setWarehouseAddr(e.target.value)}
+                  placeholder="VD: 227 Nguyễn Văn Cừ, Quận 5, TP.HCM"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+                />
+                <button
+                  onClick={() => optimizeMutation.mutate()}
+                  disabled={!warehouseAddr.trim() || selectedBatches.length === 0 || optimizeMutation.isPending}
+                  className="shrink-0 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center gap-2"
+                >
+                  <MapIcon className="h-4 w-4" />
+                  {optimizeMutation.isPending
+                    ? 'Đang tối ưu...'
+                    : `Xem lộ trình${selectedBatches.length > 0 ? ` (${selectedBatches.length})` : ''}`}
+                </button>
+              </div>
+              {selectedBatches.length === 0 && (
+                <p className="text-xs text-amber-600">Chọn ít nhất 1 hub để tính lộ trình.</p>
+              )}
+            </div>
+          )}
 
           {/* Bản đồ */}
           {routeResult && (routeResult.hubLat != null || routeResult.stops.some(s => s.lat != null)) && (
@@ -391,9 +470,7 @@ export default function DriverPage() {
           {routeResult && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 px-1">
-                <p className="text-sm font-semibold text-gray-700">
-                  Thứ tự giao hàng
-                </p>
+                <p className="text-sm font-semibold text-gray-700">Thứ tự giao hàng</p>
                 {routeResult.isOptimized ? (
                   <span className="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">Đã tối ưu</span>
                 ) : (
@@ -401,7 +478,7 @@ export default function DriverPage() {
                 )}
               </div>
               {routeResult.stops.map(stop => {
-                const batch = routeBatches[stop.originalIndex];
+                const batch = selectedBatches[stop.originalIndex];
                 return (
                   <div
                     key={stop.originalIndex}
@@ -429,15 +506,6 @@ export default function DriverPage() {
                 );
               })}
             </div>
-          )}
-
-          {/* Empty state khi chưa tối ưu */}
-          {!routeResult && !optimizeMutation.isPending && (
-            <EmptyState
-              icon={Map}
-              title="Chưa có lộ trình"
-              sub="Nhập địa chỉ kho và bấm 'Xem lộ trình' để tối ưu hóa chuyến giao hôm nay"
-            />
           )}
         </div>
       )}
