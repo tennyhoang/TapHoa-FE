@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -120,7 +120,7 @@ export default function DriverPage() {
   const { data: inTransitData, isLoading: loadingTransit } = useQuery({
     queryKey: ['driver-transit'],
     queryFn: () => orderService.getDriverShippingOrders(),
-    enabled: mounted && isDriver() && tab === 'transit',
+    enabled: mounted && isDriver(),
     refetchInterval: 30_000,
     retry: false,
   });
@@ -135,6 +135,30 @@ export default function DriverPage() {
   const allPickupOrders = batches?.flatMap(b => b.orders) ?? [];
   const transitOrders = inTransitData?.items ?? [];
   const historyOrders = historyData?.items ?? [];
+
+  // Nhóm transit orders theo hub để dùng cho lộ trình
+  const transitHubs = useMemo(() => {
+    const map = new Map<string, { hubId: string; hubName: string; hubFullAddress: string; orderCount: number; totalAmount: number }>();
+    for (const order of transitOrders) {
+      if (!order.hub) continue;
+      if (!map.has(order.hub.id)) {
+        map.set(order.hub.id, {
+          hubId: order.hub.id,
+          hubName: order.hub.name,
+          hubFullAddress: [order.hub.address, order.hub.ward, order.hub.district, order.hub.city].filter(Boolean).join(', '),
+          orderCount: 0,
+          totalAmount: 0,
+        });
+      }
+      const entry = map.get(order.hub.id)!;
+      entry.orderCount++;
+      entry.totalAmount += order.totalAmount;
+    }
+    return [...map.values()];
+  }, [transitOrders]);
+
+  // Ưu tiên đơn đang giao, fallback sang đơn cần lấy
+  const routeBatches = transitHubs.length > 0 ? transitHubs : (batches ?? []);
 
   const pickupMutation = useMutation({
     mutationFn: (ids: string[]) => orderService.driverPickup(ids),
@@ -153,7 +177,7 @@ export default function DriverPage() {
 
   const optimizeMutation = useMutation({
     mutationFn: () => {
-      const addresses = batches?.map(b => b.hubFullAddress) ?? [];
+      const addresses = routeBatches.map(b => b.hubFullAddress);
       return driverService.optimizeRoute(warehouseAddr, addresses);
     },
     onSuccess: (data) => {
@@ -341,18 +365,20 @@ export default function DriverPage() {
               />
               <button
                 onClick={() => optimizeMutation.mutate()}
-                disabled={!warehouseAddr.trim() || !batches?.length || optimizeMutation.isPending}
+                disabled={!warehouseAddr.trim() || !routeBatches.length || optimizeMutation.isPending}
                 className="shrink-0 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center gap-2"
               >
                 <Map className="h-4 w-4" />
                 {optimizeMutation.isPending ? 'Đang tối ưu...' : 'Xem lộ trình'}
               </button>
             </div>
-            {!batches?.length && !loadingPickup && (
-              <p className="text-xs text-amber-600">Không có đơn cần giao hôm nay.</p>
+            {!routeBatches.length && !loadingPickup && !loadingTransit && (
+              <p className="text-xs text-amber-600">Không có đơn nào để tính lộ trình.</p>
             )}
-            {batches && batches.length > 0 && (
-              <p className="text-xs text-gray-400">{batches.length} hub cần giao · {allPickupOrders.length} đơn tổng</p>
+            {routeBatches.length > 0 && (
+              <p className="text-xs text-gray-400">
+                {transitHubs.length > 0 ? 'Đang giao' : 'Cần lấy'} · {routeBatches.length} hub · {transitHubs.length > 0 ? transitOrders.length : allPickupOrders.length} đơn tổng
+              </p>
             )}
           </div>
 
@@ -375,7 +401,7 @@ export default function DriverPage() {
                 )}
               </div>
               {routeResult.stops.map(stop => {
-                const batch = batches?.[stop.originalIndex];
+                const batch = routeBatches[stop.originalIndex];
                 return (
                   <div
                     key={stop.originalIndex}
