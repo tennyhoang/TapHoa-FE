@@ -111,7 +111,7 @@ export default function DriverPage() {
   const [tab, setTab] = useState<Tab>('pickup');
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
   const [customAddr, setCustomAddr] = useState('');
-  const [selectedHubIds, setSelectedHubIds] = useState<Set<string>>(new Set());
+  const [selectedHubIds, setSelectedHubIds] = useState<Set<string> | null>(null); // null = all selected
   const [routeResult, setRouteResult] = useState<OptimizeRouteResponse | null>(null);
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function DriverPage() {
   });
 
   const allPickupOrders = batches?.flatMap(b => b.orders) ?? [];
-  const transitOrders = inTransitData?.items ?? [];
+  const transitOrders = useMemo(() => inTransitData?.items ?? [], [inTransitData?.items]);
   const historyOrders = historyData?.items ?? [];
 
   // Nhóm transit orders theo hub để dùng cho lộ trình
@@ -180,23 +180,22 @@ export default function DriverPage() {
   // Ưu tiên đơn đang giao, fallback sang đơn cần lấy
   const routeBatches = transitHubs.length > 0 ? transitHubs : (batches ?? []);
 
-  // Auto-select tất cả hub khi data load lần đầu
-  useEffect(() => {
-    if (routeBatches.length > 0 && selectedHubIds.size === 0) {
-      setSelectedHubIds(new Set(routeBatches.map(b => b.hubId)));
-    }
-  }, [routeBatches.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  // null = all hubs selected (initial); Set = explicit user selection
+  const effectiveSelectedHubIds = useMemo(
+    () => selectedHubIds ?? new Set(routeBatches.map(b => b.hubId)),
+    [selectedHubIds, routeBatches],
+  );
 
   const toggleHub = (hubId: string) => {
     setSelectedHubIds(prev => {
-      const next = new Set(prev);
-      if (next.has(hubId)) next.delete(hubId); else next.add(hubId);
-      return next;
+      const base = prev !== null ? new Set(prev) : new Set(routeBatches.map(b => b.hubId));
+      if (base.has(hubId)) base.delete(hubId); else base.add(hubId);
+      return base;
     });
     setRouteResult(null);
   };
 
-  const selectedBatches = routeBatches.filter(b => selectedHubIds.has(b.hubId));
+  const selectedBatches = routeBatches.filter(b => effectiveSelectedHubIds.has(b.hubId));
 
   const warehouseFullAddr = (w: Warehouse) =>
     [w.address, w.ward, w.district, w.province].filter(Boolean).join(', ');
@@ -413,21 +412,21 @@ export default function DriverPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (selectedHubIds.size === routeBatches.length) {
+                    if (effectiveSelectedHubIds.size === routeBatches.length) {
                       setSelectedHubIds(new Set());
                     } else {
-                      setSelectedHubIds(new Set(routeBatches.map(b => b.hubId)));
+                      setSelectedHubIds(null);
                     }
                     setRouteResult(null);
                   }}
                   className="text-xs text-purple-600 hover:underline font-medium"
                 >
-                  {selectedHubIds.size === routeBatches.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                  {effectiveSelectedHubIds.size === routeBatches.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
                 </button>
               </div>
               <div className="divide-y divide-gray-50">
                 {routeBatches.map(batch => {
-                  const isChecked = selectedHubIds.has(batch.hubId);
+                  const isChecked = effectiveSelectedHubIds.has(batch.hubId);
                   return (
                     <div
                       key={batch.hubId}
