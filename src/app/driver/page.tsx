@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { orderService } from '@/services/order.service';
 import { driverService, type OptimizeRouteResponse } from '@/services/driver.service';
+import { hubService } from '@/services/hub.service';
+import type { Hub } from '@/store/hub.store';
 import { useAuthStore } from '@/store/auth.store';
 import { formatPrice, formatDate } from '@/lib/format';
 import { Order } from '@/types';
@@ -99,7 +101,8 @@ export default function DriverPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<Tab>('pickup');
-  const [warehouseAddr, setWarehouseAddr] = useState('');
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
+  const [customAddr, setCustomAddr] = useState('');
   const [selectedHubIds, setSelectedHubIds] = useState<Set<string>>(new Set());
   const [routeResult, setRouteResult] = useState<OptimizeRouteResponse | null>(null);
 
@@ -110,6 +113,13 @@ export default function DriverPage() {
   useEffect(() => {
     if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
   }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { data: hubs = [] } = useQuery({
+    queryKey: ['hubs-active'],
+    queryFn: hubService.getActive,
+    enabled: mounted && isDriver(),
+    staleTime: 5 * 60_000,
+  });
 
   const { data: batches, isLoading: loadingPickup } = useQuery({
     queryKey: ['driver-pickup'],
@@ -179,6 +189,16 @@ export default function DriverPage() {
   };
 
   const selectedBatches = routeBatches.filter(b => selectedHubIds.has(b.hubId));
+
+  const hubFullAddr = (h: Hub) =>
+    [h.address, h.ward, h.district, h.province].filter(Boolean).join(', ');
+
+  const warehouseAddr =
+    selectedWarehouseId === 'custom'
+      ? customAddr
+      : hubs.find(h => h.id === selectedWarehouseId)
+          ? hubFullAddr(hubs.find(h => h.id === selectedWarehouseId)!)
+          : '';
 
   const pickupMutation = useMutation({
     mutationFn: (ids: string[]) => orderService.driverPickup(ids),
@@ -432,29 +452,43 @@ export default function DriverPage() {
             </div>
           )}
 
-          {/* Input kho + nút tối ưu */}
+          {/* Chọn kho + nút tối ưu */}
           {routeBatches.length > 0 && (
             <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-gray-700">Địa chỉ kho xuất phát</p>
-              <div className="flex gap-2">
+              <p className="text-sm font-semibold text-gray-700">Kho xuất phát</p>
+              <select
+                value={selectedWarehouseId}
+                onChange={e => { setSelectedWarehouseId(e.target.value); setRouteResult(null); }}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+              >
+                <option value="">— Chọn kho —</option>
+                {hubs.map(h => (
+                  <option key={h.id} value={h.id}>{h.name}</option>
+                ))}
+                <option value="custom">Nhập địa chỉ khác...</option>
+              </select>
+              {selectedWarehouseId === 'custom' && (
                 <input
                   type="text"
-                  value={warehouseAddr}
-                  onChange={e => setWarehouseAddr(e.target.value)}
+                  value={customAddr}
+                  onChange={e => { setCustomAddr(e.target.value); setRouteResult(null); }}
                   placeholder="VD: 227 Nguyễn Văn Cừ, Quận 5, TP.HCM"
-                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
                 />
-                <button
-                  onClick={() => optimizeMutation.mutate()}
-                  disabled={!warehouseAddr.trim() || selectedBatches.length === 0 || optimizeMutation.isPending}
-                  className="shrink-0 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center gap-2"
-                >
-                  <MapIcon className="h-4 w-4" />
-                  {optimizeMutation.isPending
-                    ? 'Đang tối ưu...'
-                    : `Xem lộ trình${selectedBatches.length > 0 ? ` (${selectedBatches.length})` : ''}`}
-                </button>
-              </div>
+              )}
+              {selectedWarehouseId && selectedWarehouseId !== 'custom' && (
+                <p className="text-xs text-gray-400">{warehouseAddr}</p>
+              )}
+              <button
+                onClick={() => optimizeMutation.mutate()}
+                disabled={!warehouseAddr.trim() || selectedBatches.length === 0 || optimizeMutation.isPending}
+                className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                <MapIcon className="h-4 w-4" />
+                {optimizeMutation.isPending
+                  ? 'Đang tối ưu...'
+                  : `Xem lộ trình${selectedBatches.length > 0 ? ` (${selectedBatches.length} hub)` : ''}`}
+              </button>
               {selectedBatches.length === 0 && (
                 <p className="text-xs text-amber-600">Chọn ít nhất 1 hub để tính lộ trình.</p>
               )}
