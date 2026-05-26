@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { articleService, GeneratedArticle } from '@/services/article.service';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 const CATEGORIES = [
   { value: 'dinh-duong',         label: 'Dinh dưỡng',         color: 'oklch(0.54 0.158 145)' },
@@ -154,7 +155,7 @@ export default function AdminCamNangPage() {
               </div>
 
               <div className="bg-card rounded-lg border border-border p-4 max-h-56 overflow-y-auto">
-                <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{preview.content}</pre>
+                <MarkdownContent content={preview.content} />
               </div>
 
               <div className="flex gap-2 justify-end">
@@ -270,7 +271,7 @@ export default function AdminCamNangPage() {
                         </div>
                       )}
                       <div className="bg-muted rounded-lg border border-border/60 p-4 max-h-56 overflow-y-auto">
-                        <pre className="text-xs text-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">{article.content}</pre>
+                        <MarkdownContent content={article.content} />
                       </div>
                     </div>
                   )}
