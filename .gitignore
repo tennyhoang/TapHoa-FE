@@ -35,6 +35,7 @@ yarn-error.log*
 # Cho phép commit file env production để Vercel đọc được API URL
 # (.env.local vẫn bị ignore — dùng cho local dev, không bao giờ push lên git)
 !.env.production
+!.env.example
 
 # vercel
 .vercel
@@ -48,5 +49,6 @@ next-env.d.ts
 .cursor/
 .vscode/
 .idea/
+.agents/
 CLAUDE.md
 AGENTS.md
