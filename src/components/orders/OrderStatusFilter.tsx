@@ -1,17 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { OrderStatus } from '@/types';
-import { ORDER_STATUS_LABEL } from '@/lib/format';
-
-const FILTER_OPTIONS: { label: string; value: OrderStatus | undefined }[] = [
-  { label: 'Tất cả',                                                    value: undefined },
-  { label: ORDER_STATUS_LABEL[OrderStatus.PendingPayment],              value: OrderStatus.PendingPayment },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Paid_WaitingForBatch],        value: OrderStatus.Paid_WaitingForBatch },
-  { label: ORDER_STATUS_LABEL[OrderStatus.ShippingToHub],               value: OrderStatus.ShippingToHub },
-  { label: ORDER_STATUS_LABEL[OrderStatus.InHub_ReadyForPickup],        value: OrderStatus.InHub_ReadyForPickup },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Completed],                   value: OrderStatus.Completed },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Cancelled],                   value: OrderStatus.Cancelled },
-];
 
 interface Props {
   value: OrderStatus | undefined;
@@ -19,6 +9,18 @@ interface Props {
 }
 
 export function OrderStatusFilter({ value, onChange }: Props) {
+  const t = useTranslations('Format.orderStatus');
+
+  const FILTER_OPTIONS: { label: string; value: OrderStatus | undefined }[] = [
+    { label: t('All'),                                          value: undefined },
+    { label: t(OrderStatus.PendingPayment),              value: OrderStatus.PendingPayment },
+    { label: t(OrderStatus.Paid_WaitingForBatch),        value: OrderStatus.Paid_WaitingForBatch },
+    { label: t(OrderStatus.ShippingToHub),               value: OrderStatus.ShippingToHub },
+    { label: t(OrderStatus.InHub_ReadyForPickup),        value: OrderStatus.InHub_ReadyForPickup },
+    { label: t(OrderStatus.Completed),                   value: OrderStatus.Completed },
+    { label: t(OrderStatus.Cancelled),                   value: OrderStatus.Cancelled },
+  ];
+
   return (
     <div className="flex gap-2 flex-wrap">
       {FILTER_OPTIONS.map(opt => (

@@ -8,14 +8,14 @@ export const formatPrice = (price: number | string | undefined | null) => {
 export const formatDate = (date: string) =>
   new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
 
-export const ORDER_STATUS_LABEL: Record<string, string> = {
-  PendingPayment:       'Chờ thanh toán',
-  Paid_WaitingForBatch: 'Chờ gom hàng',
-  ShippingToHub:        'Đang vận chuyển',
-  InHub_ReadyForPickup: 'Sẵn sàng lấy hàng',
-  Completed:            'Hoàn thành',
-  Cancelled:            'Đã hủy',
-  Refunded:             'Đã hoàn tiền',
+export const ORDER_STATUS_KEYS: Record<string, string> = {
+  PendingPayment:       'Format.orderStatus.PendingPayment',
+  Paid_WaitingForBatch: 'Format.orderStatus.Paid_WaitingForBatch',
+  ShippingToHub:        'Format.orderStatus.ShippingToHub',
+  InHub_ReadyForPickup: 'Format.orderStatus.InHub_ReadyForPickup',
+  Completed:            'Format.orderStatus.Completed',
+  Cancelled:            'Format.orderStatus.Cancelled',
+  Refunded:             'Format.orderStatus.Refunded',
 };
 
 export const ORDER_STATUS_COLOR: Record<string, string> = {

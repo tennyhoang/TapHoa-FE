@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const BANNER_IMAGES: Record<string, string> = {
   farm: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=85&auto=format&fit=crop',
@@ -21,11 +24,13 @@ export function InterBanner({
   badge,
   title,
   sub,
-  cta = 'Xem ngay',
+  cta: ctaProp,
   href = '/',
   gradient,
   imageKey,
 }: InterBannerProps) {
+  const t = useTranslations('InterBanner');
+  const cta = ctaProp ?? t('defaultCta');
   const imageUrl = imageKey
     ? BANNER_IMAGES[imageKey]
     : gradient?.includes('emerald')
@@ -35,7 +40,6 @@ export function InterBanner({
   return (
     <div className="my-4 rounded-2xl overflow-hidden">
       <div className="relative grid md:grid-cols-2 min-h-[220px]">
-        {/* Text side */}
         <div
           className="relative z-10 flex flex-col justify-center px-8 md:px-12 py-10 md:py-12"
           style={{ background: 'oklch(0.18 0.038 192)' }}
@@ -69,7 +73,6 @@ export function InterBanner({
           </Link>
         </div>
 
-        {/* Photo side */}
         <div className="relative hidden md:block min-h-[220px]">
           <Image
             src={imageUrl}

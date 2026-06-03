@@ -9,24 +9,25 @@ import { Button } from '@/components/ui/button';
 import { AdminOrderRow } from '@/components/admin/orders/AdminOrderRow';
 import { orderService } from '@/services/order.service';
 import { OrderStatus } from '@/types';
-import { ORDER_STATUS_LABEL } from '@/lib/format';
+import { useTranslations } from 'next-intl';
 
 const PAGE_SIZE = 15;
 
-const FILTER_OPTIONS: { label: string; value: OrderStatus | undefined }[] = [
-  { label: 'Tất cả',                                                     value: undefined },
-  { label: ORDER_STATUS_LABEL[OrderStatus.PendingPayment],               value: OrderStatus.PendingPayment },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Paid_WaitingForBatch],         value: OrderStatus.Paid_WaitingForBatch },
-  { label: ORDER_STATUS_LABEL[OrderStatus.ShippingToHub],                value: OrderStatus.ShippingToHub },
-  { label: ORDER_STATUS_LABEL[OrderStatus.InHub_ReadyForPickup],         value: OrderStatus.InHub_ReadyForPickup },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Completed],                    value: OrderStatus.Completed },
-  { label: ORDER_STATUS_LABEL[OrderStatus.Cancelled],                    value: OrderStatus.Cancelled },
-];
-
 export default function AdminOrdersPage() {
+  const t = useTranslations('Format.orderStatus');
   const [page, setPage]               = useState(1);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(undefined);
   const [search, setSearch]           = useState('');
+
+  const FILTER_OPTIONS: { label: string; value: OrderStatus | undefined }[] = [
+    { label: t('All'),                                        value: undefined },
+    { label: t(OrderStatus.PendingPayment),              value: OrderStatus.PendingPayment },
+    { label: t(OrderStatus.Paid_WaitingForBatch),        value: OrderStatus.Paid_WaitingForBatch },
+    { label: t(OrderStatus.ShippingToHub),               value: OrderStatus.ShippingToHub },
+    { label: t(OrderStatus.InHub_ReadyForPickup),        value: OrderStatus.InHub_ReadyForPickup },
+    { label: t(OrderStatus.Completed),                   value: OrderStatus.Completed },
+    { label: t(OrderStatus.Cancelled),                   value: OrderStatus.Cancelled },
+  ];
 
   function handleFilterChange(status: OrderStatus | undefined) { setStatusFilter(status); setPage(1); }
   function handleSearchChange(value: string) { setSearch(value); setPage(1); }
