@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
   ShoppingBag, MapPin, Pencil, AlertTriangle, CheckCircle2,
   Banknote, CreditCard, Wallet, Minus, Plus, Trash2, ChevronRight,
-  BookUser, ChevronDown, Check, ArrowRight,
+  BookUser, ChevronDown, Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,14 +35,15 @@ type CheckoutForm = {
   phoneNumber: string;
 };
 
-const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; sub: string; Icon: React.ElementType }[] = [
-  { value: 'COD',          label: 'Thanh toán khi nhận hàng', sub: 'Trả tiền mặt tại trạm hub',  Icon: Banknote   },
-  { value: 'BankTransfer', label: 'Chuyển khoản ngân hàng',   sub: 'VNPAY / Ngân hàng',           Icon: CreditCard },
-  { value: 'Wallet',       label: 'Thanh toán bằng ví',       sub: 'Trừ trực tiếp từ ví TapHoa', Icon: Wallet     },
+const PAYMENT_OPTIONS: { value: PaymentMethod; labelKey: string; subKey: string; Icon: React.ElementType }[] = [
+  { value: 'COD',          labelKey: 'codLabel',  subKey: 'codSub',  Icon: Banknote   },
+  { value: 'BankTransfer', labelKey: 'bankLabel', subKey: 'bankSub', Icon: CreditCard },
+  { value: 'Wallet',       labelKey: 'walletLabel', subKey: 'walletSub', Icon: Wallet     },
 ];
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const t = useTranslations('Checkout');
   const { isAuthenticated } = useAuthStore();
   const { currentHub } = useHubStore();
   const queryClient = useQueryClient();
@@ -102,7 +104,7 @@ export default function CheckoutPage() {
     },
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(['cart'], ctx.prev);
-      toast.error('Cập nhật thất bại');
+      toast.error(t('errorUpdate'));
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
   });
@@ -122,9 +124,9 @@ export default function CheckoutPage() {
     },
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(['cart'], ctx.prev);
-      toast.error('Xóa sản phẩm thất bại');
+      toast.error(t('errorRemove'));
     },
-    onSuccess: () => toast.success('Đã xóa sản phẩm'),
+    onSuccess: () => toast.success(t('successRemoved')),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
   });
 
@@ -146,12 +148,12 @@ export default function CheckoutPage() {
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
       router.push(`/profile/orders/${order.id}`);
     },
-    onError: () => toast.error('Đặt hàng thất bại, vui lòng thử lại'),
+    onError: () => toast.error(t('errorCreate')),
   });
 
   const onSubmit = (form: CheckoutForm) => {
     if (!currentHub) {
-      toast.error('Vui lòng chọn điểm nhận hàng');
+      toast.error(t('selectHubRequired'));
       return;
     }
     createOrderMutation.mutate(form);
@@ -183,11 +185,11 @@ export default function CheckoutPage() {
           <ShoppingBag className="h-10 w-10 text-gray-300" />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-800">Giỏ hàng trống</p>
-          <p className="text-sm text-gray-400 mt-1">Thêm sản phẩm vào giỏ để tiếp tục mua sắm</p>
+          <p className="text-lg font-semibold text-gray-800">{t('emptyTitle')}</p>
+          <p className="text-sm text-gray-400 mt-1">{t('emptyDesc')}</p>
         </div>
         <Button asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-8">
-          <Link href="/">Khám phá sản phẩm</Link>
+          <Link href="/">{t('emptyCta')}</Link>
         </Button>
       </div>
     );
@@ -209,22 +211,22 @@ export default function CheckoutPage() {
     : PAYMENT_OPTIONS;
 
   const submitLabel = () => {
-    if (createOrderMutation.isPending) return 'Đang xử lý...';
+    if (createOrderMutation.isPending) return t('submitting');
     if (useWalletToggle && hasPartialWallet) {
       return paymentMethod === 'COD'
-        ? `Đặt hàng — COD ${formatPrice(remainingAfterWallet)}`
-        : `Tiếp tục thanh toán ${formatPrice(remainingAfterWallet)}`;
+        ? t('submitCodPartial', { amount: formatPrice(remainingAfterWallet) })
+        : t('submitBankPartial', { amount: formatPrice(remainingAfterWallet) });
     }
-    if (paymentMethod === 'Wallet') return `Thanh toán ${formatPrice(totalAmount)} từ ví`;
-    if (paymentMethod === 'BankTransfer') return 'Tiếp tục thanh toán';
-    return 'Xác nhận đặt hàng';
+    if (paymentMethod === 'Wallet') return t('submitWallet', { amount: formatPrice(totalAmount) });
+    if (paymentMethod === 'BankTransfer') return t('submitBankTransfer');
+    return t('submitCod');
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Giỏ hàng & Thanh toán</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Kiểm tra sản phẩm và hoàn tất thông tin để đặt hàng</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t('subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -236,10 +238,10 @@ export default function CheckoutPage() {
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-4 w-4 text-teal-600" />
-                  <h2 className="font-semibold text-sm text-gray-800">Sản phẩm ({itemCount})</h2>
+                  <h2 className="font-semibold text-sm text-gray-800">{t('products', { count: itemCount })}</h2>
                 </div>
                 <Link href="/" className="text-xs text-teal-600 hover:underline flex items-center gap-0.5">
-                  Thêm sản phẩm <ChevronRight className="h-3 w-3" />
+                  {t('addMore')} <ChevronRight className="h-3 w-3" />
                 </Link>
               </div>
 
@@ -272,7 +274,7 @@ export default function CheckoutPage() {
                         <p className="font-medium text-gray-800 text-sm leading-snug line-clamp-2">
                           {item.productName}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">{formatPrice(item.unitPrice)} / cái</p>
+                        <p className="text-xs text-gray-400 mt-1">{t('perUnit', { price: formatPrice(item.unitPrice) })}</p>
                       </div>
 
                       {/* Qty stepper */}
@@ -318,7 +320,7 @@ export default function CheckoutPage() {
 
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-emerald-700">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span>Miễn phí vận chuyển đến trạm hub của bạn</span>
+              <span>{t('freeShipping')}</span>
             </div>
           </div>
 
@@ -330,7 +332,7 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
-                  <h3 className="font-semibold text-gray-800 text-sm">Thông tin người nhận</h3>
+                  <h3 className="font-semibold text-gray-800 text-sm">{t('step1')}</h3>
                 </div>
 
                 {addresses && addresses.length > 0 && (
@@ -341,7 +343,7 @@ export default function CheckoutPage() {
                       className="flex items-center gap-1 text-xs text-teal-600 hover:text-emerald-700 font-medium"
                     >
                       <BookUser className="h-3.5 w-3.5" />
-                      Địa chỉ đã lưu
+                      {t('savedAddresses')}
                       <ChevronDown className={`h-3 w-3 transition-transform ${addrOpen ? 'rotate-180' : ''}`} />
                     </button>
 
@@ -361,7 +363,7 @@ export default function CheckoutPage() {
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-sm font-semibold text-gray-800">{addr.receiverName}</p>
                               {addr.isDefault && (
-                                <span className="text-xs text-teal-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Mặc định</span>
+                                <span className="text-xs text-teal-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">{t('default')}</span>
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-0.5">{addr.phoneNumber}</p>
@@ -378,10 +380,10 @@ export default function CheckoutPage() {
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">Họ và tên *</Label>
+                  <Label className="text-xs font-medium text-gray-600">{t('receiverName')}</Label>
                   <Input
-                    {...register('receiverName', { required: 'Vui lòng nhập họ tên' })}
-                    placeholder="Nguyễn Văn A"
+                    {...register('receiverName', { required: t('receiverNameRequired') })}
+                    placeholder={t('receiverNamePlaceholder')}
                     className="h-9 text-sm"
                   />
                   {errors.receiverName && (
@@ -389,13 +391,13 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">Số điện thoại *</Label>
+                  <Label className="text-xs font-medium text-gray-600">{t('phoneNumber')}</Label>
                   <Input
                     {...register('phoneNumber', {
-                      required: 'Vui lòng nhập số điện thoại',
-                      pattern: { value: /^[0-9]{9,11}$/, message: 'Số điện thoại không hợp lệ' },
+                      required: t('phoneNumberRequired'),
+                      pattern: { value: /^[0-9]{9,11}$/, message: t('phoneNumberInvalid') },
                     })}
-                    placeholder="0912345678"
+                    placeholder={t('phoneNumberPlaceholder')}
                     inputMode="tel"
                     className="h-9 text-sm"
                   />
@@ -414,7 +416,7 @@ export default function CheckoutPage() {
                 <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
                   currentHub ? 'bg-teal-600 text-white' : 'bg-teal-400 text-white'
                 }`}>2</span>
-                <h3 className="font-semibold text-gray-800 text-sm">Điểm nhận hàng</h3>
+                <h3 className="font-semibold text-gray-800 text-sm">{t('step2')}</h3>
               </div>
 
               <div className="flex items-start justify-between gap-3">
@@ -431,8 +433,8 @@ export default function CheckoutPage() {
                       </>
                     ) : (
                       <>
-                        <p className="font-semibold text-sm text-teal-700">Chưa chọn trạm</p>
-                        <p className="text-xs text-teal-500 mt-0.5">Vui lòng chọn hub gần bạn</p>
+                        <p className="font-semibold text-sm text-teal-700">{t('noHubSelected')}</p>
+                        <p className="text-xs text-teal-500 mt-0.5">{t('selectHubPrompt')}</p>
                       </>
                     )}
                   </div>
@@ -447,7 +449,7 @@ export default function CheckoutPage() {
                   }`}
                 >
                   <Pencil className="h-3 w-3" />
-                  {currentHub ? 'Đổi' : 'Chọn'}
+                  {currentHub ? t('change') : t('select')}
                 </button>
               </div>
             </div>
@@ -456,7 +458,7 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
-                <h3 className="font-semibold text-gray-800 text-sm">Phương thức thanh toán</h3>
+                <h3 className="font-semibold text-gray-800 text-sm">{t('step3')}</h3>
               </div>
 
               {/* Partial wallet toggle — shown when 0 < balance < totalAmount */}
@@ -477,18 +479,12 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold ${useWalletToggle ? 'text-violet-700' : 'text-gray-600'}`}>
-                      Dùng số dư ví để giảm trừ
+                      {t('useWalletBalance')}
                     </p>
                     <p className="text-xs mt-0.5 text-gray-400">
-                      Trừ <span className="font-semibold text-violet-500">{formatPrice(walletBalance)}</span>
-                      {useWalletToggle && (
-                        <>
-                          {' '}
-                          <ArrowRight className="inline h-3 w-3 text-gray-300" />
-                          {' '}còn lại{' '}
-                          <span className="font-semibold text-orange-500">{formatPrice(remainingAfterWallet)}</span>
-                        </>
-                      )}
+                      {useWalletToggle
+                        ? t('walletToggleDesc', { balance: formatPrice(walletBalance), remaining: formatPrice(remainingAfterWallet) })
+                        : `${t('deductFromWallet')} ${formatPrice(walletBalance)}`}
                     </p>
                   </div>
                   <div className={`w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-all ${
@@ -506,12 +502,12 @@ export default function CheckoutPage() {
                   const walletInsufficient   = isWalletOpt && !hasFullWallet;
                   const isDisabled           = walletInsufficient;
                   const subLabel = isWalletOpt
-                    ? `Số dư: ${formatPrice(walletBalance)}${walletInsufficient ? ' — Không đủ' : ''}`
+                    ? `${t('walletBalance', { balance: formatPrice(walletBalance) })}${walletInsufficient ? ` — ${t('walletInsufficient')}` : ''}`
                     : (useWalletToggle && hasPartialWallet && opt.value !== 'Wallet')
                       ? opt.value === 'COD'
-                        ? `Trả ${formatPrice(remainingAfterWallet)} khi nhận tại trạm`
-                        : `Chuyển khoản ${formatPrice(remainingAfterWallet)}`
-                      : opt.sub;
+                        ? t('codPartialSub', { amount: formatPrice(remainingAfterWallet) })
+                        : t('bankPartialSub', { amount: formatPrice(remainingAfterWallet) })
+                      : t(opt.subKey);
 
                   return (
                     <button
@@ -532,7 +528,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}>
-                          {opt.label}
+                          {t(opt.labelKey)}
                         </p>
                         <p className={`text-xs mt-0.5 ${walletInsufficient ? 'text-red-400' : 'text-gray-400'}`}>
                           {subLabel}
@@ -555,12 +551,12 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs font-bold flex items-center justify-center shrink-0">4</span>
-                <h3 className="font-semibold text-gray-800 text-sm">Ghi chú đơn hàng</h3>
+                <h3 className="font-semibold text-gray-800 text-sm">{t('orderNoteLabel')}</h3>
               </div>
               <textarea
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 transition-colors"
                 rows={2}
-                placeholder="Ghi chú thêm (tuỳ chọn)..."
+                placeholder={t('orderNote')}
                 value={note}
                 onChange={e => setNote(e.target.value)}
               />
@@ -570,7 +566,7 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-500">
-                  <span>Tạm tính ({itemCount} sản phẩm)</span>
+                  <span>{t('subtotal', { count: itemCount })}</span>
                   <span className="font-medium text-gray-700">{formatPrice(totalAmount)}</span>
                 </div>
 
@@ -579,7 +575,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-violet-600">
                     <span className="flex items-center gap-1.5">
                       <Wallet className="h-3.5 w-3.5" />
-                      Trừ từ ví
+                      {t('deductFromWallet')}
                     </span>
                     <span className="font-semibold">-{formatPrice(walletBalance)}</span>
                   </div>
@@ -588,15 +584,15 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-violet-600">
                     <span className="flex items-center gap-1.5">
                       <Wallet className="h-3.5 w-3.5" />
-                      Thanh toán từ ví
+                      {t('payFromWallet')}
                     </span>
                     <span className="font-semibold">-{formatPrice(totalAmount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-gray-500">
-                  <span>Phí vận chuyển</span>
-                  <span className="text-teal-600 font-medium">Miễn phí</span>
+                  <span>{t('shippingFee')}</span>
+                  <span className="text-teal-600 font-medium">{t('free')}</span>
                 </div>
               </div>
 
@@ -604,7 +600,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-baseline">
                 <span className="font-bold text-gray-800">
-                  {(useWalletToggle && hasPartialWallet) ? 'Cần thanh toán thêm' : 'Tổng thanh toán'}
+                  {(useWalletToggle && hasPartialWallet) ? t('needToPayMore') : t('total')}
                 </span>
                 <span className={`text-2xl font-black ${
                   (useWalletToggle && hasPartialWallet) ? 'text-orange-500' : 'text-teal-600'
@@ -616,7 +612,7 @@ export default function CheckoutPage() {
               {!currentHub && (
                 <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 flex items-center gap-1.5">
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  Vui lòng chọn điểm nhận hàng để tiếp tục
+                  {t('noHubWarning')}
                 </p>
               )}
 
