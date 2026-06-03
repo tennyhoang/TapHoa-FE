@@ -16,4 +16,7 @@ export const authService = {
 
   changePassword: (currentPassword: string, newPassword: string) =>
     api.patch('/users/me/password', { currentPassword, newPassword }),
+
+  socialLogin: (provider: 'Google' | 'Facebook', token: string) =>
+    api.post<LoginResponse>('/auth/social-login', { provider, token }).then(r => r.data),
 };
