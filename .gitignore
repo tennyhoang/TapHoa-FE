@@ -49,5 +49,6 @@ next-env.d.ts
 .cursor/
 .vscode/
 .idea/
+.agents/
 CLAUDE.md
 AGENTS.md

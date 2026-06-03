@@ -47,12 +47,12 @@ export default function GlobalError({
             >
               Thử lại
             </button>
-            <a
-              href="/"
+            <button
+              onClick={() => { window.location.href = '/'; }}
               className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Về trang chủ
-            </a>
+            </button>
           </div>
         </div>
       </body>
