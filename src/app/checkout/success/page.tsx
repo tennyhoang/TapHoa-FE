@@ -16,9 +16,9 @@ import { formatPrice, formatDate } from '@/lib/format';
 import { toast } from 'sonner';
 
 const BANK_INFO = {
-  bankName:      'MB Bank',
-  accountNumber: '0785680242',
-  accountHolder: 'CONG TY TNHH TAPHOA SACH',
+  bankName: process.env.NEXT_PUBLIC_BANK_NAME ?? 'MB Bank',
+  accountNumber: process.env.NEXT_PUBLIC_BANK_ACCOUNT_NUMBER ?? '0785680242',
+  accountHolder: process.env.NEXT_PUBLIC_BANK_ACCOUNT_HOLDER ?? 'CONG TY TNHH TAPHOA SACH',
 };
 
 function transferNote(orderId: string) {
