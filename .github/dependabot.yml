@@ -1,0 +1,35 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Asia/Ho_Chi_Minh"
+    open-pull-requests-limit: 10
+    groups:
+      next-ecosystem:
+        patterns: ["next", "react", "react-dom", "next-intl"]
+      tanstack:
+        patterns: ["@tanstack*"]
+      sentry:
+        patterns: ["@sentry*"]
+      testing:
+        patterns: ["vitest*", "@playwright*", "@testing-library*", "@axe-core*"]
+      tooling:
+        patterns: ["prettier", "eslint*", "husky", "lint-staged", "@commitlint*"]
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "ci"

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+User-agent: *
+Disallow: /admin/
+Disallow: /agent/
+Disallow: /driver/
+Disallow: /profile/
+Disallow: /api/
+Disallow: /checkout/
+
+Sitemap: https://taphoa.vn/sitemap.xml

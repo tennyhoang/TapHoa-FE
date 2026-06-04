@@ -1,5 +1,17 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BookOpen, ArrowRight } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Cẩm nang ẩm thực',
+  description:
+    'Bí quyết chọn thực phẩm tươi, công thức nấu ăn và mẹo bảo quản từ chuyên gia TapHoa.',
+  openGraph: {
+    title: 'Cẩm nang ẩm thực | TapHoa',
+    description:
+      'Bí quyết chọn thực phẩm tươi, công thức nấu ăn và mẹo bảo quản từ chuyên gia TapHoa.',
+  },
+};
 import { Article } from '@/services/article.service';
 import { ArticleGrid } from '@/components/cam-nang/ArticleGrid';
 
@@ -19,7 +31,6 @@ export default async function CamNangPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-4 space-y-12">
-
       {/* Hero */}
       <section className="text-center space-y-4">
         <div
@@ -40,7 +51,8 @@ export default async function CamNangPage() {
           Kiến thức & kinh nghiệm mua sắm
         </h1>
         <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">
-          Tổng hợp các bài viết hữu ích về dinh dưỡng, cách chọn thực phẩm và mẹo tiết kiệm từ đội ngũ TapHoa.
+          Tổng hợp các bài viết hữu ích về dinh dưỡng, cách chọn thực phẩm và mẹo tiết kiệm từ đội
+          ngũ TapHoa.
         </p>
       </section>
 

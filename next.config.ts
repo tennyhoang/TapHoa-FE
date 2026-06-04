@@ -1,7 +1,18 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
+import createNextIntlPlugin from 'next-intl/plugin';
+import withSerwistInit from '@serwist/next';
+
+const withNextIntl = createNextIntlPlugin();
+
+const withSerwist = withSerwistInit({
+  swSrc: 'src/app/sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+});
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
@@ -12,7 +23,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(withSerwist(nextConfig)), {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,

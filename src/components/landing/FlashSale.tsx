@@ -21,7 +21,9 @@ function CountdownUnit({ value, label }: { value: string; label: string }) {
       >
         {value}
       </span>
-      <span className="text-[10px] font-semibold text-white/50 tracking-widest uppercase">{label}</span>
+      <span className="text-[10px] font-semibold text-white/50 tracking-widest uppercase">
+        {label}
+      </span>
     </div>
   );
 }
@@ -32,9 +34,8 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
   const queryClient = useQueryClient();
 
   const discountPct = Math.round((1 - item.flashSalePrice / item.originalPrice) * 100);
-  const stockPct    = item.flashSaleStock > 0
-    ? Math.round((item.soldCount / item.flashSaleStock) * 100)
-    : 100;
+  const stockPct =
+    item.flashSaleStock > 0 ? Math.round((item.soldCount / item.flashSaleStock) * 100) : 100;
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => cartService.add(item.id, 1),
@@ -58,7 +59,10 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
   };
 
   return (
-    <Link href={`/products/${item.id}`}>
+    <Link
+      href={`/products/${item.id}`}
+      aria-label={`${item.name} — giảm ${discountPct}%, còn ${item.stockRemaining} sản phẩm`}
+    >
       <div className="bg-[oklch(0.18_0.025_190)] rounded-2xl overflow-hidden border border-white/8 hover:border-white/20 hover:shadow-[0_4px_24px_black/30] transition-all duration-200 flex flex-col group">
         <div className="relative aspect-square overflow-hidden bg-[oklch(0.14_0.015_190)]">
           {item.thumbnailUrl ? (
@@ -71,7 +75,7 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-xs text-white/30">Chưa có ảnh</span>
+              <span className="text-xs text-white/60">Chưa có ảnh</span>
             </div>
           )}
           <span
@@ -90,41 +94,55 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
         </div>
 
         <div className="p-3 flex flex-col gap-2 flex-1">
-          <p className="text-xs font-semibold text-white/85 line-clamp-2 leading-snug">{item.name}</p>
+          <p className="text-xs font-semibold text-white/85 line-clamp-2 leading-snug">
+            {item.name}
+          </p>
 
           <div className="mt-auto space-y-1.5">
             <p className="font-black text-sm" style={{ color: 'oklch(0.75 0.155 55)' }}>
               {formatPrice(item.flashSalePrice)}
             </p>
-            <p className="text-white/35 text-xs line-through">{formatPrice(item.originalPrice)}</p>
+            <p
+              className="text-white/55 text-xs line-through"
+              aria-label={`Giá gốc ${formatPrice(item.originalPrice)}`}
+            >
+              {formatPrice(item.originalPrice)}
+            </p>
 
             <div className="space-y-0.5">
-              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div
+                role="progressbar"
+                aria-valuenow={stockPct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Đã bán ${stockPct}% số lượng`}
+                className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden"
+              >
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${stockPct}%`,
-                    background: stockPct > 80
-                      ? 'oklch(0.60 0.22 25)'
-                      : stockPct > 50
-                        ? 'oklch(0.75 0.155 55)'
-                        : 'oklch(0.57 0.135 196)',
+                    background:
+                      stockPct > 80
+                        ? 'oklch(0.60 0.22 25)'
+                        : stockPct > 50
+                          ? 'oklch(0.75 0.155 55)'
+                          : 'oklch(0.57 0.135 196)',
                   }}
                 />
               </div>
-              <p className="text-[10px] text-white/40">
-                Còn {item.stockRemaining} sản phẩm
-              </p>
+              <p className="text-[10px] text-white/65">Còn {item.stockRemaining} sản phẩm</p>
             </div>
           </div>
 
           <button
             onClick={handleAdd}
             disabled={isPending || item.stockRemaining <= 0}
+            aria-label={`Thêm ${item.name} vào giỏ hàng`}
             className="w-full text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40"
             style={{ background: 'oklch(0.57 0.135 196)', color: 'white' }}
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
+            <ShoppingCart className="h-3.5 w-3.5" aria-hidden="true" />
             {isPending ? 'Đang thêm...' : 'Thêm vào giỏ'}
           </button>
         </div>
@@ -151,8 +169,8 @@ export function FlashSale() {
         style={{ background: 'oklch(0.14 0.022 188)' }}
       >
         <div className="px-5 py-8 flex items-center gap-3">
-          <Zap className="h-5 w-5 text-white/30" />
-          <p className="text-white/30 text-sm">Hiện chưa có Flash Sale — quay lại sau nhé!</p>
+          <Zap className="h-5 w-5 text-white/50" aria-hidden="true" />
+          <p className="text-white/65 text-sm">Hiện chưa có Flash Sale — quay lại sau nhé!</p>
         </div>
       </section>
     );
@@ -173,23 +191,34 @@ export function FlashSale() {
               >
                 Live
               </span>
-              <span className="text-white font-editorial font-black text-2xl tracking-tight">Flash Sale</span>
+              <span className="text-white font-editorial font-black text-2xl tracking-tight">
+                Flash Sale
+              </span>
             </div>
-            <p className="text-white/40 text-xs">{session.name}</p>
+            <p className="text-white/65 text-xs">{session.name}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {countdown.isExpired ? (
-            <span className="text-white/40 text-xs animate-pulse">Đang tải phiên tiếp theo...</span>
+            <span className="text-white/65 text-xs animate-pulse">Đang tải phiên tiếp theo...</span>
           ) : (
             <>
-              <span className="text-white/40 text-xs">Kết thúc sau</span>
-              <div className="flex items-end gap-2">
-                <CountdownUnit value={countdown.hours}   label="Giờ"  />
-                <span className="text-white/30 font-black text-xl mb-5">:</span>
+              <span className="text-white/65 text-xs">Kết thúc sau</span>
+              <div
+                role="timer"
+                aria-live="polite"
+                aria-label={`Còn ${countdown.hours} giờ ${countdown.minutes} phút ${countdown.seconds} giây`}
+                className="flex items-end gap-2"
+              >
+                <CountdownUnit value={countdown.hours} label="Giờ" />
+                <span className="text-white/40 font-black text-xl mb-5" aria-hidden="true">
+                  :
+                </span>
                 <CountdownUnit value={countdown.minutes} label="Phút" />
-                <span className="text-white/30 font-black text-xl mb-5">:</span>
+                <span className="text-white/40 font-black text-xl mb-5" aria-hidden="true">
+                  :
+                </span>
                 <CountdownUnit value={countdown.seconds} label="Giây" />
               </div>
             </>
@@ -199,7 +228,7 @@ export function FlashSale() {
 
       <div className="px-4 pb-5">
         {session.products.length === 0 ? (
-          <p className="text-center py-12 text-white/30 text-sm">
+          <p className="text-center py-12 text-white/65 text-sm">
             Chưa có sản phẩm trong phiên Flash Sale này
           </p>
         ) : (

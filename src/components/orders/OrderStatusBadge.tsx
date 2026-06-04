@@ -1,6 +1,8 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { OrderStatus } from '@/types';
-import { ORDER_STATUS_LABEL } from '@/lib/format';
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   [OrderStatus.PendingPayment]:       'border-teal-200 bg-teal-50  text-teal-700',
@@ -18,8 +20,9 @@ interface Props {
 }
 
 export function OrderStatusBadge({ status, className }: Props) {
+  const t = useTranslations('Format.orderStatus');
   const style = STATUS_STYLES[status] ?? 'border-gray-200 bg-gray-50 text-gray-600';
-  const label = ORDER_STATUS_LABEL[status] ?? status;
+  const label = t(status);
   return (
     <Badge variant="outline" className={`${style} ${className ?? ''}`}>
       {label}

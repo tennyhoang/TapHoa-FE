@@ -1,11 +1,12 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100%;
 }
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -71,7 +72,7 @@ html, body {
   --secondary: oklch(0.956 0.012 195);
   --secondary-foreground: oklch(0.24 0.042 195);
 
-  --muted: oklch(0.960 0.008 90);
+  --muted: oklch(0.96 0.008 90);
   --muted-foreground: oklch(0.52 0.022 192);
 
   --accent: oklch(0.956 0.013 195);
@@ -79,7 +80,7 @@ html, body {
 
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.905 0.007 90);
-  --input: oklch(0.930 0.006 90);
+  --input: oklch(0.93 0.006 90);
   --ring: oklch(0.57 0.135 196);
 
   --radius: 0.75rem;
@@ -99,7 +100,7 @@ html, body {
 
   /* Sidebar — dark teal to match brand */
   --sidebar: oklch(0.13 0.015 195);
-  --sidebar-foreground: oklch(0.85 0.010 196);
+  --sidebar-foreground: oklch(0.85 0.01 196);
   --sidebar-primary: oklch(0.57 0.135 196);
   --sidebar-primary-foreground: oklch(0.985 0.004 196);
   --sidebar-accent: oklch(0.22 0.018 195);
@@ -109,20 +110,20 @@ html, body {
 }
 
 .dark {
-  --background: oklch(0.140 0.010 185);
-  --foreground: oklch(0.970 0.004 90);
+  --background: oklch(0.14 0.01 185);
+  --foreground: oklch(0.97 0.004 90);
   --card: oklch(0.195 0.012 185);
-  --card-foreground: oklch(0.970 0.004 90);
+  --card-foreground: oklch(0.97 0.004 90);
   --popover: oklch(0.195 0.012 185);
-  --popover-foreground: oklch(0.970 0.004 90);
+  --popover-foreground: oklch(0.97 0.004 90);
   --primary: oklch(0.68 0.12 196);
   --primary-foreground: oklch(0.15 0.022 185);
-  --secondary: oklch(0.255 0.020 185);
-  --secondary-foreground: oklch(0.970 0.004 90);
+  --secondary: oklch(0.255 0.02 185);
+  --secondary-foreground: oklch(0.97 0.004 90);
   --muted: oklch(0.255 0.015 185);
-  --muted-foreground: oklch(0.650 0.018 190);
-  --accent: oklch(0.255 0.020 185);
-  --accent-foreground: oklch(0.970 0.004 90);
+  --muted-foreground: oklch(0.65 0.018 190);
+  --accent: oklch(0.255 0.02 185);
+  --accent-foreground: oklch(0.97 0.004 90);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -133,11 +134,11 @@ html, body {
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.195 0.012 185);
-  --sidebar-foreground: oklch(0.970 0.004 90);
+  --sidebar-foreground: oklch(0.97 0.004 90);
   --sidebar-primary: oklch(0.68 0.12 196);
   --sidebar-primary-foreground: oklch(0.15 0.022 185);
   --sidebar-accent: oklch(0.255 0.015 185);
-  --sidebar-accent-foreground: oklch(0.970 0.004 90);
+  --sidebar-accent-foreground: oklch(0.97 0.004 90);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.68 0.12 196);
 }
@@ -152,7 +153,10 @@ html, body {
   html {
     @apply font-sans;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-heading), 'Georgia', serif;
   }
 }
@@ -164,8 +168,14 @@ html, body {
 
 /* Smooth slide fade */
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-slide-up {
   animation: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -173,9 +183,45 @@ html, body {
 
 /* Fade in */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .animate-fade-in {
   animation: fade-in 0.3s ease both;
+}
+
+/* ── Accessibility ──────────────────────────────────────────────────────────── */
+
+/* Respect user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Consistent focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Ensure interactive elements always show focus ring when keyboard-navigated */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
