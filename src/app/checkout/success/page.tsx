@@ -1,12 +1,16 @@
-'use client';
-
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
-  CheckCircle2, Copy, Banknote, ShoppingBag,
-  ArrowRight, ClipboardList, Building2, MapPin,
+  CheckCircle2,
+  Copy,
+  Banknote,
+  ShoppingBag,
+  ArrowRight,
+  ClipboardList,
+  Building2,
+  MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -16,9 +20,9 @@ import { formatPrice, formatDate } from '@/lib/format';
 import { toast } from 'sonner';
 
 const BANK_INFO = {
-  bankName: process.env.NEXT_PUBLIC_BANK_NAME ?? 'MB Bank',
-  accountNumber: process.env.NEXT_PUBLIC_BANK_ACCOUNT_NUMBER ?? '0785680242',
-  accountHolder: process.env.NEXT_PUBLIC_BANK_ACCOUNT_HOLDER ?? 'CONG TY TNHH TAPHOA SACH',
+  bankName: process.env.NEXT_PUBLIC_BANK_NAME!,
+  accountNumber: process.env.NEXT_PUBLIC_BANK_ACCOUNT_NUMBER!,
+  accountHolder: process.env.NEXT_PUBLIC_BANK_ACCOUNT_HOLDER!,
 };
 
 function transferNote(orderId: string) {
@@ -59,7 +63,9 @@ function SuccessContent() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center">
         <p className="text-gray-500">Không tìm thấy thông tin đơn hàng.</p>
-        <Button asChild variant="outline"><Link href="/">Về trang chủ</Link></Button>
+        <Button asChild variant="outline">
+          <Link href="/">Về trang chủ</Link>
+        </Button>
       </div>
     );
   }
@@ -109,7 +115,9 @@ function SuccessContent() {
             <div className="flex justify-between">
               <span className="text-gray-500">Mã đơn</span>
               <div className="flex items-center gap-1">
-                <span className="font-mono font-semibold text-gray-800">#{order.id.slice(-8).toUpperCase()}</span>
+                <span className="font-mono font-semibold text-gray-800">
+                  #{order.id.slice(-8).toUpperCase()}
+                </span>
                 <CopyButton value={order.id} label="mã đơn" />
               </div>
             </div>
@@ -138,7 +146,9 @@ function SuccessContent() {
                     {item.productName}
                     <span className="text-gray-400 ml-1">×{item.quantity}</span>
                   </span>
-                  <span className="font-medium text-gray-800 ml-2 shrink-0">{formatPrice(item.subtotal)}</span>
+                  <span className="font-medium text-gray-800 ml-2 shrink-0">
+                    {formatPrice(item.subtotal)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -177,16 +187,25 @@ function SuccessContent() {
 
           <div className="space-y-3 text-sm">
             {[
-              { label: 'Ngân hàng',     value: BANK_INFO.bankName,        canCopy: false },
-              { label: 'Số tài khoản',  value: BANK_INFO.accountNumber,   canCopy: true  },
-              { label: 'Chủ tài khoản', value: BANK_INFO.accountHolder,   canCopy: false },
-              { label: 'Số tiền',       value: order ? formatPrice(order.totalAmount) : '—', canCopy: false },
-              { label: 'Nội dung CK',   value: note,                      canCopy: true  },
+              { label: 'Ngân hàng', value: BANK_INFO.bankName, canCopy: false },
+              { label: 'Số tài khoản', value: BANK_INFO.accountNumber, canCopy: true },
+              { label: 'Chủ tài khoản', value: BANK_INFO.accountHolder, canCopy: false },
+              {
+                label: 'Số tiền',
+                value: order ? formatPrice(order.totalAmount) : '—',
+                canCopy: false,
+              },
+              { label: 'Nội dung CK', value: note, canCopy: true },
             ].map(row => (
-              <div key={row.label} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-blue-100">
+              <div
+                key={row.label}
+                className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-blue-100"
+              >
                 <span className="text-blue-700">{row.label}</span>
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-blue-900 font-mono text-right">{row.value}</span>
+                  <span className="font-semibold text-blue-900 font-mono text-right">
+                    {row.value}
+                  </span>
                   {row.canCopy && <CopyButton value={row.value} label={row.label} />}
                 </div>
               </div>
@@ -194,8 +213,9 @@ function SuccessContent() {
           </div>
 
           <p className="text-xs text-blue-600 bg-blue-100 rounded-lg px-3 py-2 leading-relaxed">
-            Vui lòng chuyển khoản đúng <strong>nội dung</strong> và <strong>số tiền</strong> để đơn hàng được xử lý nhanh nhất.
-            Đơn hàng sẽ được xác nhận trong vòng 30 phút sau khi nhận được thanh toán.
+            Vui lòng chuyển khoản đúng <strong>nội dung</strong> và <strong>số tiền</strong> để đơn
+            hàng được xử lý nhanh nhất. Đơn hàng sẽ được xác nhận trong vòng 30 phút sau khi nhận
+            được thanh toán.
           </p>
         </div>
       )}
@@ -206,7 +226,10 @@ function SuccessContent() {
           <Banknote className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
           <div className="text-sm text-green-800 space-y-1">
             <p className="font-semibold">Thanh toán khi nhận hàng (COD)</p>
-            <p className="text-green-700">Bạn sẽ thanh toán bằng tiền mặt tại trạm hub khi nhận hàng. Không cần thực hiện thêm thao tác nào.</p>
+            <p className="text-green-700">
+              Bạn sẽ thanh toán bằng tiền mặt tại trạm hub khi nhận hàng. Không cần thực hiện thêm
+              thao tác nào.
+            </p>
           </div>
         </div>
       )}
@@ -221,7 +244,11 @@ function SuccessContent() {
             </Link>
           </Button>
         )}
-        <Button asChild variant="outline" className="flex-1 rounded-xl h-11 border-emerald-200 text-emerald-600">
+        <Button
+          asChild
+          variant="outline"
+          className="flex-1 rounded-xl h-11 border-emerald-200 text-emerald-600"
+        >
           <Link href="/">
             <ShoppingBag className="h-4 w-4 mr-2" />
             Tiếp tục mua sắm

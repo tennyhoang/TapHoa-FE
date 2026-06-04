@@ -21,7 +21,14 @@
   },
   "Header": {
     "logoSub": "Thực phẩm tươi sạch",
-    "hotKeywords": ["Rau cải sạch", "Trái cây tươi", "Sữa hữu cơ", "Thịt bò Úc", "Gạo ST25", "Bánh mì nguyên cám"],
+    "hotKeywords": [
+      "Rau cải sạch",
+      "Trái cây tươi",
+      "Sữa hữu cơ",
+      "Thịt bò Úc",
+      "Gạo ST25",
+      "Bánh mì nguyên cám"
+    ],
     "popularSearches": "Tìm kiếm phổ biến",
     "searchPlaceholder": "Tìm sản phẩm...",
     "searchButton": "Tìm",
@@ -117,9 +124,14 @@
     "walletLabel": "Thanh toán bằng ví",
     "walletSub": "Trừ trực tiếp từ ví TapHoa",
     "codPartialSub": "Trả {amount} khi nhận tại trạm",
-    "bankPartialSub": "Chuyển khoản {amount}"
+    "bankPartialSub": "Chuyển khoản {amount}",
+    "removeItem": "Xóa sản phẩm",
+    "termsAgreement": "Bằng cách đặt hàng, bạn đồng ý với điều khoản sử dụng"
   },
   "HeroSection": {
+    "viewAll": "Xem tất cả",
+    "prevSlide": "Trước",
+    "nextSlide": "Sau",
     "slides": [
       {
         "eyebrow": "VietGAP Certified",
@@ -146,6 +158,22 @@
   },
   "InterBanner": {
     "defaultCta": "Xem ngay"
+  },
+  "HomePage": {
+    "newArrivalsTitle": "Hàng mới về",
+    "newArrivalsSubtitle": "Thu hoạch sáng — có mặt tại Hub trong ngày",
+    "fruitsTitle": "Trái cây tươi",
+    "fruitsSubtitle": "Nhập khẩu và nội địa, nguồn gốc rõ ràng",
+    "discountTitle": "Giá tốt mỗi ngày",
+    "discountSubtitle": "Ưu đãi cập nhật liên tục, không cần chờ flash sale",
+    "banner1Badge": "Chứng nhận VietGAP",
+    "banner1Title": "Rau củ quả tươi sạch từ nông trại",
+    "banner1Sub": "Kiểm định chất lượng từng lô hàng trước khi đến tay bạn — minh bạch nguồn gốc.",
+    "banner1Cta": "Đặt mua ngay",
+    "banner2Badge": "Tiết kiệm mỗi ngày",
+    "banner2Title": "Thực phẩm tươi sống chất lượng",
+    "banner2Sub": "Thịt, cá, trứng, sữa — tươi ngon, nhận nhanh tại Hub gần nhà bạn.",
+    "banner2Cta": "Xem giá tốt"
   },
   "LoginPage": {
     "title": "Đăng nhập",

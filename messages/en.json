@@ -21,7 +21,14 @@
   },
   "Header": {
     "logoSub": "Fresh & Clean Food",
-    "hotKeywords": ["Fresh Vegetables", "Fresh Fruit", "Organic Milk", "Australian Beef", "ST25 Rice", "Whole Wheat Bread"],
+    "hotKeywords": [
+      "Fresh Vegetables",
+      "Fresh Fruit",
+      "Organic Milk",
+      "Australian Beef",
+      "ST25 Rice",
+      "Whole Wheat Bread"
+    ],
     "popularSearches": "Popular Searches",
     "searchPlaceholder": "Search products...",
     "searchButton": "Search",
@@ -117,9 +124,14 @@
     "walletLabel": "Wallet Payment",
     "walletSub": "Deduct directly from TapHoa wallet",
     "codPartialSub": "Pay {amount} at pickup",
-    "bankPartialSub": "Transfer {amount}"
+    "bankPartialSub": "Transfer {amount}",
+    "removeItem": "Remove item",
+    "termsAgreement": "By placing your order, you agree to our terms of service"
   },
   "HeroSection": {
+    "viewAll": "View All",
+    "prevSlide": "Previous",
+    "nextSlide": "Next",
     "slides": [
       {
         "eyebrow": "VietGAP Certified",
@@ -146,6 +158,22 @@
   },
   "InterBanner": {
     "defaultCta": "Shop Now"
+  },
+  "HomePage": {
+    "newArrivalsTitle": "New Arrivals",
+    "newArrivalsSubtitle": "Harvested in the morning — at your Hub by afternoon",
+    "fruitsTitle": "Fresh Fruit",
+    "fruitsSubtitle": "Imported and local, verified origins",
+    "discountTitle": "Best Deals Daily",
+    "discountSubtitle": "Deals updated continuously — no need to wait for flash sales",
+    "banner1Badge": "VietGAP Certified",
+    "banner1Title": "Fresh Vegetables Direct from the Farm",
+    "banner1Sub": "Quality-checked every batch before reaching you — fully transparent sourcing.",
+    "banner1Cta": "Order Now",
+    "banner2Badge": "Save Daily",
+    "banner2Title": "Quality Fresh Produce",
+    "banner2Sub": "Meat, fish, eggs, dairy — fresh and fast pickup at your nearest Hub.",
+    "banner2Cta": "See Best Prices"
   },
   "LoginPage": {
     "title": "Sign In",

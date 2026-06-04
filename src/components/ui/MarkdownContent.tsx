@@ -1,5 +1,3 @@
-'use client';
-
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
@@ -40,7 +38,9 @@ const largeComponents: Components = {
   em: ({ children }) => <em className="italic">{children}</em>,
   ul: ({ children }) => <ul className="list-disc ml-5 space-y-2 mb-4">{children}</ul>,
   ol: ({ children }) => <ol className="list-decimal ml-5 space-y-2 mb-4">{children}</ol>,
-  li: ({ children }) => <li className="text-base text-muted-foreground leading-relaxed">{children}</li>,
+  li: ({ children }) => (
+    <li className="text-base text-muted-foreground leading-relaxed">{children}</li>
+  ),
   blockquote: ({ children }) => (
     <blockquote className="border-l-2 border-primary/40 pl-4 text-muted-foreground italic my-3">
       {children}
@@ -55,7 +55,10 @@ interface Props {
 
 export function MarkdownContent({ content, size = 'sm' }: Props) {
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={size === 'lg' ? largeComponents : components}>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={size === 'lg' ? largeComponents : components}
+    >
       {content}
     </ReactMarkdown>
   );

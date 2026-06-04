@@ -7,15 +7,18 @@ import { useTranslations } from 'next-intl';
 
 const SLIDE_ASSETS = [
   {
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1400&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1400&q=85&auto=format&fit=crop',
     accent: 'oklch(0.54 0.158 145)',
   },
   {
-    image: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=1400&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=1400&q=85&auto=format&fit=crop',
     accent: 'oklch(0.75 0.155 55)',
   },
   {
-    image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&q=85&auto=format&fit=crop',
     accent: 'oklch(0.57 0.135 196)',
   },
 ];
@@ -33,14 +36,17 @@ export function HeroSection() {
     href: string;
   }[];
 
-  const go = useCallback((next: number) => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setCurrent(next);
-      setAnimating(false);
-    }, 300);
-  }, [animating]);
+  const go = useCallback(
+    (next: number) => {
+      if (animating) return;
+      setAnimating(true);
+      setTimeout(() => {
+        setCurrent(next);
+        setAnimating(false);
+      }, 300);
+    },
+    [animating]
+  );
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -91,18 +97,18 @@ export function HeroSection() {
               border: `1px solid ${asset.accent}66`,
             }}
           >
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ background: asset.accent }}
-            />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: asset.accent }} />
             {slide?.eyebrow}
           </span>
 
-          <h1 className="font-editorial font-black text-white mb-4 leading-[1.05]"
+          <h1
+            className="font-editorial font-black text-white mb-4 leading-[1.05]"
             style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)' }}
           >
             {slide?.title?.split('\n').map((line: string, i: number) => (
-              <span key={i} className="block">{line}</span>
+              <span key={i} className="block">
+                {line}
+              </span>
             ))}
           </h1>
 
@@ -116,15 +122,24 @@ export function HeroSection() {
               className="inline-flex items-center gap-2 bg-white text-foreground font-bold px-7 py-3 rounded-full text-sm hover:bg-primary hover:text-white transition-all duration-200 shadow-lg"
             >
               {slide?.cta}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </Link>
             <Link
               href="/products"
               className="text-white/80 hover:text-white text-sm font-medium transition-colors underline-offset-2 hover:underline"
             >
-              Xem tất cả
+              {t('viewAll')}
             </Link>
           </div>
         </div>
@@ -152,16 +167,38 @@ export function HeroSection() {
       <button
         onClick={() => go((current - 1 + SLIDES.length) % SLIDES.length)}
         className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
-        aria-label="Trước"
+        aria-label={t('prevSlide')}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
       </button>
       <button
         onClick={() => go((current + 1) % SLIDES.length)}
         className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
-        aria-label="Sau"
+        aria-label={t('nextSlide')}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
       </button>
 
       <div className="absolute top-5 right-6 text-white/60 text-xs font-mono z-10 hidden md:block">

@@ -1,0 +1,16 @@
+.next/
+node_modules/
+.git/
+.github/
+.husky/
+.storybook/
+out/
+coverage/
+*.log
+*.md
+.env
+.env.*
+!.env.production
+.DS_Store
+Dockerfile
+.dockerignore

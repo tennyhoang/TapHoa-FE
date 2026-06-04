@@ -22,7 +22,6 @@ export function Footer() {
 
   return (
     <footer style={{ background: 'oklch(0.13 0.022 188)', color: 'oklch(0.62 0.03 192)' }}>
-
       {/* Newsletter strip */}
       <div style={{ borderBottom: '1px solid oklch(1 0 0 / 0.08)' }}>
         <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -34,19 +33,31 @@ export function Footer() {
               <Leaf className="h-5 w-5" style={{ color: 'oklch(0.72 0.13 196)' }} />
             </div>
             <div>
-              <p className="text-white font-editorial font-bold text-lg leading-tight">Nhận ưu đãi mỗi tuần</p>
+              <p className="text-white font-editorial font-bold text-lg leading-tight">
+                Nhận ưu đãi mỗi tuần
+              </p>
               <p className="text-sm mt-0.5" style={{ color: 'oklch(0.55 0.028 192)' }}>
                 Thực đơn gợi ý, mẹo chọn thực phẩm tươi và khuyến mãi sớm nhất
               </p>
             </div>
           </div>
-          <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto shrink-0">
+          <form
+            onSubmit={handleSubscribe}
+            className="flex gap-2 w-full md:w-auto shrink-0"
+            role="form"
+            aria-label="Đăng ký nhận ưu đãi"
+          >
+            <label htmlFor="newsletter-email" className="sr-only">
+              Địa chỉ email
+            </label>
             <input
+              id="newsletter-email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="Email của bạn..."
               required
+              aria-required="true"
               className="flex-1 md:w-60 px-4 py-2.5 rounded-xl text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 transition-all"
               style={{
                 background: 'oklch(1 0 0 / 0.07)',
@@ -55,6 +66,7 @@ export function Footer() {
             />
             <button
               type="submit"
+              aria-label="Đăng ký nhận bản tin"
               className="text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors shrink-0"
               style={{ background: 'oklch(0.57 0.135 196)' }}
             >
@@ -67,7 +79,6 @@ export function Footer() {
       {/* Main */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
           {/* Brand */}
           <div className="space-y-5">
             <div className="flex items-center gap-2.5">
@@ -75,21 +86,34 @@ export function Footer() {
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{ background: 'oklch(0.57 0.135 196)' }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
-                  <circle cx="12" cy="9" r="2.5" fill="white" stroke="none"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" />
+                  <circle cx="12" cy="9" r="2.5" fill="white" stroke="none" />
                 </svg>
               </div>
               <span className="text-white font-editorial font-black text-xl">TapHoa</span>
             </div>
 
             <p className="text-sm leading-relaxed" style={{ color: 'oklch(0.52 0.025 192)' }}>
-              Nền tảng thực phẩm tươi sạch — rau củ VietGAP, trái cây nhập khẩu, thịt cá tươi ngon, nhận tại Hub gần nhà bạn.
+              Nền tảng thực phẩm tươi sạch — rau củ VietGAP, trái cây nhập khẩu, thịt cá tươi ngon,
+              nhận tại Hub gần nhà bạn.
             </p>
 
             <ul className="space-y-2.5 text-sm">
               <li className="flex items-start gap-2.5">
-                <MapPin className="h-4 w-4 shrink-0 mt-0.5" style={{ color: 'oklch(0.68 0.13 196)' }} />
+                <MapPin
+                  className="h-4 w-4 shrink-0 mt-0.5"
+                  style={{ color: 'oklch(0.68 0.13 196)' }}
+                />
                 <span>123 Nguyễn Văn Cừ, Quận 1, TP. HCM</span>
               </li>
               <li className="flex items-center gap-2.5">
@@ -117,10 +141,7 @@ export function Footer() {
                 { label: 'Liên hệ', href: '/lien-he' },
               ].map(item => (
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="transition-colors hover:text-white"
-                  >
+                  <Link href={item.href} className="transition-colors hover:text-white">
                     {item.label}
                   </Link>
                 </li>
@@ -155,10 +176,15 @@ export function Footer() {
               <ul className="space-y-3">
                 {HUBS.map(hub => (
                   <li key={hub.name} className="flex items-start gap-2.5 text-xs">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: 'oklch(0.68 0.13 196)' }} />
+                    <MapPin
+                      className="h-3.5 w-3.5 shrink-0 mt-0.5"
+                      style={{ color: 'oklch(0.68 0.13 196)' }}
+                    />
                     <div>
                       <p className="text-white font-medium">{hub.name}</p>
-                      <p className="mt-0.5" style={{ color: 'oklch(0.48 0.02 192)' }}>{hub.address}</p>
+                      <p className="mt-0.5" style={{ color: 'oklch(0.48 0.02 192)' }}>
+                        {hub.address}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -220,7 +246,9 @@ export function Footer() {
           <p>© 2026 TapHoa. Tất cả quyền được bảo lưu.</p>
           <div className="flex gap-5">
             {['Chính sách bảo mật', 'Điều khoản', 'Hỗ trợ'].map(t => (
-              <a key={t} href="#" className="hover:text-white transition-colors">{t}</a>
+              <a key={t} href="#" className="hover:text-white transition-colors">
+                {t}
+              </a>
             ))}
           </div>
         </div>
