@@ -1,6 +1,5 @@
-'use client';
-
 import { Suspense } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { SubBanners } from '@/components/landing/SubBanners';
 import { FlashSale } from '@/components/landing/FlashSale';
@@ -10,7 +9,9 @@ import { InterBanner } from '@/components/landing/InterBanner';
 import { BlogSection } from '@/components/landing/BlogSection';
 import { Partners } from '@/components/landing/Partners';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const t = await getTranslations('HomePage');
+
   return (
     <Suspense>
       <div className="-mx-4 -mt-6">
@@ -26,42 +27,42 @@ export default function HomePage() {
       </div>
 
       <ProductSection
-        title="Hàng mới về"
-        subtitle="Thu hoạch sáng — có mặt tại Hub trong ngày"
+        title={t('newArrivalsTitle')}
+        subtitle={t('newArrivalsSubtitle')}
         queryKey="products-new"
         params={{ isNew: true, sortBy: 'newest' }}
         viewAllHref="/products?isNew=true"
       />
 
       <InterBanner
-        badge="Chứng nhận VietGAP"
-        title="Rau củ quả tươi sạch từ nông trại"
-        sub="Kiểm định chất lượng từng lô hàng trước khi đến tay bạn — minh bạch nguồn gốc."
-        cta="Đặt mua ngay"
+        badge={t('banner1Badge')}
+        title={t('banner1Title')}
+        sub={t('banner1Sub')}
+        cta={t('banner1Cta')}
         href="/products?isNew=true"
         imageKey="farm"
       />
 
       <ProductSection
-        title="Trái cây tươi"
-        subtitle="Nhập khẩu và nội địa, nguồn gốc rõ ràng"
+        title={t('fruitsTitle')}
+        subtitle={t('fruitsSubtitle')}
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
         viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
       />
 
       <InterBanner
-        badge="Tiết kiệm mỗi ngày"
-        title="Thực phẩm tươi sống chất lượng"
-        sub="Thịt, cá, trứng, sữa — tươi ngon, nhận nhanh tại Hub gần nhà bạn."
-        cta="Xem giá tốt"
+        badge={t('banner2Badge')}
+        title={t('banner2Title')}
+        sub={t('banner2Sub')}
+        cta={t('banner2Cta')}
         href="/products?isDiscount=true"
         imageKey="fresh"
       />
 
       <ProductSection
-        title="Giá tốt mỗi ngày"
-        subtitle="Ưu đãi cập nhật liên tục, không cần chờ flash sale"
+        title={t('discountTitle')}
+        subtitle={t('discountSubtitle')}
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
         viewAllHref="/products?isDiscount=true"

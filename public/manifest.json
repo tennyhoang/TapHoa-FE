@@ -1,0 +1,25 @@
+{
+  "name": "TapHoa — Thực phẩm tươi sạch",
+  "short_name": "TapHoa",
+  "description": "Rau củ VietGAP, trái cây tươi, thịt cá sạch — đặt online, nhận tại Hub gần nhà bạn.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0EA5AE",
+  "orientation": "portrait-primary",
+  "lang": "vi",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "food"],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Trang chủ TapHoa"
+    }
+  ]
+}
