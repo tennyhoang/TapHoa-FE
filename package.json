@@ -15,7 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@base-ui/react": "^1.4.1",
+    "@base-ui/react": "^1.5.0",
     "@react-oauth/google": "^0.12.1",
     "@sentry/nextjs": "^10.56.0",
     "@serwist/next": "^9.5.11",
