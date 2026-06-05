@@ -1,5 +1,5 @@
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { Serwist } from 'serwist';
+import { Serwist, CacheFirst, NetworkFirst, ExpirationPlugin } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-declare const self: ServiceWorkerGlobalScope;
+declare const self: WorkerGlobalScope;
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -17,24 +17,24 @@ const serwist = new Serwist({
   runtimeCaching: [
     {
       matcher: /^https:\/\/images\.unsplash\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
+      handler: new CacheFirst({
         cacheName: 'unsplash-images',
-        expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
-      },
+        plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 })],
+      }),
     },
     {
       matcher: /^https:\/\/res\.cloudinary\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
+      handler: new CacheFirst({
         cacheName: 'cloudinary-images',
-        expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
-      },
+        plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 })],
+      }),
     },
     {
       matcher: ({ request }) => request.destination === 'document',
-      handler: 'NetworkFirst',
-      options: { cacheName: 'pages', networkTimeoutSeconds: 3 },
+      handler: new NetworkFirst({
+        cacheName: 'pages',
+        networkTimeoutSeconds: 3,
+      }),
     },
   ],
 });

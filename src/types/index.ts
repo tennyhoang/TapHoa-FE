@@ -95,13 +95,14 @@ export interface OrderHubInfo {
 }
 
 export enum OrderStatus {
-  PendingPayment      = 'PendingPayment',
+  PendingPayment = 'PendingPayment',
   Paid_WaitingForBatch = 'Paid_WaitingForBatch',
-  ShippingToHub       = 'ShippingToHub',
+  PackedAtWarehouse = 'PackedAtWarehouse',
+  ShippingToHub = 'ShippingToHub',
   InHub_ReadyForPickup = 'InHub_ReadyForPickup',
-  Completed           = 'Completed',
-  Cancelled           = 'Cancelled',
-  Refunded            = 'Refunded',
+  Completed = 'Completed',
+  Cancelled = 'Cancelled',
+  Refunded = 'Refunded',
 }
 
 export interface Order {

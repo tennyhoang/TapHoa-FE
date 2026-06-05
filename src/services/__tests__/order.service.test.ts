@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { orderService } from '../order.service';
+import { OrderStatus } from '@/types';
 
 vi.mock('@/lib/api', () => ({
   default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
@@ -62,8 +63,10 @@ describe('orderService', () => {
 
   it('updateOrderStatus patches status', async () => {
     mockApi.patch.mockResolvedValue({ data: order });
-    const result = await orderService.updateOrderStatus('o1', 'Shipping');
-    expect(mockApi.patch).toHaveBeenCalledWith('/orders/o1/status', { status: 'Shipping' });
+    const result = await orderService.updateOrderStatus('o1', OrderStatus.ShippingToHub);
+    expect(mockApi.patch).toHaveBeenCalledWith('/orders/o1/status', {
+      status: OrderStatus.ShippingToHub,
+    });
     expect(result).toEqual(order);
   });
 
@@ -100,9 +103,9 @@ describe('orderService', () => {
 
   it('getAgentOrders accepts custom params', async () => {
     mockApi.get.mockResolvedValue({ data: { items: [order], totalCount: 1 } });
-    await orderService.getAgentOrders({ status: 'Shipping', page: 2, pageSize: 10 });
+    await orderService.getAgentOrders({ status: OrderStatus.ShippingToHub, page: 2, pageSize: 10 });
     expect(mockApi.get).toHaveBeenCalledWith('/agent/orders', {
-      params: { status: 'Shipping', page: 2, pageSize: 10 },
+      params: { status: OrderStatus.ShippingToHub, page: 2, pageSize: 10 },
     });
   });
 

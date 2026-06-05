@@ -9,8 +9,8 @@ const baseOrder = {
   totalAmount: 150000,
   createdAt: '2024-06-01T08:00:00Z',
   items: [
-    { productId: 'p1', productName: 'Rau muống', quantity: 2, subtotal: 30000 },
-    { productId: 'p2', productName: 'Thịt heo', quantity: 1, subtotal: 120000 },
+    { productId: 'p1', productName: 'Rau muống', quantity: 2, unitPrice: 15000, subtotal: 30000 },
+    { productId: 'p2', productName: 'Thịt heo', quantity: 1, unitPrice: 120000, subtotal: 120000 },
   ],
   hub: {
     id: 'h1',
