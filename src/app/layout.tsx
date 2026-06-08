@@ -25,7 +25,7 @@ const playfair = Playfair_Display({
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taphoa.vn';
-const OG_IMAGE = `${BASE_URL}/og-image.jpg`;
+const OG_IMAGE = `${BASE_URL}/og-image.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
