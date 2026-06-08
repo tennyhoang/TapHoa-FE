@@ -1,14 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
-import { Providers } from '@/lib/providers';
-import { Topbar } from '@/components/landing/Topbar';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -57,40 +49,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const messages = await getMessages();
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={`${inter.variable} ${playfair.variable}`}>
       <body
         className="font-sans bg-background text-foreground min-h-screen flex flex-col"
         suppressHydrationWarning
       >
-        {/* Skip-to-content: visible only on keyboard focus */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-xl focus:font-semibold focus:shadow-lg focus:outline-none"
-        >
-          Đi đến nội dung chính
-        </a>
-
-        <NextIntlClientProvider messages={messages}>
-          <Providers>
-            <Topbar />
-            <Header />
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 focus:outline-none"
-              suppressHydrationWarning
-            >
-              {children}
-            </main>
-            <Footer />
-          </Providers>
-        </NextIntlClientProvider>
-        <Analytics />
-        <SpeedInsights />
+        {children}
       </body>
     </html>
   );
