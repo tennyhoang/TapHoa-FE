@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@react-oauth/google": "^0.12.1",
+    "@react-oauth/google": "^0.13.5",
     "@sentry/nextjs": "^10.56.0",
     "@serwist/next": "^9.5.11",
     "@tanstack/react-query": "^5.100.10",
