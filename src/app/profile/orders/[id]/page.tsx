@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Copy, RefreshCw, MapPin, Package, Wallet } from 'lucide-react';
+import { ArrowLeft, Copy, RefreshCw, MapPin, Package, Wallet, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
@@ -12,18 +12,19 @@ import { orderService } from '@/services/order.service';
 import { useAuthStore } from '@/store/auth.store';
 import { OrderStatus } from '@/types';
 import { formatPrice, formatDate } from '@/lib/format';
+import { useOrderTracking } from '@/hooks/useOrderTracking';
 
-const BANK_NAME    = 'MB Bank';
-const BANK_CODE    = 'MB';
-const ACCOUNT_NO   = '0000000001';
+const BANK_NAME = 'MB Bank';
+const BANK_CODE = 'MB';
+const ACCOUNT_NO = '0000000001';
 const ACCOUNT_NAME = 'TAPHOA TEST';
 
 const STATUS_STEPS: { status: OrderStatus; label: string }[] = [
-  { status: OrderStatus.PendingPayment,       label: 'Chờ TT'    },
-  { status: OrderStatus.Paid_WaitingForBatch, label: 'Đã TT'     },
-  { status: OrderStatus.ShippingToHub,        label: 'Đang giao' },
-  { status: OrderStatus.InHub_ReadyForPickup, label: 'Tại Hub'   },
-  { status: OrderStatus.Completed,            label: 'Xong'      },
+  { status: OrderStatus.PendingPayment, label: 'Chờ TT' },
+  { status: OrderStatus.Paid_WaitingForBatch, label: 'Đã TT' },
+  { status: OrderStatus.ShippingToHub, label: 'Đang giao' },
+  { status: OrderStatus.InHub_ReadyForPickup, label: 'Tại Hub' },
+  { status: OrderStatus.Completed, label: 'Xong' },
 ];
 
 function OrderTimeline({ status }: { status: OrderStatus }) {
@@ -36,9 +37,10 @@ function OrderTimeline({ status }: { status: OrderStatus }) {
           <div className="flex flex-col items-center">
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors
-                ${i <= currentIdx
-                  ? 'bg-teal-600 border-teal-600 text-white'
-                  : 'bg-white border-stone-200 text-stone-400'
+                ${
+                  i <= currentIdx
+                    ? 'bg-teal-600 border-teal-600 text-white'
+                    : 'bg-white border-stone-200 text-stone-400'
                 }`}
             >
               {i < currentIdx ? '✓' : i + 1}
@@ -63,9 +65,9 @@ function OrderTimeline({ status }: { status: OrderStatus }) {
 }
 
 function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string }) {
-  const addInfo       = encodeURIComponent(paymentRef);
+  const addInfo = encodeURIComponent(paymentRef);
   const accountNameEnc = encodeURIComponent(ACCOUNT_NAME);
-  const qrUrl         = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NO}-compact2.jpg?amount=${amount}&addInfo=${addInfo}&accountName=${accountNameEnc}`;
+  const qrUrl = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NO}-compact2.jpg?amount=${amount}&addInfo=${addInfo}&accountName=${accountNameEnc}`;
 
   const copyRef = () => {
     navigator.clipboard.writeText(paymentRef);
@@ -104,7 +106,11 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
             <span className="text-stone-400">Nội dung CK</span>
             <div className="flex items-center gap-2">
               <span className="font-black font-mono text-teal-700">{paymentRef}</span>
-              <button type="button" onClick={copyRef} className="text-teal-400 hover:text-teal-600 transition-colors">
+              <button
+                type="button"
+                onClick={copyRef}
+                className="text-teal-400 hover:text-teal-600 transition-colors"
+              >
                 <Copy className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -113,7 +119,8 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
 
         <p className="text-[11px] text-teal-600 text-center leading-relaxed">
           Hệ thống tự động xác nhận sau khi nhận được tiền (trong vòng 1 phút).
-          <br />Nhập đúng nội dung chuyển khoản để được xử lý nhanh nhất.
+          <br />
+          Nhập đúng nội dung chuyển khoản để được xử lý nhanh nhất.
         </p>
       </div>
     </div>
@@ -121,10 +128,10 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
 }
 
 export default function OrderDetailPage() {
-  const { id }        = useParams<{ id: string }>();
-  const router        = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const queryClient   = useQueryClient();
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { isAuthenticated, token } = useAuthStore();
+  const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -135,17 +142,28 @@ export default function OrderDetailPage() {
     if (mounted && !isAuthenticated()) router.replace('/auth/login');
   }, [mounted]);
 
-  const { data: order, isLoading, refetch } = useQuery({
+  const {
+    data: order,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['order', id],
-    queryFn:  () => orderService.getById(id),
-    enabled:  mounted && isAuthenticated(),
-    refetchInterval: (query) =>
+    queryFn: () => orderService.getById(id),
+    enabled: mounted && isAuthenticated(),
+    refetchInterval: query =>
       query.state.data?.status === OrderStatus.PendingPayment ? 15_000 : false,
   });
 
+  const handleOrderUpdate = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['order', id] });
+    queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+  }, [queryClient, id]);
+
+  useOrderTracking(mounted ? token : null, id, handleOrderUpdate);
+
   const cancelMutation = useMutation({
     mutationFn: () => orderService.cancelOrder(id),
-    onSuccess:  () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['order', id] });
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       toast.success('Đã hủy đơn hàng');
@@ -176,8 +194,9 @@ export default function OrderDetailPage() {
     );
   }
 
-  const canCancel = order.status === OrderStatus.PendingPayment
-    || order.status === OrderStatus.Paid_WaitingForBatch;
+  const canCancel =
+    order.status === OrderStatus.PendingPayment ||
+    order.status === OrderStatus.Paid_WaitingForBatch;
   const isCancelled = order.status === OrderStatus.Cancelled;
 
   return (
@@ -200,7 +219,10 @@ export default function OrderDetailPage() {
             </h1>
             <button
               type="button"
-              onClick={() => { navigator.clipboard.writeText(order.id); toast.success('Đã sao chép mã đơn'); }}
+              onClick={() => {
+                navigator.clipboard.writeText(order.id);
+                toast.success('Đã sao chép mã đơn');
+              }}
               className="text-stone-300 hover:text-teal-500 transition-colors p-1.5 rounded-lg hover:bg-teal-50"
               title="Sao chép mã đơn"
             >
@@ -238,8 +260,8 @@ export default function OrderDetailPage() {
             <div className="bg-violet-50 border border-violet-200 rounded-2xl px-5 py-3 flex items-center gap-3">
               <Wallet className="h-4 w-4 text-violet-500 shrink-0" />
               <p className="text-sm text-violet-700">
-                <span className="font-semibold">{formatPrice(order.walletAmountUsed!)}</span>
-                {' '}đã được trừ từ ví — quét mã QR để thanh toán phần còn lại.
+                <span className="font-semibold">{formatPrice(order.walletAmountUsed!)}</span> đã
+                được trừ từ ví — quét mã QR để thanh toán phần còn lại.
               </p>
             </div>
           )}
@@ -258,7 +280,9 @@ export default function OrderDetailPage() {
             <MapPin className="h-4 w-4 text-teal-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Điểm nhận hàng</p>
+            <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-1">
+              Điểm nhận hàng
+            </p>
             <p className="font-semibold text-stone-800">{order.hub?.name}</p>
             {order.hub && (
               <p className="text-sm text-stone-500 mt-0.5 leading-relaxed">
@@ -292,12 +316,16 @@ export default function OrderDetailPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold line-clamp-1 text-stone-800">{item.productName}</p>
+                  <p className="text-sm font-semibold line-clamp-1 text-stone-800">
+                    {item.productName}
+                  </p>
                   <p className="text-xs text-stone-400 mt-0.5">
                     x{item.quantity} × {formatPrice(item.unitPrice)}
                   </p>
                 </div>
-                <p className="text-sm font-bold shrink-0 text-stone-700">{formatPrice(item.subtotal)}</p>
+                <p className="text-sm font-bold shrink-0 text-stone-700">
+                  {formatPrice(item.subtotal)}
+                </p>
               </div>
             ))}
           </div>
@@ -314,7 +342,9 @@ export default function OrderDetailPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-stone-500">Tổng cộng</span>
-              <span className="text-xl font-black text-teal-600">{formatPrice(order.totalAmount)}</span>
+              <span className="text-xl font-black text-teal-600">
+                {formatPrice(order.totalAmount)}
+              </span>
             </div>
             {(order.walletAmountUsed ?? 0) > 0 && (
               <div className="flex items-center justify-between text-sm">
@@ -322,18 +352,45 @@ export default function OrderDetailPage() {
                   <Wallet className="h-3.5 w-3.5" />
                   Đã thanh toán qua ví
                 </span>
-                <span className="font-semibold text-violet-600">-{formatPrice(order.walletAmountUsed!)}</span>
+                <span className="font-semibold text-violet-600">
+                  -{formatPrice(order.walletAmountUsed!)}
+                </span>
               </div>
             )}
           </div>
         </div>
       </div>
 
+      {/* Delivery photo */}
+      {order.status === OrderStatus.Completed && order.deliveryPhotoUrl && (
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
+            <Camera className="h-4 w-4 text-teal-500" />
+            <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">
+              Ảnh xác nhận giao hàng
+            </p>
+          </div>
+          <div className="p-5">
+            <div className="relative rounded-xl overflow-hidden bg-stone-50 aspect-video">
+              <Image
+                src={order.deliveryPhotoUrl}
+                alt="Ảnh xác nhận giao hàng"
+                fill
+                className="object-cover"
+                sizes="(max-width: 672px) 100vw, 672px"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Cancel button */}
       {canCancel && (
         <button
           type="button"
-          onClick={() => { if (confirm('Xác nhận hủy đơn hàng?')) cancelMutation.mutate(); }}
+          onClick={() => {
+            if (confirm('Xác nhận hủy đơn hàng?')) cancelMutation.mutate();
+          }}
           disabled={cancelMutation.isPending}
           className="w-full h-12 rounded-xl border-2 border-red-200 text-red-500 font-semibold text-sm hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50"
         >
