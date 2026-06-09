@@ -175,3 +175,90 @@ export interface Review {
   createdAt: string;
   sentiment: string;
 }
+
+export type ClaimType =
+  | 'DamagedProduct'
+  | 'WrongProduct'
+  | 'MissingProduct'
+  | 'LateDelivery'
+  | 'Other';
+
+export type ClaimStatus = 'Pending' | 'UnderReview' | 'Resolved' | 'Rejected';
+
+export interface Claim {
+  id: string;
+  orderId: string;
+  type: ClaimType;
+  description: string;
+  status: ClaimStatus;
+  createdAt: string;
+  resolvedAt?: string;
+  resolution?: string;
+}
+
+export interface VoucherResponse {
+  code: string;
+  discountType: 'Percent' | 'Flat';
+  discountValue: number;
+  label: string;
+}
+
+export interface WarehouseDashboardInfo {
+  id: string;
+  name: string;
+  address: string;
+  district: string;
+  province: string;
+  isActive: boolean;
+}
+
+export interface WarehouseDashboard {
+  warehouse: WarehouseDashboardInfo | null;
+  pendingOrders: number;
+  packedOrders: number;
+  shippingOrders: number;
+  packedToday: number;
+  activeDrivers: number;
+  lowStockProducts: number;
+}
+
+export interface WarehouseOrderItem {
+  productId: string;
+  name: string;
+  thumbnailUrl?: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface WarehouseOrder {
+  id: string;
+  status: 'Paid_WaitingForBatch' | 'PackedAtWarehouse' | 'ShippingToHub';
+  totalAmount: number;
+  createdAt: string;
+  paidAt?: string;
+  packedAtWarehouseAt?: string;
+  note?: string;
+  hub: { id: string; name: string; address: string };
+  customer: { fullName: string; phoneNumber?: string };
+  items: WarehouseOrderItem[];
+}
+
+export interface WarehouseInventoryItem {
+  id: string;
+  name: string;
+  thumbnailUrl?: string;
+  stock: number;
+  price: number;
+  categoryName: string;
+  isLowStock: boolean;
+  isOutOfStock: boolean;
+}
+
+export interface WarehouseDriver {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  isActive: boolean;
+  activeOrders: number;
+}
