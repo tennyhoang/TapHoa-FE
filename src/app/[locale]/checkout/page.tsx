@@ -230,7 +230,17 @@ export default function CheckoutPage() {
       ? Math.round((rawTotal * appliedVoucher.discountValue) / 100)
       : appliedVoucher.discountValue
     : 0;
-  const totalAmount = Math.max(0, rawTotal - voucherDiscount);
+
+  // BR-013: shipping fee based on Hub config
+  const hubMinOrder = currentHub?.minimumOrderAmount ?? 50_000;
+  const hubFreeShip = currentHub?.freeShippingThreshold ?? 200_000;
+  const hubShipFee = currentHub?.shippingFee ?? 15_000;
+  const shippingFee = rawTotal >= hubFreeShip ? 0 : hubShipFee;
+  const freeShipRemaining = Math.max(0, hubFreeShip - rawTotal);
+  const minOrderMet = rawTotal >= hubMinOrder;
+  const minOrderRemaining = Math.max(0, hubMinOrder - rawTotal);
+
+  const totalAmount = Math.max(0, rawTotal + shippingFee - voucherDiscount);
   const itemCount = cart.items.reduce((s, i) => s + i.quantity, 0);
   const hasFullWallet = walletBalance >= totalAmount;
   const hasPartialWallet = walletBalance > 0 && walletBalance < totalAmount;
@@ -721,10 +731,23 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* BR-013: shipping fee */}
                 <div className="flex justify-between text-gray-500">
                   <span>{t('shippingFee')}</span>
-                  <span className="text-teal-600 font-medium">{t('free')}</span>
+                  {shippingFee === 0 ? (
+                    <span className="text-teal-600 font-medium">{t('free')}</span>
+                  ) : (
+                    <span className="font-medium">{formatPrice(shippingFee)}</span>
+                  )}
                 </div>
+
+                {/* BR-013: free shipping progress */}
+                {freeShipRemaining > 0 && minOrderMet && (
+                  <p className="text-xs text-teal-700 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
+                    🚴 Mua thêm <strong>{formatPrice(freeShipRemaining)}</strong> để được miễn phí
+                    ship
+                  </p>
+                )}
               </div>
 
               <Separator />
@@ -751,9 +774,19 @@ export default function CheckoutPage() {
                 </p>
               )}
 
+              {/* BR-013: minimum order warning */}
+              {currentHub && !minOrderMet && (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  Đơn tối thiểu <strong className="ml-1">{formatPrice(hubMinOrder)}</strong>
+                  <span className="mx-1">—</span>
+                  cần thêm <strong className="ml-1">{formatPrice(minOrderRemaining)}</strong>
+                </p>
+              )}
+
               <Button
                 type="submit"
-                disabled={createOrderMutation.isPending || !currentHub}
+                disabled={createOrderMutation.isPending || !currentHub || !minOrderMet}
                 className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
               >
                 {submitLabel()}

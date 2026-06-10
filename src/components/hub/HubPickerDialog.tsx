@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -13,14 +14,25 @@ interface Props {
 
 export function HubPickerDialog({ open, onOpenChange }: Props) {
   const { currentHub, setHub } = useHubStore();
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | undefined>();
+
+  // BR-009: request location once when dialog opens
+  useEffect(() => {
+    if (!open || coords) return;
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      pos => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {} // silently ignore denial
+    );
+  }, [open]);
 
   const {
     data: hubs,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['hubs-active'],
-    queryFn: hubService.getActive,
+    queryKey: ['hubs-active', coords?.lat, coords?.lng],
+    queryFn: () => hubService.getActive(coords),
     enabled: open,
     staleTime: 5 * 60 * 1000,
   });
@@ -39,7 +51,9 @@ export function HubPickerDialog({ open, onOpenChange }: Props) {
             Chọn điểm nhận hàng
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Chọn hub gần bạn nhất để xem sản phẩm và nhận hàng nhanh chóng.
+            {coords
+              ? 'Đang sắp xếp hub theo khoảng cách đến vị trí của bạn.'
+              : 'Chọn hub gần bạn nhất để xem sản phẩm và nhận hàng nhanh chóng.'}
           </p>
         </DialogHeader>
 

@@ -2,6 +2,6 @@ import api from '@/lib/api';
 import { Hub } from '@/store/hub.store';
 
 export const hubService = {
-  getActive: () =>
-    api.get<Hub[]>('/hubs', { params: { isActive: true } }).then(r => r.data),
+  getActive: (params?: { lat?: number; lng?: number }) =>
+    api.get<Hub[]>('/hubs', { params: { ...(params ?? {}) } }).then(r => r.data),
 };

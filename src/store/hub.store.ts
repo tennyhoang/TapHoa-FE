@@ -10,6 +10,9 @@ export interface Hub {
   province?: string;
   phoneNumber?: string;
   isActive: boolean;
+  minimumOrderAmount?: number;
+  freeShippingThreshold?: number;
+  shippingFee?: number;
 }
 
 interface HubState {
@@ -20,9 +23,9 @@ interface HubState {
 
 export const useHubStore = create<HubState>()(
   persist(
-    (set) => ({
+    set => ({
       currentHub: null,
-      setHub: (hub) => set({ currentHub: hub }),
+      setHub: hub => set({ currentHub: hub }),
       clearHub: () => set({ currentHub: null }),
     }),
     { name: 'hub-storage' }
