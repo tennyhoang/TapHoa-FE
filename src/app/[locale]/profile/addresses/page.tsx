@@ -33,7 +33,7 @@ type AddressForm = {
 
 export default function AddressesPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -49,8 +49,8 @@ export default function AddressesPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]);
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data: addresses, isLoading } = useQuery({
     queryKey: ['addresses'],

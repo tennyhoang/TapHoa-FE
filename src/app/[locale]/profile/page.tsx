@@ -129,7 +129,7 @@ function ChangePasswordDialog({
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, login, token, user: storeUser } = useAuthStore();
+  const { isAuthenticated, login, token, user: storeUser, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [pwDialogOpen, setPwDialogOpen] = useState(false);
@@ -139,8 +139,8 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],

@@ -31,7 +31,7 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAdmin, isAuthenticated, logout } = useAuthStore();
+  const { isAdmin, isAuthenticated, logout, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -40,10 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (mounted && (!isAuthenticated() || !isAdmin())) {
+    if (mounted && _hydrated && (!isAuthenticated() || !isAdmin())) {
       router.replace('/');
     }
-  }, [mounted]);
+  }, [mounted, _hydrated]);
 
   if (!mounted) return null;
   if (!isAuthenticated() || !isAdmin()) return null;

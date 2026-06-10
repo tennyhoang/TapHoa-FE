@@ -52,7 +52,6 @@ export function Header() {
   const NAV_LINKS = t.raw('navLinks') as { label: string; href: string }[];
 
   useEffect(() => {
-    useAuthStore.persist.rehydrate();
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);

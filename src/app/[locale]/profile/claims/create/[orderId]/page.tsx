@@ -37,7 +37,7 @@ const CLAIM_TYPES: ClaimOption[] = [
 export default function CreateClaimPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = use(params);
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [selectedType, setSelectedType] = useState<ClaimType | null>(null);
@@ -49,8 +49,8 @@ export default function CreateClaimPage({ params }: { params: Promise<{ orderId:
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const createMutation = useMutation({
     mutationFn: () =>

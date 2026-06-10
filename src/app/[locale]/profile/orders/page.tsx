@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(undefined);
@@ -31,8 +31,8 @@ export default function OrdersPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]);
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['my-orders', statusFilter, dateFrom, dateTo, sortByAmount],

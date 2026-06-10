@@ -69,7 +69,7 @@ function ClaimCard({ claim }: { claim: Claim }) {
 
 export default function ClaimsPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -78,8 +78,8 @@ export default function ClaimsPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['my-claims'],

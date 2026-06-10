@@ -62,7 +62,7 @@ const PAYMENT_OPTIONS: {
 export default function CheckoutPage() {
   const router = useRouter();
   const t = useTranslations('Checkout');
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const { currentHub } = useHubStore();
   const queryClient = useQueryClient();
 
@@ -88,8 +88,8 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data: cart, isLoading: cartLoading } = useQuery({
     queryKey: ['cart'],

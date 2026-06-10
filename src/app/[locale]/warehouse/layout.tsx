@@ -17,7 +17,7 @@ const navItems = [
 export default function WarehouseLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isWarehouseManager, isAuthenticated, logout } = useAuthStore();
+  const { isWarehouseManager, isAuthenticated, logout, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,10 +26,10 @@ export default function WarehouseLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    if (mounted && (!isAuthenticated() || !isWarehouseManager())) {
+    if (mounted && _hydrated && (!isAuthenticated() || !isWarehouseManager())) {
       router.replace('/');
     }
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mounted, _hydrated]);
 
   if (!mounted) return null;
   if (!isAuthenticated() || !isWarehouseManager()) return null;

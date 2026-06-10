@@ -90,7 +90,7 @@ function NotificationRow({
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
@@ -102,8 +102,8 @@ export default function NotificationsPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['notifications'],

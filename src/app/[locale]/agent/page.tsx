@@ -144,7 +144,7 @@ function HistoryOrderCard({ order }: { order: Order }) {
 
 export default function AgentPage() {
   const router = useRouter();
-  const { isAuthenticated, isAgent } = useAuthStore();
+  const { isAuthenticated, isAgent, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
@@ -155,8 +155,8 @@ export default function AgentPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && (!isAuthenticated() || !isAgent())) router.replace('/');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && (!isAuthenticated() || !isAgent())) router.replace('/');
+  }, [mounted, _hydrated]);
 
   const { data: incomingData, isLoading: loadingIncoming } = useQuery({
     queryKey: ['agent-orders', 'shipping'],

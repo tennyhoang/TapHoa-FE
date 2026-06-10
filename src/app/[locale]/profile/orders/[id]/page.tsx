@@ -130,7 +130,7 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { isAuthenticated, token } = useAuthStore();
+  const { isAuthenticated, token, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
@@ -139,8 +139,8 @@ export default function OrderDetailPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]);
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const {
     data: order,

@@ -67,8 +67,9 @@ describe('auth.store', () => {
     expect(useAuthStore.getState().isWarehouseManager()).toBe(true);
   });
 
-  it('should persist token in localStorage', () => {
+  it('should persist token via zustand persist middleware', () => {
     useAuthStore.getState().login('persist-token', 'test@example.com', 'Test User', 'Admin');
-    expect(localStorage.getItem('token')).toBe('persist-token');
+    const stored = JSON.parse(localStorage.getItem('auth-storage') ?? '{}');
+    expect(stored.state.token).toBe('persist-token');
   });
 });
