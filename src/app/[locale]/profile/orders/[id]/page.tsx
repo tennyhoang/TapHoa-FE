@@ -130,7 +130,7 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { isAuthenticated, token } = useAuthStore();
+  const { isAuthenticated, token, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
@@ -139,8 +139,8 @@ export default function OrderDetailPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]);
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const {
     data: order,
@@ -198,6 +198,7 @@ export default function OrderDetailPage() {
     order.status === OrderStatus.PendingPayment ||
     order.status === OrderStatus.Paid_WaitingForBatch;
   const isCancelled = order.status === OrderStatus.Cancelled;
+  const canClaim = order.status === OrderStatus.Completed;
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 pb-8">
@@ -382,6 +383,17 @@ export default function OrderDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Claim button */}
+      {canClaim && (
+        <button
+          type="button"
+          onClick={() => router.push(`/profile/claims/create/${id}`)}
+          className="w-full h-12 rounded-xl border-2 border-amber-200 text-amber-600 font-semibold text-sm hover:bg-amber-50 hover:border-amber-300 transition-colors"
+        >
+          Gửi khiếu nại
+        </button>
       )}
 
       {/* Cancel button */}

@@ -153,7 +153,7 @@ function OrderCard({ order, accentColor }: { order: Order; accentColor: string }
 
 export default function DriverPage() {
   const router = useRouter();
-  const { isAuthenticated, isDriver } = useAuthStore();
+  const { isAuthenticated, isDriver, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -167,8 +167,8 @@ export default function DriverPage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && (!isAuthenticated() || !isDriver())) router.replace('/');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && (!isAuthenticated() || !isDriver())) router.replace('/');
+  }, [mounted, _hydrated]);
 
   const {
     data: warehouseData,

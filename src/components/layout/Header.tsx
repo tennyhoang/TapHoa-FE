@@ -17,12 +17,14 @@ import {
   ChevronDown,
   Phone,
   Menu,
+  Bell,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
 import { useQuery } from '@tanstack/react-query';
 import { cartService } from '@/services/cart.service';
+import { notificationService } from '@/services/notification.service';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import {
   DropdownMenu,
@@ -50,7 +52,6 @@ export function Header() {
   const NAV_LINKS = t.raw('navLinks') as { label: string; href: string }[];
 
   useEffect(() => {
-    useAuthStore.persist.rehydrate();
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
@@ -62,7 +63,15 @@ export function Header() {
     enabled: mounted && isAuthenticated(),
   });
 
+  const { data: notifUnread } = useQuery({
+    queryKey: ['notification-unread'],
+    queryFn: notificationService.getUnreadCount,
+    enabled: mounted && isAuthenticated(),
+    refetchInterval: 60_000,
+  });
+
   const cartCount = cart?.items.reduce((s, i) => s + i.quantity, 0) ?? 0;
+  const unreadCount = notifUnread?.count ?? 0;
 
   const handleLogout = () => {
     logout();
@@ -160,6 +169,22 @@ export function Header() {
               </button>
             </Link>
 
+            {mounted && isAuthenticated() && (
+              <Link href="/profile/notifications" onClick={() => setMobileMenuOpen(false)}>
+                <button className="relative flex flex-col items-center text-muted-foreground hover:text-primary transition-colors p-1.5 sm:p-2 rounded-xl hover:bg-primary/8">
+                  <div className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-teal-500 text-white text-[10px] font-bold rounded-full h-4 min-w-4 px-0.5 flex items-center justify-center leading-none">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] hidden sm:block mt-0.5 font-medium">Thông báo</span>
+                </button>
+              </Link>
+            )}
+
             <div className="hidden sm:block">
               {!mounted ? (
                 <div className="w-16 h-10" />
@@ -201,6 +226,20 @@ export function Header() {
                       className="rounded-xl"
                     >
                       <MapPin className="mr-2 h-4 w-4" /> {t('addresses')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push('/profile/notifications')}
+                      className="rounded-xl"
+                    >
+                      <Bell className="mr-2 h-4 w-4" />
+                      <span className="flex items-center gap-2">
+                        Thông báo
+                        {unreadCount > 0 && (
+                          <span className="text-[10px] font-bold bg-teal-100 text-teal-700 rounded-full px-1.5 py-0.5 leading-none">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </span>
                     </DropdownMenuItem>
                     {isAdmin() && (
                       <>

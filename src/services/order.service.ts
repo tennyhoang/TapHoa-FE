@@ -1,5 +1,12 @@
 import api from '@/lib/api';
-import { DriverHubBatch, Order, OrderFilterParams, OrderStatus, PagedResult, UpdateOrderStatusRequest } from '@/types';
+import {
+  DriverHubBatch,
+  Order,
+  OrderFilterParams,
+  OrderStatus,
+  PagedResult,
+  UpdateOrderStatusRequest,
+} from '@/types';
 
 export interface CreateOrderRequest {
   hubId: string;
@@ -8,26 +15,30 @@ export interface CreateOrderRequest {
   note?: string;
   paymentMethod: 'COD' | 'BankTransfer' | 'Wallet';
   useWallet?: boolean;
+  voucherCode?: string;
 }
 
 export const orderService = {
   getMyOrders: (params: OrderFilterParams = {}) =>
-    api.get<PagedResult<Order>>('/orders/my', { params: { page: 1, pageSize: 10, ...params } }).then(r => r.data),
+    api
+      .get<PagedResult<Order>>('/orders/my', { params: { page: 1, pageSize: 10, ...params } })
+      .then(r => r.data),
 
   getAllOrders: (params: OrderFilterParams = {}) =>
-    api.get<PagedResult<Order>>('/orders/all', { params: { page: 1, pageSize: 10, ...params } }).then(r => r.data),
+    api
+      .get<PagedResult<Order>>('/orders/all', { params: { page: 1, pageSize: 10, ...params } })
+      .then(r => r.data),
 
-  getById: (id: string) =>
-    api.get<Order>(`/orders/${id}`).then(r => r.data),
+  getById: (id: string) => api.get<Order>(`/orders/${id}`).then(r => r.data),
 
-  create: (data: CreateOrderRequest) =>
-    api.post<Order>('/orders', data).then(r => r.data),
+  create: (data: CreateOrderRequest) => api.post<Order>('/orders', data).then(r => r.data),
 
-  cancelOrder: (id: string) =>
-    api.patch<Order>(`/orders/${id}/cancel`).then(r => r.data),
+  cancelOrder: (id: string) => api.patch<Order>(`/orders/${id}/cancel`).then(r => r.data),
 
   updateOrderStatus: (id: string, status: OrderStatus) =>
-    api.patch<Order>(`/orders/${id}/status`, { status } satisfies UpdateOrderStatusRequest).then(r => r.data),
+    api
+      .patch<Order>(`/orders/${id}/status`, { status } satisfies UpdateOrderStatusRequest)
+      .then(r => r.data),
 
   // Driver: confirm pickup from warehouse (Confirmed → Shipping)
   driverPickup: (orderIds: string[]) =>
@@ -43,17 +54,22 @@ export const orderService = {
 
   // Agent: get orders for agent's hub
   getAgentOrders: (params: { status?: OrderStatus; page?: number; pageSize?: number } = {}) =>
-    api.get<PagedResult<Order>>('/agent/orders', { params: { page: 1, pageSize: 20, ...params } }).then(r => r.data),
+    api
+      .get<PagedResult<Order>>('/agent/orders', { params: { page: 1, pageSize: 20, ...params } })
+      .then(r => r.data),
 
   // Driver: get Paid_WaitingForBatch orders grouped by hub
-  getDriverOrders: () =>
-    api.get<DriverHubBatch[]>('/driver/orders').then(r => r.data),
+  getDriverOrders: () => api.get<DriverHubBatch[]>('/driver/orders').then(r => r.data),
 
   // Driver: orders already picked up (ShippingToHub)
   getDriverShippingOrders: () =>
-    api.get<PagedResult<Order>>('/driver/orders/shipping', { params: { pageSize: 50 } }).then(r => r.data),
+    api
+      .get<PagedResult<Order>>('/driver/orders/shipping', { params: { pageSize: 50 } })
+      .then(r => r.data),
 
   // Driver: completed deliveries today
   getDriverCompletedOrders: () =>
-    api.get<PagedResult<Order>>('/driver/orders/delivered', { params: { pageSize: 30 } }).then(r => r.data),
+    api
+      .get<PagedResult<Order>>('/driver/orders/delivered', { params: { pageSize: 30 } })
+      .then(r => r.data),
 };

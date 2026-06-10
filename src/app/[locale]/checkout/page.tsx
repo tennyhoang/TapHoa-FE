@@ -31,13 +31,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HubPickerDialog } from '@/components/hub/HubPickerDialog';
+import { VoucherInput } from '@/components/checkout/VoucherInput';
 import { cartService } from '@/services/cart.service';
 import { orderService, CreateOrderRequest } from '@/services/order.service';
 import { addressService } from '@/services/address.service';
 import { walletService } from '@/services/wallet.service';
 import { useAuthStore } from '@/store/auth.store';
 import { useHubStore } from '@/store/hub.store';
-import { Cart } from '@/types';
+import { Cart, VoucherResponse } from '@/types';
 import { formatPrice } from '@/lib/format';
 
 type PaymentMethod = 'COD' | 'BankTransfer' | 'Wallet';
@@ -61,7 +62,7 @@ const PAYMENT_OPTIONS: {
 export default function CheckoutPage() {
   const router = useRouter();
   const t = useTranslations('Checkout');
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const { currentHub } = useHubStore();
   const queryClient = useQueryClient();
 
@@ -71,6 +72,8 @@ export default function CheckoutPage() {
   const [useWalletToggle, setUseWalletToggle] = useState(false);
   const [hubDialogOpen, setHubDialogOpen] = useState(false);
   const [addrOpen, setAddrOpen] = useState(false);
+  const [appliedVoucher, setAppliedVoucher] = useState<VoucherResponse | null>(null);
+  const [voucherCode, setVoucherCode] = useState('');
 
   const {
     register,
@@ -85,8 +88,8 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data: cart, isLoading: cartLoading } = useQuery({
     queryKey: ['cart'],
@@ -162,6 +165,7 @@ export default function CheckoutPage() {
         paymentMethod,
         note: note || undefined,
         useWallet: useWalletToggle && hasPartialWallet,
+        voucherCode: voucherCode || undefined,
       };
       return orderService.create(payload);
     },
@@ -220,7 +224,13 @@ export default function CheckoutPage() {
   }
 
   const walletBalance = walletData?.balance ?? 0;
-  const totalAmount = cart.totalAmount;
+  const rawTotal = cart.totalAmount;
+  const voucherDiscount = appliedVoucher
+    ? appliedVoucher.discountType === 'Percent'
+      ? Math.round((rawTotal * appliedVoucher.discountValue) / 100)
+      : appliedVoucher.discountValue
+    : 0;
+  const totalAmount = Math.max(0, rawTotal - voucherDiscount);
   const itemCount = cart.items.reduce((s, i) => s + i.quantity, 0);
   const hasFullWallet = walletBalance >= totalAmount;
   const hasPartialWallet = walletBalance > 0 && walletBalance < totalAmount;
@@ -654,13 +664,42 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {/* 5. Summary + Submit */}
+            {/* 5. Voucher */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs font-bold flex items-center justify-center shrink-0">
+                  5
+                </span>
+                <h3 className="font-semibold text-gray-800 text-sm">Mã giảm giá</h3>
+              </div>
+              <VoucherInput
+                appliedVoucher={appliedVoucher}
+                onApply={(voucher, code) => {
+                  setAppliedVoucher(voucher);
+                  setVoucherCode(code);
+                }}
+                onRemove={() => {
+                  setAppliedVoucher(null);
+                  setVoucherCode('');
+                }}
+                cartTotal={rawTotal}
+              />
+            </div>
+
+            {/* 6. Summary + Submit */}
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-500">
                   <span>{t('subtotal', { count: itemCount })}</span>
-                  <span className="font-medium text-gray-700">{formatPrice(totalAmount)}</span>
+                  <span className="font-medium text-gray-700">{formatPrice(rawTotal)}</span>
                 </div>
+
+                {voucherDiscount > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span className="flex items-center gap-1.5">Mã giảm giá ({voucherCode})</span>
+                    <span className="font-semibold">-{formatPrice(voucherDiscount)}</span>
+                  </div>
+                )}
 
                 {/* Wallet deduction row */}
                 {useWalletToggle && hasPartialWallet && (

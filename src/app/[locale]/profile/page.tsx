@@ -6,7 +6,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { Pencil, User, KeyRound, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Pencil, User, KeyRound, MessageSquare, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -128,7 +129,7 @@ function ChangePasswordDialog({
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, login, token, user: storeUser } = useAuthStore();
+  const { isAuthenticated, login, token, user: storeUser, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [pwDialogOpen, setPwDialogOpen] = useState(false);
@@ -138,8 +139,8 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (mounted && !isAuthenticated()) router.replace('/auth/login');
-  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mounted && _hydrated && !isAuthenticated()) router.replace('/auth/login');
+  }, [mounted, _hydrated]);
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -255,8 +256,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Change password trigger */}
-              <div className="pt-1 border-t border-gray-100">
+              {/* Quick links */}
+              <div className="pt-1 border-t border-gray-100 space-y-1">
                 <button
                   type="button"
                   onClick={() => setPwDialogOpen(true)}
@@ -265,6 +266,13 @@ export default function ProfilePage() {
                   <KeyRound className="h-4 w-4" />
                   Đổi mật khẩu
                 </button>
+                <Link
+                  href="/profile/claims"
+                  className="flex items-center gap-2 text-sm text-gray-500 hover:text-amber-600 transition-colors py-1"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Khiếu nại của tôi
+                </Link>
               </div>
             </div>
           ) : (

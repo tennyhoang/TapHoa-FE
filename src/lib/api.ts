@@ -1,25 +1,26 @@
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/auth.store';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5084/api/v1',
 });
 
-api.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+api.interceptors.request.use(config => {
+  const token = useAuthStore.getState().token;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
 api.interceptors.response.use(
-  (res) => res,
-  (error) => {
+  res => res,
+  error => {
     if (typeof window === 'undefined') return Promise.reject(error);
 
     const status = error.response?.status;
 
     if (status === 401) {
-      localStorage.removeItem('token');
+      useAuthStore.getState().logout();
       window.location.href = '/auth/login';
       return Promise.reject(error);
     }
