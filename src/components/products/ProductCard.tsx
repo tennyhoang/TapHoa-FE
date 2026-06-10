@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/format';
@@ -13,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 export function ProductCard({ product }: { product: Product }) {
-  const [hovered, setHovered] = useState(false);
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
@@ -45,11 +43,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div
-        className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-primary/30 hover:shadow-[0_4px_24px_oklch(0.57_0.135_196/0.12)] transition-all duration-200 cursor-pointer flex flex-col h-full group"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+      <div className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-primary/30 hover:shadow-[0_4px_24px_oklch(0.57_0.135_196/0.12)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col h-full group">
         {/* Image */}
         <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: '1/1' }}>
           {product.thumbnailUrl ? (
@@ -88,26 +82,6 @@ export function ProductCard({ product }: { product: Product }) {
               </span>
             </div>
           )}
-
-          {/* Add to cart — slide up on hover */}
-          {product.stock > 0 && (
-            <div
-              className="absolute bottom-0 left-0 right-0 p-2.5 transition-all duration-250"
-              style={{
-                opacity: hovered ? 1 : 0,
-                transform: hovered ? 'translateY(0)' : 'translateY(8px)',
-              }}
-            >
-              <button
-                onClick={handleAddToCart}
-                disabled={addToCartMutation.isPending}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-2 text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-colors disabled:opacity-60"
-              >
-                <ShoppingCart className="h-3.5 w-3.5" />
-                {addToCartMutation.isPending ? 'Đang thêm...' : 'Thêm vào giỏ'}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Info */}
@@ -134,14 +108,32 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          <div className="mt-auto pt-1">
-            {product.discountPrice ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-primary font-black text-base">{formatPrice(product.discountPrice)}</span>
-                <span className="text-muted-foreground text-xs line-through">{formatPrice(product.price)}</span>
-              </div>
-            ) : (
-              <span className="text-primary font-black text-base">{formatPrice(product.price)}</span>
+          <div className="mt-auto pt-1 flex items-center justify-between gap-2">
+            <div>
+              {product.discountPrice ? (
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-primary font-black text-base">
+                    {formatPrice(product.discountPrice)}
+                  </span>
+                  <span className="text-muted-foreground text-xs line-through">
+                    {formatPrice(product.price)}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-primary font-black text-base">
+                  {formatPrice(product.price)}
+                </span>
+              )}
+            </div>
+            {product.stock > 0 && (
+              <button
+                onClick={handleAddToCart}
+                disabled={addToCartMutation.isPending}
+                className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary flex items-center justify-center transition-all duration-200 shrink-0 disabled:opacity-50"
+                aria-label={`Thêm ${product.name} vào giỏ hàng`}
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+              </button>
             )}
           </div>
         </div>
