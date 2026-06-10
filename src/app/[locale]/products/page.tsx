@@ -38,12 +38,8 @@ function CategoryCircle({
       className="flex flex-col items-center gap-1.5 group shrink-0 focus:outline-none"
     >
       <div
-        className={`w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all duration-150
-        ${
-          selected
-            ? 'border-primary ring-2 ring-primary/20'
-            : 'border-border group-hover:border-primary/50'
-        }`}
+        className={`w-14 h-14 rounded-full overflow-hidden ring-2 transition-all duration-150
+        ${selected ? 'ring-primary shadow-[0_0_0_3px_oklch(0.57_0.135_196/0.15)]' : 'ring-border group-hover:ring-primary/60'}`}
       >
         {cat.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

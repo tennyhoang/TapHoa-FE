@@ -159,7 +159,9 @@ export default function ProductDetailPage() {
             <p className="text-xs text-primary uppercase tracking-wider font-semibold mb-1">
               {product.categoryName}
             </p>
-            <h1 className="text-2xl font-bold text-foreground leading-snug">{product.name}</h1>
+            <h1 className="font-editorial text-2xl font-bold text-foreground leading-snug">
+              {product.name}
+            </h1>
           </div>
 
           <div className="flex items-center gap-3">

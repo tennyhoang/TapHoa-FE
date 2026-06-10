@@ -153,12 +153,6 @@ body {
   html {
     @apply font-sans;
   }
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-heading), 'Georgia', serif;
-  }
 }
 
 /* Editorial section headings */

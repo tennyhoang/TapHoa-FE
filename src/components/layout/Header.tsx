@@ -330,30 +330,32 @@ export function Header() {
               ))}
             </nav>
 
-            <button
-              type="button"
-              onClick={() => setHubDialogOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-medium text-foreground/80 hover:text-primary transition-colors border border-border hover:border-primary/40 rounded-full px-3 py-1 bg-card hover:bg-primary/6"
-            >
-              <MapPin className="h-3 w-3 shrink-0 text-primary" />
-              <span className="max-w-[180px] truncate">
-                {mounted && currentHub ? currentHub.name : t('pickHub')}
-              </span>
-              {(!mounted || !currentHub) && (
-                <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
-              )}
-            </button>
-
-            {mounted && currentHub && (
+            <div className="flex items-center shrink-0">
               <button
                 type="button"
-                onClick={clearHub}
-                className="ml-1 text-muted-foreground hover:text-destructive transition-colors p-1 rounded-full hover:bg-destructive/8"
-                title={t('cancelHub')}
+                onClick={() => setHubDialogOpen(true)}
+                className="flex items-center gap-1.5 text-xs font-medium text-foreground/80 hover:text-primary transition-colors border border-border hover:border-primary/40 rounded-full px-3 py-1 bg-card hover:bg-primary/6"
               >
-                <X className="h-3.5 w-3.5" />
+                <MapPin className="h-3 w-3 shrink-0 text-primary" />
+                <span className="max-w-[180px] truncate">
+                  {mounted && currentHub ? currentHub.name : t('pickHub')}
+                </span>
+                {(!mounted || !currentHub) && (
+                  <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+                )}
               </button>
-            )}
+
+              {mounted && currentHub && (
+                <button
+                  type="button"
+                  onClick={clearHub}
+                  className="ml-1 text-muted-foreground hover:text-destructive transition-colors p-1 rounded-full hover:bg-destructive/8"
+                  title={t('cancelHub')}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
