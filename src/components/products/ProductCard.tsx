@@ -63,12 +63,12 @@ export function ProductCard({ product }: { product: Product }) {
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
             {discount && (
-              <span className="bg-[oklch(0.75_0.155_55)] text-[oklch(0.25_0.05_50)] text-[10px] font-black px-2 py-0.5 rounded-lg">
+              <span className="bg-[var(--amber)] text-[var(--amber-dark)] text-[10px] font-black px-2 py-0.5 rounded-lg">
                 -{discount}%
               </span>
             )}
             {product.stock > 0 && product.stock <= 5 && (
-              <span className="bg-[oklch(0.60_0.22_25)] text-white text-[10px] font-semibold px-2 py-0.5 rounded-lg">
+              <span className="bg-[var(--orange)] text-white text-[10px] font-semibold px-2 py-0.5 rounded-lg">
                 Còn {product.stock}
               </span>
             )}
@@ -100,7 +100,7 @@ export function ProductCard({ product }: { product: Product }) {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-3 w-3 ${i < Math.round(product.averageRating) ? 'fill-[oklch(0.75_0.155_55)] text-[oklch(0.75_0.155_55)]' : 'text-border fill-border'}`}
+                    className={`h-3 w-3 ${i < Math.round(product.averageRating) ? 'fill-[var(--amber)] text-[var(--amber)]' : 'text-border fill-border'}`}
                   />
                 ))}
               </div>
@@ -129,7 +129,7 @@ export function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={handleAddToCart}
                 disabled={addToCartMutation.isPending}
-                className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary flex items-center justify-center transition-all duration-200 shrink-0 disabled:opacity-50"
+                className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary hover:text-white active:scale-90 active:bg-primary active:text-white text-primary flex items-center justify-center transition-all duration-150 shrink-0 disabled:opacity-50"
                 aria-label={`Thêm ${product.name} vào giỏ hàng`}
               >
                 <ShoppingCart className="h-3.5 w-3.5" />

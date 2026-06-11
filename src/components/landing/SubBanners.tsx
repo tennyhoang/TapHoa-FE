@@ -10,7 +10,7 @@ const BANNERS = [
     sub: 'Tươi sạch, giá tốt mỗi ngày',
     href: '/products?categoryName=Rau+c%E1%BB%A7',
     badge: '-25%',
-    badgeColor: 'bg-[oklch(0.75_0.155_55)] text-[oklch(0.25_0.05_50)]',
+    badgeColor: 'bg-[var(--amber)] text-[var(--amber-dark)]',
   },
   {
     image:

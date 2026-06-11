@@ -60,7 +60,7 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
       href={`/products/${item.id}`}
       aria-label={`${item.name} — giảm ${discountPct}%, còn ${item.stockRemaining} sản phẩm`}
     >
-      <div className="bg-white rounded-2xl overflow-hidden border border-orange-50 hover:shadow-lg hover:shadow-orange-100 hover:-translate-y-0.5 transition-all duration-200 flex flex-col group">
+      <div className="bg-card rounded-2xl overflow-hidden border border-[var(--orange-light)] hover:shadow-lg hover:shadow-orange-100 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex flex-col group">
         <div className="relative aspect-square overflow-hidden bg-muted/50">
           {item.thumbnailUrl ? (
             <Image
@@ -120,10 +120,10 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
                     width: `${stockPct}%`,
                     background:
                       stockPct > 80
-                        ? 'oklch(0.60 0.22 25)'
+                        ? 'var(--destructive)'
                         : stockPct > 50
-                          ? 'oklch(0.75 0.155 55)'
-                          : 'oklch(0.57 0.135 196)',
+                          ? 'var(--amber)'
+                          : 'var(--primary)',
                   }}
                 />
               </div>
@@ -161,7 +161,7 @@ export function FlashSale() {
 
   if (!session) {
     return (
-      <section className="mt-6 rounded-3xl overflow-hidden bg-gradient-to-r from-[#fff5f0] to-[#fff8f0] border border-orange-100">
+      <section className="mt-6 rounded-3xl overflow-hidden bg-gradient-to-r from-orange-50 to-amber-50/40 border border-orange-100">
         <div className="px-6 py-8 flex items-center gap-3">
           <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-sm shadow-orange-200">
             <Zap className="h-5 w-5 text-white fill-white" aria-hidden="true" />
