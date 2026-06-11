@@ -50,7 +50,10 @@
     "addresses": "Addresses",
     "admin": "Admin",
     "agent": "Agent Portal",
-    "driver": "Driver Portal"
+    "driver": "Driver Portal",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Sign Out"
   },
   "Format": {
     "orderStatus": {
