@@ -32,8 +32,8 @@ export default function LoginPage() {
 
   const TRUST_POINTS = t.raw('trustPoints') as { text: string }[];
 
-  const handleSocialLogin = async (provider: 'Google' | 'Facebook', token: string) => {
-    setSocialLoading(provider === 'Google' ? 'google' : 'facebook');
+  const handleSocialLogin = async (provider: 'Google', token: string) => {
+    setSocialLoading('google');
     try {
       const res = await authService.socialLogin(provider, token);
       login(res.accessToken, res.email, res.fullName, res.role);
@@ -42,9 +42,7 @@ export default function LoginPage() {
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { message?: string } } })?.response?.data
         ?.message;
-      toast.error(
-        msg ?? (provider === 'Google' ? t('googleErrorDetail') : t('facebookErrorDetail'))
-      );
+      toast.error(msg ?? t('googleErrorDetail'));
     } finally {
       setSocialLoading(null);
     }
