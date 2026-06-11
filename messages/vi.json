@@ -50,7 +50,10 @@
     "addresses": "Địa chỉ",
     "admin": "Quản trị",
     "agent": "Cổng Agent",
-    "driver": "Cổng Tài xế"
+    "driver": "Cổng Tài xế",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất"
   },
   "Format": {
     "orderStatus": {
