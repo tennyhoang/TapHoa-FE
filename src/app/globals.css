@@ -161,9 +161,9 @@ body {
   }
 }
 
-/* Editorial section headings */
+/* font-editorial kept for markup compatibility — uses Inter like the rest of the app */
 .font-editorial {
-  font-family: var(--font-heading), 'Georgia', serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 /* Smooth slide fade */
