@@ -4,9 +4,10 @@ import Image from 'next/image';
 const BLOGS = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=85&auto=format&fit=crop',
     category: 'Mẹo nấu ăn',
-    categoryColor: 'oklch(0.54 0.158 145)',
+    categoryClass: 'bg-[var(--fresh)]',
     title: 'Cách chọn rau củ tươi ngon — bí quyết từ chuyên gia',
     date: '20/05/2026',
     desc: 'Rau củ tươi hay không phụ thuộc vào cách chọn lựa và bảo quản đúng cách từ lúc mua về đến bếp.',
@@ -14,9 +15,10 @@ const BLOGS = [
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=600&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=600&q=85&auto=format&fit=crop',
     category: 'Dinh dưỡng',
-    categoryColor: 'oklch(0.57 0.135 196)',
+    categoryClass: 'bg-primary',
     title: 'Top 5 loại trái cây giàu vitamin C tốt nhất cho mùa hè',
     date: '18/05/2026',
     desc: 'Bổ sung vitamin C qua trái cây tươi hiệu quả hơn thực phẩm chức năng, lại an toàn cho cả gia đình.',
@@ -24,9 +26,10 @@ const BLOGS = [
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=85&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=85&auto=format&fit=crop',
     category: 'Công thức',
-    categoryColor: 'oklch(0.75 0.155 55)',
+    categoryClass: 'bg-[var(--amber)]',
     title: 'Bữa cơm gia đình ngon — thực đơn 5 ngày tiết kiệm',
     date: '15/05/2026',
     desc: 'Lên thực đơn trước giúp tiết kiệm chi phí và giảm lãng phí thực phẩm đáng kể mỗi tuần.',
@@ -51,8 +54,17 @@ export function BlogSection() {
           className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold transition-colors mb-1"
         >
           Tất cả bài viết
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </Link>
       </div>
@@ -72,8 +84,7 @@ export function BlogSection() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 <span
-                  className="absolute top-3.5 left-3.5 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm"
-                  style={{ background: `${blog.categoryColor}cc` }}
+                  className={`absolute top-3.5 left-3.5 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm ${blog.categoryClass}`}
                 >
                   {blog.category}
                 </span>
@@ -94,8 +105,17 @@ export function BlogSection() {
                 </p>
                 <span className="text-primary text-xs font-semibold mt-1 flex items-center gap-1">
                   Đọc tiếp
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                 </span>
               </div>

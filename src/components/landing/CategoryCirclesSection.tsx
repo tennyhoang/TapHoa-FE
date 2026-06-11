@@ -19,6 +19,7 @@ import {
   ShoppingBasket,
 } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const CATEGORY_ICONS: Array<{ key: string; icon: LucideIcon }> = [
   { key: 'rau', icon: Leaf },
@@ -44,10 +45,29 @@ function getCategoryIcon(name: string): LucideIcon {
 }
 
 export function CategoryCirclesSection() {
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: categoryService.getAll,
   });
+
+  if (isLoading) {
+    return (
+      <section className="py-10">
+        <div className="text-center mb-8">
+          <Skeleton className="h-3 w-20 mx-auto mb-2 rounded" />
+          <Skeleton className="h-7 w-48 mx-auto rounded" />
+        </div>
+        <div className="flex gap-5 md:gap-7 justify-center flex-wrap">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-3">
+              <Skeleton className="w-[72px] h-[72px] md:w-20 md:h-20 rounded-full" />
+              <Skeleton className="h-3 w-14 rounded" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   if (!categories || categories.length === 0) return null;
 

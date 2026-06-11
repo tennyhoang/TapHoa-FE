@@ -90,6 +90,9 @@ body {
   --amber-dark: oklch(0.55 0.14 50);
   --fresh: oklch(0.54 0.158 145);
   --fresh-light: oklch(0.94 0.055 145);
+  --orange: oklch(0.62 0.22 28);
+  --orange-light: oklch(0.97 0.04 55);
+  --surface-invert: oklch(0.18 0.038 192);
 
   /* Charts */
   --chart-1: oklch(0.87 0 0);
@@ -110,6 +113,9 @@ body {
 }
 
 .dark {
+  --orange: oklch(0.7 0.2 30);
+  --orange-light: oklch(0.22 0.05 30);
+  --surface-invert: oklch(0.22 0.038 192);
   --background: oklch(0.14 0.01 185);
   --foreground: oklch(0.97 0.004 90);
   --card: oklch(0.195 0.012 185);
