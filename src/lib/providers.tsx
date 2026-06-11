@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from '@/components/ui/sonner';
+import { OrderStatusBridge } from '@/components/layout/OrderStatusBridge';
 
 // Augment window type for Facebook SDK
 declare global {
@@ -21,14 +22,18 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
 const FB_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ?? '';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
-  }));
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+      })
+  );
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         {children}
+        <OrderStatusBridge />
         <Toaster richColors position="top-right" />
       </QueryClientProvider>
 
