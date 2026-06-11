@@ -19,7 +19,7 @@ export default async function HomePage() {
         <HeroSection />
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-6 mt-4 py-4 sm:py-5 px-4 sm:px-6 border border-border/50 rounded-2xl bg-card">
+      <div className="grid grid-cols-3 gap-2 sm:gap-6 mt-4 py-4 sm:py-5 px-3 sm:px-6 border border-border/50 rounded-2xl bg-card">
         {(
           [
             { icon: Truck, label: 'Giao trong ngày', sub: 'Nội thành TP.HCM' },
@@ -27,12 +27,15 @@ export default async function HomePage() {
             { icon: Leaf, label: '100% tươi sạch', sub: 'Không hóa chất' },
           ] as const
         ).map((b, i) => (
-          <div key={i} className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+          <div
+            key={i}
+            className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
               <b.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
             <div>
-              <p className="font-semibold text-xs sm:text-sm leading-tight">{b.label}</p>
+              <p className="font-semibold text-[11px] sm:text-sm leading-tight">{b.label}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
                 {b.sub}
               </p>

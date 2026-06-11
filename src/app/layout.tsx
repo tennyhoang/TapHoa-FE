@@ -1,18 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['400', '600', '700', '900'],
-  style: ['normal', 'italic'],
   display: 'swap',
 });
 
@@ -51,7 +43,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="vi" className={inter.variable}>
       <body
         className="font-sans bg-background text-foreground min-h-screen flex flex-col"
         suppressHydrationWarning
