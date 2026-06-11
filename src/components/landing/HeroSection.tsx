@@ -59,7 +59,7 @@ export function HeroSection() {
   const asset = SLIDE_ASSETS[current];
 
   return (
-    <div className="relative overflow-hidden" style={{ height: 'clamp(360px, 52vw, 560px)' }}>
+    <div className="relative overflow-hidden" style={{ height: 'clamp(380px, 54vw, 580px)' }}>
       {SLIDE_ASSETS.map((s, i) => (
         <div
           key={i}
@@ -72,20 +72,22 @@ export function HeroSection() {
             fill
             priority={i === 0}
             className="object-cover"
-            sizes="100vw"
+            sizes="(max-width: 1280px) calc(100vw - 2rem), 1280px"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.10_0.02_195/0.88)] via-[oklch(0.10_0.02_195/0.55)] to-transparent" />
+          {/* Stronger left overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.10_0.02_195/0.93)] via-[oklch(0.10_0.02_195/0.60)] to-transparent" />
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.10_0.02_195/0.70)] via-transparent to-transparent sm:hidden pointer-events-none" />
+      {/* Mobile bottom-up overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.10_0.02_195/0.75)] via-transparent to-transparent sm:hidden pointer-events-none" />
 
       <div className="relative h-full max-w-7xl mx-auto px-4 lg:px-8 flex items-center">
         <div
-          className="text-white max-w-lg pl-10 sm:pl-0"
+          className="text-white max-w-xl pl-10 sm:pl-0"
           style={{
             opacity: animating ? 0 : 1,
-            transform: animating ? 'translateY(12px)' : 'translateY(0)',
+            transform: animating ? 'translateY(14px)' : 'translateY(0)',
             transition: 'opacity 0.35s ease, transform 0.35s ease',
           }}
         >
@@ -102,8 +104,8 @@ export function HeroSection() {
           </span>
 
           <h1
-            className="font-editorial font-black text-white mb-4 leading-[1.05]"
-            style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)' }}
+            className="font-black text-white mb-4 leading-[1.03] tracking-tight"
+            style={{ fontSize: 'clamp(2.4rem, 5vw, 4.2rem)' }}
           >
             {slide?.title?.split('\n').map((line: string, i: number) => (
               <span key={i} className="block">
@@ -112,14 +114,14 @@ export function HeroSection() {
             ))}
           </h1>
 
-          <p className="text-white/75 text-sm leading-relaxed mb-5 sm:mb-8 max-w-md">
+          <p className="text-white/85 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-md">
             {slide?.sub}
           </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Link
               href={slide?.href ?? '/'}
-              className="inline-flex items-center gap-2 bg-white text-foreground font-bold px-7 py-3 rounded-full text-sm hover:bg-primary hover:text-white transition-all duration-200 shadow-lg"
+              className="inline-flex items-center gap-2 bg-white text-foreground font-bold px-8 py-3.5 rounded-full text-sm hover:bg-primary hover:text-white active:scale-95 transition-all duration-200 shadow-lg"
             >
               {slide?.cta}
               <svg
@@ -137,7 +139,7 @@ export function HeroSection() {
             </Link>
             <Link
               href="/products"
-              className="text-white/80 hover:text-white text-sm font-medium transition-colors underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1.5 border border-white/40 hover:border-white/70 text-white/90 hover:text-white font-semibold px-6 py-3.5 rounded-full text-sm transition-all duration-200 active:scale-95"
             >
               {t('viewAll')}
             </Link>
@@ -145,33 +147,39 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {SLIDES.map((_: unknown, i: number) => (
-          <button
-            key={i}
-            onClick={() => go(i)}
-            aria-label={`Slide ${i + 1}`}
-            className="transition-all duration-400"
-            style={{
-              height: '3px',
-              width: i === current ? '32px' : '12px',
-              borderRadius: '2px',
-              background: i === current ? 'white' : 'rgba(255,255,255,0.4)',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          />
-        ))}
+      {/* Bottom bar: dots left, counter right */}
+      <div className="absolute bottom-5 left-0 right-0 px-5 flex items-center justify-between z-10">
+        <div className="flex gap-2">
+          {SLIDES.map((_: unknown, i: number) => (
+            <button
+              key={i}
+              onClick={() => go(i)}
+              aria-label={`Slide ${i + 1}`}
+              className="transition-all duration-400"
+              style={{
+                height: '3px',
+                width: i === current ? '28px' : '10px',
+                borderRadius: '2px',
+                background: i === current ? 'white' : 'rgba(255,255,255,0.35)',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            />
+          ))}
+        </div>
+        <span className="text-white/45 text-[10px] font-mono hidden sm:block">
+          {String(current + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+        </span>
       </div>
 
       <button
         onClick={() => go((current - 1 + SLIDES.length) % SLIDES.length)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
         aria-label={t('prevSlide')}
       >
         <svg
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -184,12 +192,12 @@ export function HeroSection() {
       </button>
       <button
         onClick={() => go((current + 1) % SLIDES.length)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
+        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center backdrop-blur-sm transition-colors z-10"
         aria-label={t('nextSlide')}
       >
         <svg
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -200,10 +208,6 @@ export function HeroSection() {
           <path d="M9 18l6-6-6-6" />
         </svg>
       </button>
-
-      <div className="absolute top-5 right-6 text-white/60 text-xs font-mono z-10 hidden md:block">
-        {String(current + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
-      </div>
     </div>
   );
 }

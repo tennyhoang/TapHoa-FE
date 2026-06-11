@@ -15,7 +15,7 @@ export default async function HomePage() {
 
   return (
     <Suspense>
-      <div className="-mx-4 -mt-6">
+      <div className="-mt-6 rounded-2xl overflow-hidden">
         <HeroSection />
       </div>
 
