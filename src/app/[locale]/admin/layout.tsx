@@ -15,6 +15,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { useAdminOrderSocket } from '@/hooks/useAdminOrderSocket';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -33,6 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const { isAdmin, isAuthenticated, logout, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  useAdminOrderSocket();
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
