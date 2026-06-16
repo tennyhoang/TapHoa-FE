@@ -142,14 +142,14 @@
         "title": "Fresh\nVegetables",
         "sub": "Harvested in the morning — delivered to your Hub by afternoon. Quality checked every batch.",
         "cta": "Shop Vegetables",
-        "href": "/products?search=rau+c%E1%BB%A7"
+        "href": "/products?categoryName=Rau+c%E1%BB%A7"
       },
       {
         "eyebrow": "New Arrivals",
         "title": "Imported\nFresh Fruit",
         "sub": "Sourced directly from partner farms — sweet, juicy, and safe for the whole family.",
         "cta": "Explore Fruit",
-        "href": "/products?search=tr%C3%A1i+c%C3%A2y"
+        "href": "/products?categoryName=Tr%C3%A1i+c%C3%A2y"
       },
       {
         "eyebrow": "Save Daily",

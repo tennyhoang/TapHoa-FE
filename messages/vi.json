@@ -142,14 +142,14 @@
         "title": "Rau củ quả\ntươi sạch",
         "sub": "Thu hoạch sáng — giao tận Hub buổi chiều. Kiểm định chất lượng từng lô hàng.",
         "cta": "Chọn rau củ",
-        "href": "/products?search=rau+c%E1%BB%A7"
+        "href": "/products?categoryName=Rau+c%E1%BB%A7"
       },
       {
         "eyebrow": "Mới về hôm nay",
         "title": "Trái cây tươi\nnhập khẩu",
         "sub": "Nguồn gốc rõ ràng từ nông trại đối tác — ngọt, mọng nước, an toàn cho cả gia đình.",
         "cta": "Khám phá trái cây",
-        "href": "/products?search=tr%C3%A1i+c%C3%A2y"
+        "href": "/products?categoryName=Tr%C3%A1i+c%C3%A2y"
       },
       {
         "eyebrow": "Tiết kiệm mỗi ngày",
