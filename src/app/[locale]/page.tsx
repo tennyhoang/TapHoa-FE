@@ -93,7 +93,7 @@ export default async function HomePage() {
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
         viewAllHref="/products?isDiscount=true"
-        variant="featured"
+        variant="grid"
       />
 
       <BlogSection />
