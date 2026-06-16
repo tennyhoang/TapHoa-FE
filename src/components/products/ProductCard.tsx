@@ -62,7 +62,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
 
           {/* Badges */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+          <div className="absolute top-3 left-3 flex flex-col gap-2">
             {discount && (
               <span className="bg-[var(--amber)] text-[var(--amber-dark)] text-[10px] font-black px-2 py-0.5 rounded-lg">
                 -{discount}%
@@ -86,7 +86,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Info */}
-        <div className="p-3.5 flex flex-col gap-1.5 flex-1">
+        <div className="p-3 flex flex-col gap-2 flex-1">
           <p className="text-sm font-semibold line-clamp-2 leading-snug text-foreground">
             {product.name}
           </p>
@@ -107,7 +107,7 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="mt-auto pt-1 flex items-center justify-between gap-2">
             <div className="min-h-[28px] flex items-center">
               {product.discountPrice ? (
-                <div className="flex items-baseline gap-1.5">
+                <div className="flex items-baseline gap-2">
                   <span className="text-primary font-black text-base">
                     {formatPrice(product.discountPrice)}
                   </span>
