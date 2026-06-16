@@ -389,7 +389,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Vai trò
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden lg:table-cell">
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden sm:table-cell">
                   Kho trực thuộc
                 </th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -446,7 +446,7 @@ export default function AdminUsersPage() {
                         {ROLE_LABEL[user.role] ?? user.role}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">
+                    <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell">
                       {user.role === 'Driver'
                         ? (user.warehouseName ?? (
                             <span className="text-xs text-muted-foreground/50">Chưa gán</span>
@@ -482,10 +482,11 @@ export default function AdminUsersPage() {
                         {(user.role === 'Driver' || user.role === 'WarehouseManager') && (
                           <button
                             onClick={() => setAssignWarehouseUser(user)}
-                            className="p-1.5 rounded-lg hover:bg-violet-100 text-muted-foreground hover:text-violet-700 transition-colors"
+                            className="px-2 py-1.5 rounded-lg hover:bg-violet-100 text-muted-foreground hover:text-violet-700 transition-colors inline-flex items-center gap-1"
                             title="Gán kho"
                           >
                             <Building2 className="h-4 w-4" />
+                            <span className="text-xs hidden sm:inline">Gán kho</span>
                           </button>
                         )}
                         <button

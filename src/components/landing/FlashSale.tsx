@@ -1,11 +1,12 @@
 'use client';
 
+import { useRef, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Zap } from 'lucide-react';
+import { ShoppingCart, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { flashSaleService, FlashSaleProduct } from '@/services/flash-sale.service';
 import { cartService } from '@/services/cart.service';
 import { useAuthStore } from '@/store/auth.store';
@@ -148,6 +149,92 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
   );
 }
 
+function FlashCarousel({ products }: { products: FlashSaleProduct[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollButtons = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateScrollButtons, { passive: true });
+    updateScrollButtons();
+    return () => el.removeEventListener('scroll', updateScrollButtons);
+  }, [updateScrollButtons]);
+
+  useEffect(() => {
+    if (isPaused || products.length <= 1) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const interval = setInterval(() => {
+      const cardWidth = el.querySelector('*')?.clientWidth ?? 200;
+      const gap = 16;
+      const step = cardWidth + gap;
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 8) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isPaused, products.length]);
+
+  const scrollBy = (dir: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.querySelector('*')?.clientWidth ?? 200;
+    const gap = 16;
+    el.scrollBy({ left: (cardWidth + gap) * (dir === 'left' ? -1 : 1), behavior: 'smooth' });
+  };
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-5 px-5"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {products.map(item => (
+          <div key={item.id} className="snap-start shrink-0 w-[170px] sm:w-[190px]">
+            <FlashCard item={item} />
+          </div>
+        ))}
+      </div>
+
+      {canScrollLeft && (
+        <button
+          onClick={() => scrollBy('left')}
+          className="absolute left-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-colors"
+          aria-label="Cuộn trái"
+        >
+          <ChevronLeft className="h-4 w-4 text-foreground" />
+        </button>
+      )}
+      {canScrollRight && (
+        <button
+          onClick={() => scrollBy('right')}
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-colors"
+          aria-label="Cuộn phải"
+        >
+          <ChevronRight className="h-4 w-4 text-foreground" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function FlashSale() {
   const { data: session, refetch } = useQuery({
     queryKey: ['flash-sale-current'],
@@ -186,7 +273,7 @@ export function FlashSale() {
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-widest bg-orange-500 text-white">
                 Live
               </span>
-              <span className="font-editorial font-black text-2xl tracking-tight text-foreground">
+              <span className="font-black text-2xl tracking-tight text-foreground">
                 Flash Sale
               </span>
             </div>
@@ -229,27 +316,13 @@ export function FlashSale() {
         </div>
       </div>
 
-      <div className="px-5 pb-6">
+      <div className="pb-6">
         {session.products.length === 0 ? (
           <p className="text-center py-12 text-muted-foreground text-sm">
             Chưa có sản phẩm trong phiên Flash Sale này
           </p>
         ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {session.products.map(item => (
-                <FlashCard key={item.id} item={item} />
-              ))}
-            </div>
-            <div className="text-center mt-5">
-              <Link
-                href="/flash-sale"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-600 hover:underline underline-offset-2"
-              >
-                Xem tất cả sản phẩm Flash Sale →
-              </Link>
-            </div>
-          </>
+          <FlashCarousel products={session.products} />
         )}
       </div>
     </section>
