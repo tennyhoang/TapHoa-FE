@@ -43,8 +43,8 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Link href={`/products/${product.id}`}>
-      <div className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-primary/30 hover:shadow-[0_4px_24px_oklch(0.57_0.135_196/0.12)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col h-full group">
+    <Link href={`/products/${product.id}`} className="flex flex-col">
+      <div className="bg-card rounded-2xl overflow-hidden border border-border/60 hover:border-primary/30 hover:shadow-[0_4px_24px_oklch(0.57_0.135_196/0.12)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col flex-1 group">
         {/* Image */}
         <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: '1/1' }}>
           {product.thumbnailUrl ? (
@@ -95,15 +95,17 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="text-[10px] text-muted-foreground font-medium">{product.categoryName}</p>
           )}
 
-          {product.reviewCount > 0 && (
-            <div className="flex items-center gap-1">
-              <StarRating rating={product.averageRating} size="xs" />
-              <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1 min-h-[18px]">
+            {product.reviewCount > 0 ? (
+              <>
+                <StarRating rating={product.averageRating} size="xs" />
+                <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
+              </>
+            ) : null}
+          </div>
 
           <div className="mt-auto pt-1 flex items-center justify-between gap-2">
-            <div>
+            <div className="min-h-[28px] flex items-center">
               {product.discountPrice ? (
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-primary font-black text-base">
