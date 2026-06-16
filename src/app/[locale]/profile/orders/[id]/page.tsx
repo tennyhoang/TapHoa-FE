@@ -224,7 +224,7 @@ export default function OrderDetailPage() {
                 navigator.clipboard.writeText(order.id);
                 toast.success('Đã sao chép mã đơn');
               }}
-              className="text-stone-300 hover:text-teal-500 transition-colors p-1.5 rounded-lg hover:bg-teal-50"
+              className="text-muted-foreground/50 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/8"
               title="Sao chép mã đơn"
             >
               <Copy className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function OrderDetailPage() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="text-stone-300 hover:text-teal-500 transition-colors p-1.5 rounded-lg hover:bg-teal-50"
+              className="text-muted-foreground/50 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/8"
               title="Làm mới trạng thái"
             >
               <RefreshCw className="h-4 w-4" />

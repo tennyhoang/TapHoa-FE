@@ -161,9 +161,8 @@ body {
   }
 }
 
-/* font-editorial kept for markup compatibility — uses Inter like the rest of the app */
 .font-editorial {
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-heading), var(--font-sans), system-ui, sans-serif;
 }
 
 /* Smooth slide fade */

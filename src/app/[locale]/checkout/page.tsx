@@ -172,7 +172,7 @@ export default function CheckoutPage() {
     onSuccess: order => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
-      router.push(`/profile/orders/${order.id}`);
+      router.push(`/checkout/success?orderId=${order.id}&payment=${paymentMethod}`);
     },
     onError: () => toast.error(t('errorCreate')),
   });
@@ -209,14 +209,14 @@ export default function CheckoutPage() {
   if (!cart?.items.length) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-          <ShoppingBag className="h-10 w-10 text-gray-300" />
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-800">{t('emptyTitle')}</p>
-          <p className="text-sm text-gray-400 mt-1">{t('emptyDesc')}</p>
+          <p className="text-lg font-semibold text-foreground">{t('emptyTitle')}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('emptyDesc')}</p>
         </div>
-        <Button asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-8">
+        <Button asChild className="rounded-lg px-8">
           <Link href="/">{t('emptyCta')}</Link>
         </Button>
       </div>
@@ -270,19 +270,19 @@ export default function CheckoutPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{t('subtitle')}</p>
+        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid lg:grid-cols-[1fr_420px] gap-6 items-start">
           {/* ── Left: Cart items ── */}
           <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className="h-4 w-4 text-teal-600" />
-                  <h2 className="font-semibold text-sm text-gray-800">
+                  <ShoppingBag className="h-4 w-4 text-primary" />
+                  <h2 className="font-semibold text-sm text-foreground">
                     {t('products', { count: itemCount })}
                   </h2>
                 </div>
@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                 </Link>
               </div>
 
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-border/40">
                 {cart.items.map(item => {
                   const isUpdating =
                     updateMutation.isPending &&
@@ -307,7 +307,7 @@ export default function CheckoutPage() {
                       key={item.productId}
                       className={`flex items-center gap-4 px-5 py-4 transition-opacity ${isRemoving ? 'opacity-40' : ''}`}
                     >
-                      <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-100 shrink-0 bg-gray-50">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden border border-border/60 shrink-0 bg-muted/50">
                         {item.thumbnailUrl ? (
                           <Image
                             src={item.thumbnailUrl}
@@ -317,24 +317,24 @@ export default function CheckoutPage() {
                             className="object-cover w-full h-full"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                             <ShoppingBag className="h-5 w-5" />
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-800 text-sm leading-snug line-clamp-2">
+                        <p className="font-medium text-foreground text-sm leading-snug line-clamp-2">
                           {item.productName}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           {t('perUnit', { price: formatPrice(item.unitPrice) })}
                         </p>
                       </div>
 
                       {/* Qty stepper */}
                       <div
-                        className={`flex items-center border border-gray-200 rounded-lg overflow-hidden shrink-0 ${isUpdating ? 'opacity-60' : ''}`}
+                        className={`flex items-center border border-border rounded-lg overflow-hidden shrink-0 ${isUpdating ? 'opacity-60' : ''}`}
                       >
                         <button
                           type="button"
@@ -345,11 +345,11 @@ export default function CheckoutPage() {
                               quantity: item.quantity - 1,
                             })
                           }
-                          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:bg-muted/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
-                        <span className="w-8 text-center text-sm font-semibold text-gray-800 select-none border-x border-gray-200">
+                        <span className="w-8 text-center text-sm font-semibold text-foreground select-none border-x border-border">
                           {item.quantity}
                         </span>
                         <button
@@ -361,21 +361,21 @@ export default function CheckoutPage() {
                               quantity: item.quantity + 1,
                             })
                           }
-                          className="w-8 h-8 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 transition-colors"
+                          className="w-8 h-8 flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 transition-colors"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
 
                       <div className="text-right shrink-0 space-y-1.5 min-w-[70px]">
-                        <p className="font-bold text-teal-600 text-sm">
+                        <p className="font-bold text-primary text-sm">
                           {formatPrice(item.subtotal)}
                         </p>
                         <button
                           type="button"
                           disabled={isRemoving}
                           onClick={() => removeMutation.mutate(item.productId)}
-                          className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30"
+                          className="text-muted-foreground/50 hover:text-destructive transition-colors disabled:opacity-30"
                           aria-label={t('removeItem')}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -387,8 +387,8 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-emerald-700">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+            <div className="bg-primary/8 border border-primary/15 rounded-xl px-4 py-3 flex items-center gap-3 text-sm text-primary">
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
               <span>{t('freeShipping')}</span>
             </div>
           </div>
@@ -396,13 +396,13 @@ export default function CheckoutPage() {
           {/* ── Right: Checkout form ── */}
           <div className="lg:sticky lg:top-6 space-y-4">
             {/* 1. Receiver info */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+            <div className="bg-card rounded-xl border border-border p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">
                     1
                   </span>
-                  <h3 className="font-semibold text-gray-800 text-sm">{t('step1')}</h3>
+                  <h3 className="font-semibold text-foreground text-sm">{t('step1')}</h3>
                 </div>
 
                 {addresses && addresses.length > 0 && (
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setAddrOpen(v => !v)}
-                      className="flex items-center gap-1 text-xs text-teal-600 hover:text-emerald-700 font-medium"
+                      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium"
                     >
                       <BookUser className="h-3.5 w-3.5" />
                       {t('savedAddresses')}
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
                     </button>
 
                     {addrOpen && (
-                      <div className="absolute z-10 top-full right-0 mt-1.5 w-72 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                      <div className="absolute z-10 top-full right-0 mt-1.5 w-72 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
                         {addresses.map(addr => (
                           <button
                             key={addr.id}
@@ -430,20 +430,20 @@ export default function CheckoutPage() {
                               setValue('phoneNumber', addr.phoneNumber, { shouldValidate: true });
                               setAddrOpen(false);
                             }}
-                            className="w-full text-left px-4 py-3 hover:bg-emerald-50 border-b border-gray-50 last:border-0 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-primary/5 border-b border-border/40 last:border-0 transition-colors"
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-foreground">
                                 {addr.receiverName}
                               </p>
                               {addr.isDefault && (
-                                <span className="text-xs text-teal-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">
+                                <span className="text-xs text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">
                                   {t('default')}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">{addr.phoneNumber}</p>
-                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                            <p className="text-xs text-muted-foreground mt-0.5">{addr.phoneNumber}</p>
+                            <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">
                               {addr.streetAddress}, {addr.ward}, {addr.district}
                             </p>
                           </button>
@@ -456,18 +456,18 @@ export default function CheckoutPage() {
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">{t('receiverName')}</Label>
+                  <Label className="text-xs font-medium text-muted-foreground">{t('receiverName')}</Label>
                   <Input
                     {...register('receiverName', { required: t('receiverNameRequired') })}
                     placeholder={t('receiverNamePlaceholder')}
                     className="h-9 text-sm"
                   />
                   {errors.receiverName && (
-                    <p className="text-xs text-red-500">{errors.receiverName.message}</p>
+                    <p className="text-xs text-destructive">{errors.receiverName.message}</p>
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">{t('phoneNumber')}</Label>
+                  <Label className="text-xs font-medium text-muted-foreground">{t('phoneNumber')}</Label>
                   <Input
                     {...register('phoneNumber', {
                       required: t('phoneNumberRequired'),
@@ -478,7 +478,7 @@ export default function CheckoutPage() {
                     className="h-9 text-sm"
                   />
                   {errors.phoneNumber && (
-                    <p className="text-xs text-red-500">{errors.phoneNumber.message}</p>
+                    <p className="text-xs text-destructive">{errors.phoneNumber.message}</p>
                   )}
                 </div>
               </div>
@@ -493,35 +493,38 @@ export default function CheckoutPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
-                    currentHub ? 'bg-teal-600 text-white' : 'bg-teal-400 text-white'
+                    currentHub ? 'bg-primary text-primary-foreground' : 'bg-primary/50 text-primary-foreground'
                   }`}
                 >
                   2
                 </span>
-                <h3 className="font-semibold text-gray-800 text-sm">{t('step2')}</h3>
+                <h3 className="font-semibold text-foreground text-sm">{t('step2')}</h3>
               </div>
+
+              {!currentHub && (
+                <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed">
+                  Hub là điểm nhận hàng gần nhà bạn — thay thế giao tận nơi.{' '}
+                  <a href="/faq" className="underline hover:text-primary">Tìm hiểu thêm</a>
+                </p>
+              )}
 
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                  {currentHub ? (
-                    <MapPin className="h-4 w-4 text-teal-600 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertTriangle className="h-4 w-4 text-teal-500 shrink-0 mt-0.5" />
-                  )}
+                  <MapPin className={`h-4 w-4 shrink-0 mt-0.5 ${currentHub ? 'text-primary' : 'text-muted-foreground'}`} />
                   <div className="min-w-0">
                     {currentHub ? (
                       <>
-                        <p className="font-semibold text-sm text-gray-900 truncate">
+                        <p className="font-semibold text-sm text-foreground truncate">
                           {currentHub.name}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                           {currentHub.address}
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="font-semibold text-sm text-teal-700">{t('noHubSelected')}</p>
-                        <p className="text-xs text-teal-500 mt-0.5">{t('selectHubPrompt')}</p>
+                        <p className="font-semibold text-sm text-foreground">{t('noHubSelected')}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t('selectHubPrompt')}</p>
                       </>
                     )}
                   </div>
@@ -531,8 +534,8 @@ export default function CheckoutPage() {
                   onClick={() => setHubDialogOpen(true)}
                   className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex items-center gap-1 ${
                     currentHub
-                      ? 'bg-white border-emerald-200 text-teal-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
-                      : 'bg-amber-400 border-amber-400 text-white hover:bg-amber-500'
+                      ? 'bg-card border-border text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                      : 'bg-[var(--amber)] border-[var(--amber)] text-[var(--amber-dark)] hover:opacity-90'
                   }`}
                 >
                   <Pencil className="h-3 w-3" />
@@ -542,12 +545,12 @@ export default function CheckoutPage() {
             </div>
 
             {/* 3. Payment method */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+            <div className="bg-card rounded-xl border border-border p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">
                   3
                 </span>
-                <h3 className="font-semibold text-gray-800 text-sm">{t('step3')}</h3>
+                <h3 className="font-semibold text-foreground text-sm">{t('step3')}</h3>
               </div>
 
               {/* Partial wallet toggle — shown when 0 < balance < totalAmount */}
@@ -572,7 +575,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p
-                      className={`text-sm font-semibold ${useWalletToggle ? 'text-violet-700' : 'text-gray-600'}`}
+                      className={`text-sm font-semibold ${useWalletToggle ? 'text-violet-700' : 'text-muted-foreground'}`}
                     >
                       {t('useWalletBalance')}
                     </p>
@@ -617,38 +620,38 @@ export default function CheckoutPage() {
                       onClick={() => !isDisabled && setPaymentMethod(opt.value)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                         paymentMethod === opt.value
-                          ? 'border-emerald-500 bg-emerald-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary bg-primary/8'
+                          : 'border-border hover:border-primary/40'
                       }`}
                     >
                       <div
                         className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          paymentMethod === opt.value ? 'bg-emerald-100' : 'bg-gray-50'
+                          paymentMethod === opt.value ? 'bg-primary/15' : 'bg-muted/50'
                         }`}
                       >
                         <opt.Icon
-                          className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-teal-600' : 'text-gray-400'}`}
+                          className={`h-4 w-4 ${paymentMethod === opt.value ? 'text-primary' : 'text-muted-foreground'}`}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p
-                          className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-emerald-700' : 'text-gray-700'}`}
+                          className={`text-sm font-semibold ${paymentMethod === opt.value ? 'text-primary' : 'text-foreground'}`}
                         >
                           {t(opt.labelKey)}
                         </p>
                         <p
-                          className={`text-xs mt-0.5 ${walletInsufficient ? 'text-red-400' : 'text-gray-400'}`}
+                          className={`text-xs mt-0.5 ${walletInsufficient ? 'text-destructive' : 'text-muted-foreground'}`}
                         >
                           {subLabel}
                         </p>
                       </div>
                       <div
                         className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
-                          paymentMethod === opt.value ? 'border-emerald-500' : 'border-gray-300'
+                          paymentMethod === opt.value ? 'border-primary' : 'border-border'
                         }`}
                       >
                         {paymentMethod === opt.value && (
-                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <div className="w-2 h-2 rounded-full bg-primary" />
                         )}
                       </div>
                     </button>
@@ -658,15 +661,15 @@ export default function CheckoutPage() {
             </div>
 
             {/* 4. Note */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+            <div className="bg-card rounded-xl border border-border p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-6 h-6 rounded-full bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center shrink-0">
                   4
                 </span>
-                <h3 className="font-semibold text-gray-800 text-sm">{t('orderNoteLabel')}</h3>
+                <h3 className="font-semibold text-foreground text-sm">{t('orderNoteLabel')}</h3>
               </div>
               <textarea
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 transition-colors"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-colors bg-background"
                 rows={2}
                 placeholder={t('orderNote')}
                 value={note}
@@ -675,9 +678,9 @@ export default function CheckoutPage() {
             </div>
 
             {/* 5. Voucher */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+            <div className="bg-card rounded-xl border border-border p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-6 h-6 rounded-full bg-muted text-muted-foreground text-xs font-bold flex items-center justify-center shrink-0">
                   5
                 </span>
                 <h3 className="font-semibold text-gray-800 text-sm">Mã giảm giá</h3>
@@ -697,15 +700,15 @@ export default function CheckoutPage() {
             </div>
 
             {/* 6. Summary + Submit */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+            <div className="bg-card rounded-xl border border-border p-5 space-y-4">
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-muted-foreground">
                   <span>{t('subtotal', { count: itemCount })}</span>
-                  <span className="font-medium text-gray-700">{formatPrice(rawTotal)}</span>
+                  <span className="font-medium text-foreground">{formatPrice(rawTotal)}</span>
                 </div>
 
                 {voucherDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600">
+                  <div className="flex justify-between text-primary">
                     <span className="flex items-center gap-1.5">Mã giảm giá ({voucherCode})</span>
                     <span className="font-semibold">-{formatPrice(voucherDiscount)}</span>
                   </div>
@@ -732,10 +735,10 @@ export default function CheckoutPage() {
                 )}
 
                 {/* BR-013: shipping fee */}
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-muted-foreground">
                   <span>{t('shippingFee')}</span>
                   {shippingFee === 0 ? (
-                    <span className="text-teal-600 font-medium">{t('free')}</span>
+                    <span className="text-primary font-medium">{t('free')}</span>
                   ) : (
                     <span className="font-medium">{formatPrice(shippingFee)}</span>
                   )}
@@ -753,7 +756,7 @@ export default function CheckoutPage() {
               <Separator />
 
               <div className="flex justify-between items-baseline">
-                <span className="font-bold text-gray-800">
+                <span className="font-bold text-foreground">
                   {useWalletToggle && hasPartialWallet ? t('needToPayMore') : t('total')}
                 </span>
                 <span
@@ -787,12 +790,12 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 disabled={createOrderMutation.isPending || !currentHub || !minOrderMet}
-                className="w-full h-12 text-base font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                className="w-full h-12 text-base font-bold rounded-xl transition-colors disabled:opacity-50"
               >
                 {submitLabel()}
               </Button>
 
-              <p className="text-xs text-center text-gray-400">{t('termsAgreement')}</p>
+              <p className="text-xs text-center text-muted-foreground">{t('termsAgreement')}</p>
             </div>
           </div>
         </div>

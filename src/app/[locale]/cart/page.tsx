@@ -20,6 +20,7 @@ export default function CartPage() {
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -81,6 +82,7 @@ export default function CartPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success('Đã xóa giỏ hàng');
+      setShowClearConfirm(false);
     },
     onError: () => toast.error('Xóa giỏ hàng thất bại'),
   });
@@ -91,17 +93,14 @@ export default function CartPage() {
   if (!isAuthenticated()) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-          <ShoppingBag className="h-10 w-10 text-gray-300" />
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-800">Bạn chưa đăng nhập</p>
-          <p className="text-sm text-gray-400 mt-1">Đăng nhập để xem giỏ hàng của bạn</p>
+          <p className="text-lg font-semibold text-foreground">Bạn chưa đăng nhập</p>
+          <p className="text-sm text-muted-foreground mt-1">Đăng nhập để xem giỏ hàng của bạn</p>
         </div>
-        <Button
-          onClick={() => router.push('/auth/login')}
-          className="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-8"
-        >
+        <Button onClick={() => router.push('/auth/login')} className="rounded-lg px-8">
           Đăng nhập
         </Button>
       </div>
@@ -129,14 +128,16 @@ export default function CartPage() {
   if (!cart?.items.length) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-          <ShoppingBag className="h-10 w-10 text-gray-300" />
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-800">Giỏ hàng trống</p>
-          <p className="text-sm text-gray-400 mt-1">Thêm sản phẩm vào giỏ để tiếp tục mua sắm</p>
+          <p className="text-lg font-semibold text-foreground">Giỏ hàng trống</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Thêm sản phẩm vào giỏ để tiếp tục mua sắm
+          </p>
         </div>
-        <Button asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-8">
+        <Button asChild className="rounded-lg px-8">
           <Link href="/">Khám phá sản phẩm</Link>
         </Button>
       </div>
@@ -150,18 +151,36 @@ export default function CartPage() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold text-gray-900">Giỏ hàng</h1>
-          <span className="text-sm text-gray-400 font-normal">({itemCount} sản phẩm)</span>
+          <h1 className="text-xl font-bold text-foreground">Giỏ hàng</h1>
+          <span className="text-sm text-muted-foreground font-normal">({itemCount} sản phẩm)</span>
         </div>
-        <button
-          onClick={() => {
-            if (confirm('Xóa toàn bộ giỏ hàng?')) clearMutation.mutate();
-          }}
-          disabled={clearMutation.isPending}
-          className="text-xs text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
-        >
-          Xóa tất cả
-        </button>
+
+        {showClearConfirm ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-foreground">Xóa toàn bộ?</span>
+            <button
+              onClick={() => clearMutation.mutate()}
+              disabled={clearMutation.isPending}
+              className="text-xs font-semibold text-destructive hover:text-destructive/80 disabled:opacity-40 transition-colors"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => setShowClearConfirm(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Huỷ
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowClearConfirm(true)}
+            disabled={clearMutation.isPending}
+            className="text-xs text-muted-foreground hover:text-destructive disabled:opacity-40 transition-colors"
+          >
+            Xóa tất cả
+          </button>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-6 items-start">
@@ -180,9 +199,9 @@ export default function CartPage() {
             />
           ))}
 
-          <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3">
-            <Truck className="h-4 w-4 text-emerald-600 shrink-0" />
-            <p className="text-sm text-emerald-700">
+          <div className="bg-primary/8 border border-primary/15 rounded-xl px-4 py-3 flex items-center gap-3">
+            <Truck className="h-4 w-4 text-primary shrink-0" />
+            <p className="text-sm text-primary">
               Miễn phí vận chuyển cho đơn hàng từ{' '}
               <span className="font-semibold">{formatPrice(200000)}</span>
             </p>
@@ -191,24 +210,27 @@ export default function CartPage() {
 
         {/* ── Right: sticky summary ── */}
         <div className="lg:sticky lg:top-6 space-y-3">
-          {/* Promo placeholder - not yet implemented */}
-          <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 opacity-60 cursor-not-allowed select-none">
-            <Tag className="h-4 w-4 text-gray-400 shrink-0" />
-            <span className="text-sm text-gray-400 flex-1">Mã giảm giá (sắp ra mắt)</span>
+          {/* Promo placeholder */}
+          <div className="bg-muted/50 border border-dashed border-border rounded-xl px-4 py-3 flex items-center gap-3 opacity-60 cursor-not-allowed select-none">
+            <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">Mã giảm giá (sắp ra mắt)</span>
           </div>
 
           {/* Summary card */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-            <p className="font-bold text-gray-800 text-base">Tóm tắt đơn hàng</p>
+          <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+            <p className="font-bold text-foreground text-base">Tóm tắt đơn hàng</p>
 
             <div className="space-y-2 text-sm">
               {cart.items.map(item => (
-                <div key={item.productId} className="flex justify-between gap-3 text-gray-500">
+                <div
+                  key={item.productId}
+                  className="flex justify-between gap-3 text-muted-foreground"
+                >
                   <span className="line-clamp-1 flex-1">
                     {item.productName}
-                    <span className="text-gray-400"> ×{item.quantity}</span>
+                    <span className="opacity-60"> ×{item.quantity}</span>
                   </span>
-                  <span className="shrink-0 font-medium text-gray-700">
+                  <span className="shrink-0 font-medium text-foreground">
                     {formatPrice(item.subtotal)}
                   </span>
                 </div>
@@ -218,33 +240,33 @@ export default function CartPage() {
             <Separator />
 
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-gray-500">
+              <div className="flex justify-between text-muted-foreground">
                 <span>Tạm tính</span>
-                <span className="font-medium text-gray-700">{formatPrice(subtotal)}</span>
+                <span className="font-medium text-foreground">{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-gray-500">
+              <div className="flex justify-between text-muted-foreground">
                 <span>Phí vận chuyển</span>
-                <span className="text-emerald-600 font-medium">Tính khi đặt hàng</span>
+                <span className="text-primary font-medium">Tính khi đặt hàng</span>
               </div>
             </div>
 
             <Separator />
 
             <div className="flex justify-between items-baseline">
-              <span className="font-bold text-gray-800">Tổng cộng</span>
-              <span className="text-2xl font-black text-emerald-600">{formatPrice(subtotal)}</span>
+              <span className="font-bold text-foreground">Tổng cộng</span>
+              <span className="text-2xl font-black text-primary">{formatPrice(subtotal)}</span>
             </div>
 
             <Button
-              className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-base font-semibold rounded-xl transition-colors"
+              className="w-full h-12 text-base font-semibold rounded-xl"
               onClick={() => router.push('/checkout')}
             >
               Đặt hàng ngay
             </Button>
 
-            <p className="text-xs text-center text-gray-400">
+            <p className="text-xs text-center text-muted-foreground">
               Bằng cách đặt hàng, bạn đồng ý với{' '}
-              <Link href="/" className="underline hover:text-emerald-600">
+              <Link href="/dieu-khoan" className="underline hover:text-primary">
                 điều khoản sử dụng
               </Link>
             </p>

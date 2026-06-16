@@ -213,21 +213,43 @@ export function Footer() {
               <h3 className="text-white font-semibold mb-3 text-sm tracking-wide">Kết nối</h3>
               <div className="flex gap-2">
                 {[
-                  { label: 'fb', title: 'Facebook' },
-                  { label: 'ig', title: 'Instagram' },
-                  { label: 'yt', title: 'Youtube' },
-                ].map(({ label, title }) => (
+                  {
+                    title: 'Facebook',
+                    href: 'https://facebook.com/taphoa.vn',
+                    path: 'M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z',
+                  },
+                  {
+                    title: 'Instagram',
+                    href: 'https://instagram.com/taphoa.vn',
+                    path: 'M16 2H8a6 6 0 0 0-6 6v8a6 6 0 0 0 6 6h8a6 6 0 0 0 6-6V8a6 6 0 0 0-6-6zm0 2a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h8zM12 7a5 5 0 1 0 0 10A5 5 0 0 0 12 7zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm5-2.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+                  },
+                  {
+                    title: 'Youtube',
+                    href: 'https://youtube.com/@taphoa',
+                    path: 'M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM10 15.5v-7l6 3.5-6 3.5z',
+                  },
+                ].map(({ title, href, path }) => (
                   <a
                     key={title}
-                    href="#"
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={title}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold uppercase transition-colors hover:text-white"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors hover:text-white"
                     style={{
                       background: 'oklch(1 0 0 / 0.07)',
                       color: 'oklch(0.55 0.025 192)',
                     }}
                   >
-                    {label}
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d={path} />
+                    </svg>
                   </a>
                 ))}
               </div>

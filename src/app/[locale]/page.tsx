@@ -75,6 +75,7 @@ export default async function HomePage() {
         queryKey="products-fruits"
         params={{ search: 'trái cây', sortBy: 'newest' }}
         viewAllHref="/products?search=tr%C3%A1i+c%C3%A2y"
+        variant="shelf"
       />
 
       <InterBanner
@@ -92,6 +93,7 @@ export default async function HomePage() {
         queryKey="products-discount"
         params={{ isDiscount: true, sortBy: 'price_asc' }}
         viewAllHref="/products?isDiscount=true"
+        variant="featured"
       />
 
       <BlogSection />
