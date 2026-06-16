@@ -53,7 +53,7 @@ export function HeroSection() {
       go((current + 1) % SLIDES.length);
     }, 5500);
     return () => clearInterval(t);
-  }, [current, go]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [current, go, SLIDES.length]);
 
   const slide = SLIDES[current];
   const asset = SLIDE_ASSETS[current];
@@ -167,7 +167,7 @@ export function HeroSection() {
             />
           ))}
         </div>
-        <span className="text-white/45 text-[10px] font-mono hidden sm:block">
+        <span className="text-white/45 text-[10px] tabular-nums hidden sm:block">
           {String(current + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
         </span>
       </div>

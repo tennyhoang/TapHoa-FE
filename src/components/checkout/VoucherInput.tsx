@@ -54,23 +54,23 @@ export function VoucherInput({ appliedVoucher, onApply, onRemove, cartTotal }: V
         : appliedVoucher.discountValue;
 
     return (
-      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-          <Tag className="h-4 w-4 text-emerald-600" />
+      <div className="flex items-center gap-3 px-4 py-3 bg-[var(--fresh-light)] border border-[var(--fresh)]/25 rounded-xl">
+        <div className="w-8 h-8 rounded-lg bg-[var(--fresh)]/15 flex items-center justify-center shrink-0">
+          <Tag className="h-4 w-4 text-[var(--fresh)]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-emerald-800">{appliedVoucher.code}</p>
-          <p className="text-xs text-emerald-600 mt-0.5">
+          <p className="text-sm font-semibold text-foreground">{appliedVoucher.code}</p>
+          <p className="text-xs text-[var(--fresh)] mt-0.5">
             Giảm {discountText} — tiết kiệm {formatPrice(saved)}
           </p>
         </div>
         <button
           type="button"
           onClick={onRemove}
-          className="p-1.5 rounded-lg hover:bg-emerald-200 transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[var(--fresh)]/20 transition-colors"
           aria-label="Xoá voucher"
         >
-          <X className="h-4 w-4 text-emerald-600" />
+          <X className="h-4 w-4 text-[var(--fresh)]" />
         </button>
       </div>
     );
@@ -92,7 +92,7 @@ export function VoucherInput({ appliedVoucher, onApply, onRemove, cartTotal }: V
         variant="outline"
         onClick={handleApply}
         disabled={loading || !inputValue.trim()}
-        className="shrink-0 gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+        className="shrink-0 gap-1.5 border-[var(--fresh)]/35 text-[var(--fresh)] hover:bg-[var(--fresh)]/8"
       >
         {loading ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

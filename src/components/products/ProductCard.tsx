@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/format';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { cartService } from '@/services/cart.service';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { StarRating } from '@/components/shared/StarRating';
 
 export function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
@@ -96,14 +97,7 @@ export function ProductCard({ product }: { product: Product }) {
 
           {product.reviewCount > 0 && (
             <div className="flex items-center gap-1">
-              <div className="flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-3 w-3 ${i < Math.round(product.averageRating) ? 'fill-[var(--amber)] text-[var(--amber)]' : 'text-border fill-border'}`}
-                  />
-                ))}
-              </div>
+              <StarRating rating={product.averageRating} size="xs" />
               <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
             </div>
           )}

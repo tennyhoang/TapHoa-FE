@@ -53,7 +53,8 @@
     "driver": "Driver Portal",
     "login": "Sign In",
     "register": "Sign Up",
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "notifications": "Notifications"
   },
   "Format": {
     "orderStatus": {
@@ -162,6 +163,12 @@
   "InterBanner": {
     "defaultCta": "Shop Now"
   },
+  "ProductSection": {
+    "eyebrow": "Products",
+    "viewAll": "View all",
+    "viewAllTitle": "View all {title}",
+    "empty": "No products yet"
+  },
   "HomePage": {
     "newArrivalsTitle": "New Arrivals",
     "newArrivalsSubtitle": "Harvested in the morning — at your Hub by afternoon",
@@ -176,7 +183,13 @@
     "banner2Badge": "Save Daily",
     "banner2Title": "Quality Fresh Produce",
     "banner2Sub": "Meat, fish, eggs, dairy — fresh and fast pickup at your nearest Hub.",
-    "banner2Cta": "See Best Prices"
+    "banner2Cta": "See Best Prices",
+    "trustBadge1Label": "Same-day delivery",
+    "trustBadge1Sub": "HCM City metro area",
+    "trustBadge2Label": "Quality guaranteed",
+    "trustBadge2Sub": "Strict batch inspection",
+    "trustBadge3Label": "100% fresh & clean",
+    "trustBadge3Sub": "No preservatives"
   },
   "LoginPage": {
     "title": "Sign In",

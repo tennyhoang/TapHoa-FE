@@ -160,7 +160,7 @@ export function Header() {
                 <div className="relative">
                   <ShoppingCart className="h-5 w-5" />
                   {mounted && cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-[oklch(0.60_0.22_25)] text-white text-[10px] font-bold rounded-full h-4 min-w-4 px-0.5 flex items-center justify-center leading-none">
+                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-0.5 flex items-center justify-center leading-none">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -175,12 +175,12 @@ export function Header() {
                   <div className="relative">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-teal-500 text-white text-[10px] font-bold rounded-full h-4 min-w-4 px-0.5 flex items-center justify-center leading-none">
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-0.5 flex items-center justify-center leading-none">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
                     )}
                   </div>
-                  <span className="text-[9px] hidden sm:block mt-0.5 font-medium">Thông báo</span>
+                  <span className="text-[9px] hidden sm:block mt-0.5 font-medium">{t('notifications')}</span>
                 </button>
               </Link>
             )}
@@ -233,9 +233,9 @@ export function Header() {
                     >
                       <Bell className="mr-2 h-4 w-4" />
                       <span className="flex items-center gap-2">
-                        Thông báo
+                        {t('notifications')}
                         {unreadCount > 0 && (
-                          <span className="text-[10px] font-bold bg-teal-100 text-teal-700 rounded-full px-1.5 py-0.5 leading-none">
+                          <span className="text-[10px] font-bold bg-primary/15 text-primary rounded-full px-1.5 py-0.5 leading-none">
                             {unreadCount}
                           </span>
                         )}

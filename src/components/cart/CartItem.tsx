@@ -51,7 +51,7 @@ export function CartItem({ item, onUpdate, onRemove, updating, removing }: Props
           <button
             onClick={() => onRemove(item.productId)}
             disabled={busy}
-            className="shrink-0 w-6 h-6 rounded-full bg-muted hover:bg-red-100 hover:text-red-500 flex items-center justify-center text-muted-foreground disabled:opacity-40 transition-colors"
+            className="shrink-0 w-6 h-6 rounded-full bg-muted hover:bg-destructive/10 hover:text-destructive flex items-center justify-center text-muted-foreground disabled:opacity-40 transition-colors"
             aria-label="Xóa sản phẩm"
           >
             <X className="h-3.5 w-3.5" />

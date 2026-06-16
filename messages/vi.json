@@ -53,7 +53,8 @@
     "driver": "Cổng Tài xế",
     "login": "Đăng nhập",
     "register": "Đăng ký",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "notifications": "Thông báo"
   },
   "Format": {
     "orderStatus": {
@@ -162,6 +163,12 @@
   "InterBanner": {
     "defaultCta": "Xem ngay"
   },
+  "ProductSection": {
+    "eyebrow": "Sản phẩm",
+    "viewAll": "Xem tất cả",
+    "viewAllTitle": "Xem tất cả {title}",
+    "empty": "Chưa có sản phẩm"
+  },
   "HomePage": {
     "newArrivalsTitle": "Hàng mới về",
     "newArrivalsSubtitle": "Thu hoạch sáng — có mặt tại Hub trong ngày",
@@ -176,7 +183,13 @@
     "banner2Badge": "Tiết kiệm mỗi ngày",
     "banner2Title": "Thực phẩm tươi sống chất lượng",
     "banner2Sub": "Thịt, cá, trứng, sữa — tươi ngon, nhận nhanh tại Hub gần nhà bạn.",
-    "banner2Cta": "Xem giá tốt"
+    "banner2Cta": "Xem giá tốt",
+    "trustBadge1Label": "Giao trong ngày",
+    "trustBadge1Sub": "Nội thành TP.HCM",
+    "trustBadge2Label": "Đảm bảo chất lượng",
+    "trustBadge2Sub": "Kiểm tra nghiêm ngặt",
+    "trustBadge3Label": "100% tươi sạch",
+    "trustBadge3Sub": "Không hóa chất"
   },
   "LoginPage": {
     "title": "Đăng nhập",

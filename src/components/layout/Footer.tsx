@@ -154,15 +154,15 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-5 text-sm tracking-wide">Chính sách</h3>
             <ul className="space-y-3 text-sm">
               {[
-                'Chính sách đổi trả',
-                'Chính sách bảo mật',
-                'Chính sách vận chuyển',
-                'Điều khoản sử dụng',
-                'Câu hỏi thường gặp',
-              ].map(label => (
-                <li key={label}>
-                  <Link href="/lien-he" className="transition-colors hover:text-white">
-                    {label}
+                { label: 'Chính sách đổi trả', href: '/chinh-sach/doi-tra' },
+                { label: 'Chính sách bảo mật', href: '/chinh-sach/bao-mat' },
+                { label: 'Chính sách vận chuyển', href: '/chinh-sach/van-chuyen' },
+                { label: 'Điều khoản sử dụng', href: '/dieu-khoan' },
+                { label: 'Câu hỏi thường gặp', href: '/faq' },
+              ].map(item => (
+                <li key={item.label}>
+                  <Link href={item.href} className="transition-colors hover:text-white">
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -245,9 +245,13 @@ export function Footer() {
         >
           <p>© 2026 TapHoa. Tất cả quyền được bảo lưu.</p>
           <div className="flex gap-5">
-            {['Chính sách bảo mật', 'Điều khoản', 'Hỗ trợ'].map(t => (
-              <a key={t} href="#" className="hover:text-white transition-colors">
-                {t}
+            {[
+              { label: 'Chính sách bảo mật', href: '/chinh-sach/bao-mat' },
+              { label: 'Điều khoản', href: '/dieu-khoan' },
+              { label: 'Hỗ trợ', href: '/lien-he' },
+            ].map(item => (
+              <a key={item.label} href={item.href} className="hover:text-white transition-colors">
+                {item.label}
               </a>
             ))}
           </div>

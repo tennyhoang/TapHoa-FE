@@ -75,7 +75,7 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
               <span className="text-xs text-muted-foreground">Chưa có ảnh</span>
             </div>
           )}
-          <span className="absolute top-2.5 left-2.5 bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">
+          <span className="absolute top-2.5 left-2.5 bg-[var(--amber)] text-[var(--amber-dark)] text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">
             -{discountPct}%
           </span>
           {item.stockRemaining <= 0 && (
@@ -94,7 +94,7 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
 
           <div className="mt-auto space-y-1.5">
             <div className="flex items-baseline gap-1.5">
-              <span className="font-black text-base text-orange-600">
+              <span className="font-black text-base text-[var(--orange)]">
                 {formatPrice(item.flashSalePrice)}
               </span>
               <span
@@ -112,7 +112,7 @@ function FlashCard({ item }: { item: FlashSaleProduct }) {
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={`Đã bán ${stockPct}% số lượng`}
-                className="w-full h-1.5 rounded-full bg-orange-100 overflow-hidden"
+                className="w-full h-1.5 rounded-full bg-[var(--orange)]/15 overflow-hidden"
               >
                 <div
                   className="h-full rounded-full transition-all"
@@ -161,7 +161,7 @@ export function FlashSale() {
 
   if (!session) {
     return (
-      <section className="mt-6 rounded-3xl overflow-hidden bg-gradient-to-r from-orange-50 to-amber-50/40 border border-orange-100">
+      <section className="mt-6 rounded-3xl overflow-hidden bg-[var(--orange-light)] border border-[var(--orange)]/15">
         <div className="px-6 py-8 flex items-center gap-3">
           <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-sm shadow-orange-200">
             <Zap className="h-5 w-5 text-white fill-white" aria-hidden="true" />
@@ -175,7 +175,7 @@ export function FlashSale() {
   }
 
   return (
-    <section className="mt-6 rounded-3xl overflow-hidden bg-gradient-to-r from-[#fff5f0] to-[#fff8f0] border border-orange-100">
+    <section className="mt-6 rounded-3xl overflow-hidden bg-[var(--orange-light)] border border-[var(--orange)]/15">
       <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-orange-100">
         <div className="flex items-center gap-4">
           <div className="w-11 h-11 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-200 shrink-0">

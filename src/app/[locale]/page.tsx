@@ -22,10 +22,10 @@ export default async function HomePage() {
       <div className="grid grid-cols-3 gap-2 sm:gap-6 mt-4 py-4 sm:py-5 px-3 sm:px-6 border border-border/50 rounded-2xl bg-card">
         {(
           [
-            { icon: Truck, label: 'Giao trong ngày', sub: 'Nội thành TP.HCM' },
-            { icon: Shield, label: 'Đảm bảo chất lượng', sub: 'Kiểm tra nghiêm ngặt' },
-            { icon: Leaf, label: '100% tươi sạch', sub: 'Không hóa chất' },
-          ] as const
+            { icon: Truck, label: t('trustBadge1Label'), sub: t('trustBadge1Sub') },
+            { icon: Shield, label: t('trustBadge2Label'), sub: t('trustBadge2Sub') },
+            { icon: Leaf, label: t('trustBadge3Label'), sub: t('trustBadge3Sub') },
+          ]
         ).map((b, i) => (
           <div
             key={i}

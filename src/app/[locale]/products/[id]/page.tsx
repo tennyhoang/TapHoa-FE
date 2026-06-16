@@ -13,6 +13,7 @@ import {
   Truck,
   RotateCcw,
 } from 'lucide-react';
+import { StarRating } from '@/components/shared/StarRating';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -165,14 +166,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${i < Math.round(avgRating) ? 'fill-[var(--amber)] text-[var(--amber)]' : 'text-border'}`}
-                />
-              ))}
-            </div>
+            <StarRating rating={avgRating} />
             <span className="text-sm font-medium text-foreground">{avgRating.toFixed(1)}</span>
             <span className="text-sm text-muted-foreground">
               ({reviews?.length ?? product.reviewCount} đánh giá)
@@ -300,12 +294,7 @@ export default function ProductDetailPage() {
             <div className="text-center">
               <div className="text-5xl font-black text-primary">{avgRating.toFixed(1)}</div>
               <div className="flex justify-center mt-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-4 w-4 ${i < Math.round(avgRating) ? 'fill-[var(--amber)] text-[var(--amber)]' : 'text-border'}`}
-                  />
-                ))}
+                <StarRating rating={avgRating} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">{reviews.length} đánh giá</p>
             </div>
@@ -399,14 +388,7 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3.5 w-3.5 ${i < r.rating ? 'fill-[var(--amber)] text-[var(--amber)]' : 'text-border'}`}
-                      />
-                    ))}
-                  </div>
+                  <StarRating rating={r.rating} size="sm" />
                   {r.sentiment && r.sentiment !== 'Neutral' && (
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${SENTIMENT_CLASS[r.sentiment] ?? SENTIMENT_CLASS['Neutral']}`}

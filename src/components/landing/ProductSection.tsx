@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { productService } from '@/services/product.service';
 import { ProductCard } from '@/components/products/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,9 +22,11 @@ export function ProductSection({
   params,
   viewAllHref = '/products',
 }: Props) {
+  const t = useTranslations('ProductSection');
   const { data, isLoading } = useQuery({
     queryKey: [queryKey],
     queryFn: () => productService.getAll({ pageSize: 5, ...params }),
+    staleTime: 30_000,
   });
 
   return (
@@ -31,7 +34,7 @@ export function ProductSection({
       <div className="flex items-end justify-between mb-7">
         <div>
           <span className="text-[11px] font-bold text-primary uppercase tracking-[0.16em] block mb-1">
-            Sản phẩm
+            {t('eyebrow')}
           </span>
           <h2 className="font-editorial font-black text-[1.6rem] leading-tight text-foreground">
             {title}
@@ -44,7 +47,7 @@ export function ProductSection({
           href={viewAllHref}
           className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold transition-colors shrink-0 mb-1"
         >
-          Xem tất cả
+          {t('viewAll')}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
@@ -66,7 +69,7 @@ export function ProductSection({
         </div>
       ) : !data?.items.length ? (
         <div className="text-center py-14 text-muted-foreground text-sm">
-          Chưa có sản phẩm
+          {t('empty')}
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -82,7 +85,7 @@ export function ProductSection({
             href={viewAllHref}
             className="inline-flex items-center gap-2 border border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 py-2.5 rounded-full text-sm transition-all duration-200"
           >
-            Xem tất cả {title}
+            {t('viewAllTitle', { title })}
           </Link>
         </div>
       ) : null}
