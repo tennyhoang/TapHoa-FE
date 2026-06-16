@@ -51,6 +51,7 @@
     "admin": "Admin",
     "agent": "Agent Portal",
     "driver": "Driver Portal",
+    "warehouseManager": "Warehouse Manager",
     "login": "Sign In",
     "register": "Sign Up",
     "logout": "Sign Out",

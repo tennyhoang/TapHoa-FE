@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Truck,
   UserCog,
+  Building2,
   X,
   ChevronDown,
   Phone,
@@ -40,7 +41,7 @@ import { HeaderMobileMenu } from '@/components/layout/HeaderMobileMenu';
 export function Header() {
   const t = useTranslations('Header');
   const router = useRouter();
-  const { user, logout, isAuthenticated, isAdmin, isAgent, isDriver } = useAuthStore();
+  const { user, logout, isAuthenticated, isAdmin, isAgent, isDriver, isWarehouseManager } = useAuthStore();
   const { currentHub, clearHub } = useHubStore();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
@@ -274,6 +275,18 @@ export function Header() {
                         >
                           <Truck className="mr-2 h-4 w-4 text-[var(--fresh)]" />
                           <span className="text-[var(--fresh)] font-medium">{t('driver')}</span>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {isWarehouseManager() && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => router.push('/warehouse')}
+                          className="rounded-xl"
+                        >
+                          <Building2 className="mr-2 h-4 w-4 text-violet-500" />
+                          <span className="text-violet-700 font-medium">{t('warehouseManager')}</span>
                         </DropdownMenuItem>
                       </>
                     )}

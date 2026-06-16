@@ -51,6 +51,7 @@
     "admin": "Quản trị",
     "agent": "Cổng Agent",
     "driver": "Cổng Tài xế",
+    "warehouseManager": "Quản lý kho",
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "logout": "Đăng xuất",
