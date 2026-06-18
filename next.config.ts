@@ -4,11 +4,11 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
-const allowedEmbedOrigins = [
-  'https://zylova.vercel.app',
-  'https://www.zylova.com',
-  'https://zylova.com',
-].join(' ');
+// Nếu set ALLOWED_EMBED_ORIGINS trong env thì cho phép embed từ các domain đó
+// Ví dụ: ALLOWED_EMBED_ORIGINS=https://zylova.vercel.app https://www.zylova.com
+const embedOrigins = process.env.ALLOWED_EMBED_ORIGINS
+  ? `'self' ${process.env.ALLOWED_EMBED_ORIGINS}`
+  : `'self'`;
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -25,10 +25,9 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // CSP frame-ancestors takes precedence over X-Frame-Options in modern browsers
           {
             key: 'Content-Security-Policy',
-            value: `frame-ancestors 'self' ${allowedEmbedOrigins}`,
+            value: `frame-ancestors ${embedOrigins}`,
           },
         ],
       },
