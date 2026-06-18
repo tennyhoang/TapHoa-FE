@@ -4,6 +4,12 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
+const allowedEmbedOrigins = [
+  'https://zylova.vercel.app',
+  'https://www.zylova.com',
+  'https://zylova.com',
+].join(' ');
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
@@ -13,6 +19,20 @@ const nextConfig: NextConfig = {
       { protocol: 'http', hostname: '**' },
       { protocol: 'http', hostname: 'localhost', port: '5084', pathname: '/storage/**' },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // CSP frame-ancestors takes precedence over X-Frame-Options in modern browsers
+          {
+            key: 'Content-Security-Policy',
+            value: `frame-ancestors 'self' ${allowedEmbedOrigins}`,
+          },
+        ],
+      },
+    ];
   },
 };
 
