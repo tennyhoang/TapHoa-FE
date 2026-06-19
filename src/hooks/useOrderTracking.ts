@@ -15,7 +15,7 @@ export function useOrderTracking(token: string | null, orderId: string, onUpdate
     if (!token || !orderId) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE}/hubs/order-tracking?access_token=${encodeURIComponent(token)}`)
+      .withUrl(`${API_BASE}/hubs/order-tracking`, { accessTokenFactory: () => token! })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)
       .build();
