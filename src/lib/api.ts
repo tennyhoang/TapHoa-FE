@@ -23,6 +23,11 @@ api.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
+      // Don't redirect if demo auth is pending (URL params not yet processed)
+      if (typeof window !== 'undefined' && !sessionStorage.getItem('demo_auth_done')) {
+        const hasUrlToken = new URLSearchParams(window.location.search).has('access_token');
+        if (hasUrlToken) return Promise.reject(error);
+      }
       useAuthStore.getState().logout();
       localStorage.removeItem('access_token');
       delete api.defaults.headers.common['Authorization'];

@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 import api from '@/lib/api';
 
 export function DemoAuthHandler() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('access_token');
     const email = params.get('email');
@@ -18,6 +18,8 @@ export function DemoAuthHandler() {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       // Initialize auth store + middleware cookie
       useAuthStore.getState().login(email, fullName, role);
+      // Mark that demo auth is complete (so 401 interceptor doesn't redirect)
+      sessionStorage.setItem('demo_auth_done', '1');
       // Clean URL without causing reload
       const clean = window.location.pathname + window.location.hash;
       window.history.replaceState(null, '', clean);
