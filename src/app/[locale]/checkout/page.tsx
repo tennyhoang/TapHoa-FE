@@ -504,7 +504,7 @@ export default function CheckoutPage() {
               {!currentHub && (
                 <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 leading-relaxed">
                   Hub là điểm nhận hàng gần nhà bạn — thay thế giao tận nơi.{' '}
-                  <a href="/faq" className="underline hover:text-primary">Tìm hiểu thêm</a>
+                  <Link href="/faq" className="underline hover:text-primary">Tìm hiểu thêm</Link>
                 </p>
               )}
 
