@@ -7,6 +7,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Inject token from localStorage for demo auth (when cookies not available cross-site)
+if (typeof window !== 'undefined') {
+  const stored = localStorage.getItem('access_token');
+  if (stored) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
+  }
+}
+
 api.interceptors.response.use(
   res => res,
   error => {
@@ -16,6 +24,8 @@ api.interceptors.response.use(
 
     if (status === 401) {
       useAuthStore.getState().logout();
+      localStorage.removeItem('access_token');
+      delete api.defaults.headers.common['Authorization'];
       window.location.href = '/auth/login';
       return Promise.reject(error);
     }

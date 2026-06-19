@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from '@/components/ui/sonner';
 import { OrderStatusBridge } from '@/components/layout/OrderStatusBridge';
+import { DemoAuthHandler } from '@/components/layout/DemoAuthHandler';
 
 // Augment window type for Facebook SDK
 declare global {
@@ -33,6 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         {children}
+        <DemoAuthHandler />
         <OrderStatusBridge />
         <Toaster richColors position="top-right" />
       </QueryClientProvider>

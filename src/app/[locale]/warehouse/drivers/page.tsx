@@ -1,12 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Truck, CheckCircle2, XCircle, Package } from 'lucide-react';
+import { Truck, CheckCircle2, XCircle, Package, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { warehouseManagerService } from '@/services/warehouse-manager.service';
 import { WarehouseDriver } from '@/types';
 
 function DriverCard({ driver }: { driver: WarehouseDriver }) {
+  const router = useRouter();
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4">
       <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
@@ -30,12 +34,30 @@ function DriverCard({ driver }: { driver: WarehouseDriver }) {
         {driver.phoneNumber && <p className="text-xs text-gray-400">{driver.phoneNumber}</p>}
       </div>
 
-      <div className="text-right shrink-0">
-        <div className="flex items-center gap-1.5 justify-end">
-          <Package className="h-4 w-4 text-gray-400" />
-          <span className="text-sm font-bold text-gray-700">{driver.activeOrders}</span>
+      <div className="flex items-center gap-4 shrink-0">
+        <div className="text-right space-y-1">
+          <div className="flex items-center gap-1.5 justify-end">
+            <Package className="h-3.5 w-3.5 text-violet-400" />
+            <span className="text-xs font-bold text-violet-600">{driver.assignedPackedOrders}</span>
+          </div>
+          <p className="text-[11px] text-gray-400">chờ nhận</p>
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">đơn đang giao</p>
+        <div className="text-right space-y-1">
+          <div className="flex items-center gap-1.5 justify-end">
+            <Truck className="h-3.5 w-3.5 text-blue-400" />
+            <span className="text-xs font-bold text-blue-600">{driver.activeOrders}</span>
+          </div>
+          <p className="text-[11px] text-gray-400">đang giao</p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => router.push(`/warehouse/orders?status=assigned&driverId=${driver.id}`)}
+          className="text-xs h-8 gap-1.5"
+        >
+          <Eye className="h-3.5 w-3.5" />
+          Xem đơn
+        </Button>
       </div>
     </div>
   );
@@ -49,7 +71,7 @@ export default function WarehouseDriversPage() {
   });
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5 max-w-3xl">
       <h1 className="text-2xl font-bold text-gray-900">Tài xế được phân công</h1>
 
       {isLoading ? (

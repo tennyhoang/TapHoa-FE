@@ -13,7 +13,9 @@ export const warehouseManagerService = {
 
   getOrders: (
     params: {
-      status?: 'pending' | 'packed' | 'shipping';
+      status?: 'pending' | 'packed' | 'shipping' | 'assigned' | 'unassigned';
+      search?: string;
+      driverId?: string;
       page?: number;
       pageSize?: number;
     } = {}
@@ -35,6 +37,16 @@ export const warehouseManagerService = {
         packed: number;
         errors: string[];
       }>('/warehouse-manager/orders/pack-batch', { orderIds })
+      .then(r => r.data),
+
+  assignOrders: (driverId: string, orderIds: string[]): Promise<{ assigned: number; errors: string[]; driverName: string }> =>
+    api
+      .post<{ assigned: number; errors: string[]; driverName: string }>('/warehouse-manager/orders/assign', { driverId, orderIds })
+      .then(r => r.data),
+
+  unassignOrders: (orderIds: string[]): Promise<{ unassigned: number; errors: string[] }> =>
+    api
+      .post<{ unassigned: number; errors: string[] }>('/warehouse-manager/orders/unassign', { orderIds })
       .then(r => r.data),
 
   getInventory: (
