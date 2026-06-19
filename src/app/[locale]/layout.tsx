@@ -6,7 +6,6 @@ import { Providers } from '@/lib/providers';
 import { Topbar } from '@/components/landing/Topbar';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { DemoSwitcher } from '@/components/ui/DemoSwitcher';
 
 export function generateStaticParams() {
   return [{ locale: 'vi' }, { locale: 'en' }];
@@ -25,7 +24,6 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <Providers>
-        <DemoSwitcher />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-xl focus:font-semibold focus:shadow-lg focus:outline-none"
