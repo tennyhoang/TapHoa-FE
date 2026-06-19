@@ -8,10 +8,9 @@ interface AuthUser {
 }
 
 interface AuthState {
-  token: string | null;
   user: AuthUser | null;
   _hydrated: boolean;
-  login: (token: string, email: string, fullName: string, role: string) => void;
+  login: (email: string, fullName: string, role: string) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   isAdmin: () => boolean;
@@ -23,16 +22,22 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
       user: null,
       _hydrated: false,
-      login: (token, email, fullName, role) => {
-        set({ token, user: { email, fullName, role } });
+      login: (email, fullName, role) => {
+        set({ user: { email, fullName, role } });
+        // non-httpOnly cookie for Next.js middleware route protection
+        if (typeof document !== 'undefined') {
+          document.cookie = `auth-role=${role}; path=/; SameSite=Lax; max-age=${60 * 60 * 24 * 30}`;
+        }
       },
       logout: () => {
-        set({ token: null, user: null });
+        set({ user: null });
+        if (typeof document !== 'undefined') {
+          document.cookie = 'auth-role=; path=/; SameSite=Lax; max-age=0';
+        }
       },
-      isAuthenticated: () => !!get().token,
+      isAuthenticated: () => get().user !== null,
       isAdmin: () => get().user?.role === 'Admin',
       isAgent: () => get().user?.role === 'Agent',
       isDriver: () => get().user?.role === 'Driver',
@@ -40,10 +45,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: state => ({
-        token: state.token,
-        user: state.user,
-      }),
+      partialize: state => ({ user: state.user }),
       onRehydrateStorage: () => state => {
         if (state) state._hydrated = true;
       },

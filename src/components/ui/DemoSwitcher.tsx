@@ -63,7 +63,7 @@ export function DemoSwitcher() {
     setSwitching(account.role);
     try {
       const res = await authService.login(account.email, account.password);
-      login(res.accessToken, res.email, res.fullName, res.role);
+      login(res.email, res.fullName, res.role);
       router.push(account.redirect);
     } catch {
       // ignore — demo account may not exist yet

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useAdminOrderSocket } from '@/hooks/useAdminOrderSocket';
+import { authService } from '@/services/auth.service';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -78,6 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-3 border-t border-sidebar-border">
           <button
             onClick={() => {
+              authService.logout().catch(() => {});
               logout();
               router.push('/');
             }}

@@ -10,12 +10,12 @@ interface OrderStatusChangedPayload {
   status: string;
 }
 
-export function useOrderTracking(token: string | null, orderId: string, onUpdate: () => void) {
+export function useOrderTracking(isAuthenticated: boolean, orderId: string, onUpdate: () => void) {
   useEffect(() => {
-    if (!token || !orderId) return;
+    if (!isAuthenticated || !orderId) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE}/hubs/order-tracking`, { accessTokenFactory: () => token! })
+      .withUrl(`${API_BASE}/hubs/order-tracking`)
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)
       .build();
@@ -31,5 +31,5 @@ export function useOrderTracking(token: string | null, orderId: string, onUpdate
     return () => {
       connection.stop();
     };
-  }, [token, orderId, onUpdate]);
+  }, [isAuthenticated, orderId, onUpdate]);
 }

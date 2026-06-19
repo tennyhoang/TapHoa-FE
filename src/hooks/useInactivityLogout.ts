@@ -6,14 +6,14 @@ const TIMEOUT_MS = 15 * 60 * 1000;
 const WARN_MS = 60 * 1000;
 
 export function useInactivityLogout() {
-  const token = useAuthStore(state => state.token);
+  const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
   const logoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warnRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastIdRef = useRef<string | number | undefined>(undefined);
 
   useEffect(() => {
-    if (!token) return;
+    if (!user) return;
 
     const doLogout = () => {
       logout();
@@ -48,5 +48,5 @@ export function useInactivityLogout() {
       if (logoutRef.current) clearTimeout(logoutRef.current);
       if (warnRef.current) clearTimeout(warnRef.current);
     };
-  }, [token, logout]);
+  }, [user, logout]);
 }

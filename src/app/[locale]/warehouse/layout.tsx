@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, ShoppingBag, Package, Truck, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { authService } from '@/services/auth.service';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -65,6 +66,7 @@ export default function WarehouseLayout({ children }: { children: React.ReactNod
         <div className="p-3 border-t border-sidebar-border">
           <button
             onClick={() => {
+              authService.logout().catch(() => {});
               logout();
               router.push('/');
             }}

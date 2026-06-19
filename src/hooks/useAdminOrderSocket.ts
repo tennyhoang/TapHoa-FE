@@ -12,14 +12,14 @@ const HUB_URL =
 
 export function useAdminOrderSocket() {
   const queryClient = useQueryClient();
-  const { token, isAuthenticated, isAdmin } = useAuthStore();
+  const { user, isAuthenticated, isAdmin } = useAuthStore();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated() || !isAdmin() || !token) return;
+    if (!isAuthenticated() || !isAdmin()) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, { accessTokenFactory: () => token })
+      .withUrl(HUB_URL)
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
       .build();
@@ -42,5 +42,5 @@ export function useAdminOrderSocket() {
       connection.stop();
       connectionRef.current = null;
     };
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 }

@@ -41,7 +41,7 @@ export default function RegisterPage() {
     setSocialLoading(provider === 'Google' ? 'google' : 'facebook');
     try {
       const res = await authService.socialLogin(provider, token);
-      login(res.accessToken, res.email, res.fullName, res.role);
+      login(res.email, res.fullName, res.role);
       toast.success('Đăng ký / đăng nhập thành công!');
       router.push('/');
     } catch (error: unknown) {
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         data.password,
         data.phoneNumber || undefined
       )) as LoginResponse;
-      login(res.accessToken, res.email, res.fullName, res.role);
+      login(res.email, res.fullName, res.role);
       toast.success('Đăng ký thành công!');
       router.push('/');
     } catch (error: unknown) {

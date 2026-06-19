@@ -36,7 +36,7 @@ export default function LoginPage() {
     setSocialLoading('google');
     try {
       const res = await authService.socialLogin(provider, token);
-      login(res.accessToken, res.email, res.fullName, res.role);
+      login(res.email, res.fullName, res.role);
       toast.success(t('loginSuccess'));
       router.push('/');
     } catch (error: unknown) {
@@ -57,7 +57,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await authService.login(data.email, data.password);
-      login(res.accessToken, res.email, res.fullName, res.role);
+      login(res.email, res.fullName, res.role);
       toast.success(t('loginSuccess'));
       router.push('/');
     } catch (error: unknown) {

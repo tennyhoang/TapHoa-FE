@@ -19,14 +19,14 @@ const STATUS_MESSAGES: Record<string, string> = {
 
 export function useOrderStatusSocket() {
   const queryClient = useQueryClient();
-  const { token, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated() || !token) return;
+    if (!isAuthenticated()) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, { accessTokenFactory: () => token })
+      .withUrl(HUB_URL)
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
       .build();
@@ -48,5 +48,5 @@ export function useOrderStatusSocket() {
       connection.stop();
       connectionRef.current = null;
     };
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 }

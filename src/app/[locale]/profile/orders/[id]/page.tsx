@@ -130,7 +130,7 @@ function PaymentQR({ amount, paymentRef }: { amount: number; paymentRef: string 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { isAuthenticated, token, _hydrated } = useAuthStore();
+  const { isAuthenticated, _hydrated } = useAuthStore();
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
 
@@ -159,7 +159,7 @@ export default function OrderDetailPage() {
     queryClient.invalidateQueries({ queryKey: ['my-orders'] });
   }, [queryClient, id]);
 
-  useOrderTracking(mounted ? token : null, id, handleOrderUpdate);
+  useOrderTracking(mounted && isAuthenticated(), id, handleOrderUpdate);
 
   const cancelMutation = useMutation({
     mutationFn: () => orderService.cancelOrder(id),

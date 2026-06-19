@@ -6,7 +6,10 @@ export const authService = {
     api.post<LoginResponse>('/auth/login', { email, password }).then(r => r.data),
 
   register: (fullName: string, email: string, password: string, phoneNumber?: string) =>
-    api.post('/auth/register', { fullName, email, password, phoneNumber }).then(r => r.data),
+    api.post<LoginResponse>('/auth/register', { fullName, email, password, phoneNumber }).then(r => r.data),
+
+  logout: () =>
+    api.post('/auth/logout').then(r => r.data),
 
   getProfile: () =>
     api.get<UserProfile>('/users/me').then(r => r.data),

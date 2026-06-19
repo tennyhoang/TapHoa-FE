@@ -3,21 +3,15 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Upload, X, Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
-const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-
-async function uploadToCloudinary(file: File): Promise<string> {
+async function uploadToBackend(file: File): Promise<string> {
   const form = new FormData();
   form.append('file', file);
-  form.append('upload_preset', UPLOAD_PRESET);
-
-  const res = await fetch(UPLOAD_URL, { method: 'POST', body: form });
-  const data = await res.json();
-
-  if (!res.ok) throw new Error(data.error?.message ?? 'Upload thất bại');
-  return data.secure_url as string;
+  const res = await api.post<{ url: string }>('/upload/cloudinary-image', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.url;
 }
 
 interface ImageUploadProps {
@@ -35,11 +29,11 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
     setError('');
     setUploading(true);
     try {
-      const url = await uploadToCloudinary(file);
+      const url = await uploadToBackend(file);
       onChange(url);
     } catch (e: unknown) {
-      const err = e as Error;
-      setError(err?.message ?? 'Upload thất bại');
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setError(err?.response?.data?.message ?? err?.message ?? 'Upload thất bại');
     } finally {
       setUploading(false);
     }
@@ -96,7 +90,7 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
           {uploading ? (
             <>
               <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-              <p className="text-xs text-gray-500">Đang tải lên Cloudinary...</p>
+              <p className="text-xs text-gray-500">Đang tải lên...</p>
             </>
           ) : (
             <>
@@ -108,13 +102,12 @@ export function ImageUpload({ value, onChange, placeholder = 'Tải ảnh lên' 
         </div>
       )}
 
-      {/* Manual URL input — nhập đường dẫn trực tiếp, ví dụ: /products/rau-muong.jpg */}
       <div className="flex gap-2 items-center">
         <input
           type="text"
           value={value ?? ''}
           onChange={e => onChange(e.target.value)}
-          placeholder="Hoặc nhập URL trực tiếp: /products/ten-anh.jpg"
+          placeholder="Hoặc nhập URL trực tiếp"
           className="flex-1 h-8 px-3 text-xs rounded-md border border-gray-200 bg-white text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
         />
         {value && (

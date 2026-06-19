@@ -1,8 +1,8 @@
 export interface LoginResponse {
-  accessToken: string;
   email: string;
   fullName: string;
   role: string;
+  emailConfirmed?: boolean;
 }
 
 export interface UserProfile {
@@ -238,6 +238,8 @@ export interface WarehouseOrder {
   paidAt?: string;
   packedAtWarehouseAt?: string;
   note?: string;
+  assignedDriverId?: string;
+  assignedDriver?: { id: string; fullName: string; phoneNumber?: string } | null;
   hub: { id: string; name: string; address: string };
   customer: { fullName: string; phoneNumber?: string };
   items: WarehouseOrderItem[];
@@ -261,4 +263,6 @@ export interface WarehouseDriver {
   phoneNumber?: string;
   isActive: boolean;
   activeOrders: number;
+  assignedPackedOrders: number;
+  totalAssigned: number;
 }

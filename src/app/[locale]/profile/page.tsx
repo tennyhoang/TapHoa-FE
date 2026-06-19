@@ -129,7 +129,7 @@ function ChangePasswordDialog({
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, login, token, user: storeUser, _hydrated } = useAuthStore();
+  const { isAuthenticated, login, user: storeUser, _hydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [pwDialogOpen, setPwDialogOpen] = useState(false);
@@ -173,8 +173,8 @@ export default function ProfilePage() {
         avatarUrl: data.avatarUrl || undefined,
       }),
     onSuccess: updated => {
-      if (storeUser && token) {
-        login(token, storeUser.email, updated.fullName, storeUser.role);
+      if (storeUser) {
+        login(storeUser.email, updated.fullName, storeUser.role);
       }
       toast.success('Cập nhật thành công!');
       setEditMode(false);
