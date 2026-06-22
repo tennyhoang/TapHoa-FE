@@ -48,7 +48,7 @@
     "@axe-core/playwright": "^4.11.3",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -67,6 +67,6 @@
     "shadcn": "^4.7.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   }
 }
